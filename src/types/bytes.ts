@@ -1,0 +1,1 @@
+export type bytes32 = Buffer;

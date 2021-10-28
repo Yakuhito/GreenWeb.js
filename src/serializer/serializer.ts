@@ -4,8 +4,8 @@
 import { propertySerializerName } from './register';
 import { IPropsType } from './interfaces';
 
-const getKeyValue = <U extends keyof T, T extends object>(key: U) => (obj: T) => obj[key];
-
+// This class is a port of the 'Streamable' class from
+// https://github.com/Chia-Network/chia-blockchain/blob/main/chia/util/streamable.py#L260
 export class Serializer {
     static serialize<T>(object: T): Buffer {
         let buf: Buffer = Buffer.from([]);
@@ -18,8 +18,7 @@ export class Serializer {
         return buf;
     }
 
-    static deserialize<T>(classType: new (...args: any[]) => T, buffer: Buffer): T {
-        let buf: Buffer = Buffer.from([])
+    static deserialize<T>(classType: new (...args: any[]) => T, buf: Buffer): T {
         const props: IPropsType = classType.prototype[propertySerializerName];
         const result = new classType();
 

@@ -8,11 +8,9 @@ export const FixedSizeBytesField = (size: number) => {
             return Buffer.concat([buf, value]);
         },
         deserialize: (buf) => {
-            const numOfBytes: number = size / 8;
-            
             return [
-                buf.slice(0, numOfBytes),
-                buf.slice(numOfBytes),
+                buf.slice(0, size),
+                buf.slice(size),
             ];
         },
     };

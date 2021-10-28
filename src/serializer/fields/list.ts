@@ -23,7 +23,7 @@ export const ListField = (field: any) => {
             if(size == 0 || fieldTyped.__serializer__ == undefined) {
                 return [[], buf];
             }
-
+            
             var arr: Array<any> = [];
             for(var i = 0; i < size; ++i) {
                 const deserializationResult: [any, Buffer] = fieldTyped.__serializer__.deserialize(buf);

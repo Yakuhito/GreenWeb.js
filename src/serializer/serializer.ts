@@ -7,12 +7,11 @@ import { IPropsType } from './interfaces';
 const getKeyValue = <U extends keyof T, T extends object>(key: U) => (obj: T) => obj[key];
 
 export class Serializer {
-    
     static serialize<T>(object: T): Buffer {
-        var buf: Buffer = Buffer.from([]);
+        let buf: Buffer = Buffer.from([]);
         const props: IPropsType = Object.getPrototypeOf(object)[propertySerializerName];
 
-        for (const prop in props) {
+        for (const prop of Object.keys(props)) {
             buf = props[prop].serialize(object[prop as keyof T], buf);
         }
 
@@ -20,13 +19,13 @@ export class Serializer {
     }
 
     static deserialize<T>(classType: new (...args: any[]) => T, buffer: Buffer): T {
-        var buf: Buffer = Buffer.from([])
+        let buf: Buffer = Buffer.from([])
         const props: IPropsType = classType.prototype[propertySerializerName];
         const result = new classType();
 
-        for (const prop in props) {
+        for (const prop of Object.keys(props)) {
             const deserializationResult: [any, Buffer] = props[prop].deserialize(buf);
-            
+
             result[prop as keyof typeof result] = deserializationResult[0];
             buf = deserializationResult[1];
         }

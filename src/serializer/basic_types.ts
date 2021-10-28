@@ -1,6 +1,6 @@
 // boolean = boolean
 export type bytes = Buffer;
-// list = Array<any>
+// list = Array<any> / any[]
 export type Optional<T> = T | null;
 // string = string
 // touple = [...types: any]

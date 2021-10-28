@@ -1,7 +1,7 @@
 // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/util/streamable.py#L260
 
 // function parse_bool(buf: Buffer) : [boolean, Buffer] {
-    
+
 // }
 
 // function parse_uint32(buf: Buffer, byteorder: "big"|"little" = "big"): [uint32, Buffer] {

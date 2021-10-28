@@ -1,6 +1,6 @@
 import { buildField } from "../register";
 import { FieldSerializer, ObjectWithSerializer } from '../interfaces';
-import { uint32 } from "../basic_types";
+import { uint } from "../basic_types";
 
 export const ListField = (field: any) => {
     const fieldTyped: ObjectWithSerializer = field;
@@ -18,7 +18,7 @@ export const ListField = (field: any) => {
             return Buffer.concat([buf, buf2, buf3]);
         },
         deserialize: (buf) => {
-            const size: uint32 = buf.readUInt32BE();
+            const size: uint = buf.readUInt32BE();
             buf = buf.slice(4);
             if(size == 0 || fieldTyped.__serializer__ == undefined) {
                 return [[], buf];

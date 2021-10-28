@@ -1,6 +1,5 @@
 import { buildField } from "../register";
 import { FieldSerializer, ObjectWithSerializer } from '../interfaces';
-import { uint32 } from "../basic_types";
 
 export const TupleField = (fields: [...types: any]) => {
     const serializer: FieldSerializer<[...types: any]> = {

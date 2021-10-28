@@ -7,14 +7,14 @@ export const OptionalField = (field: Optional<any>) => {
 
     const serializer: FieldSerializer<Optional<any>> = {
         serialize: (value, buf) => {
-            const buf2: Buffer = Buffer.from([0]);
+            let buf2: Buffer = Buffer.from([0]);
             if(value == null || fieldTyped.__serializer__ == undefined) {
                 return Buffer.concat([buf, buf2]);
             }
 
             buf2.writeUInt8(1);
-            const buf3: Buffer = fieldTyped.__serializer__.serialize(value, buf);
-            return Buffer.concat([buf, buf2, buf3]);
+            buf2 = fieldTyped.__serializer__.serialize(value, buf2);
+            return Buffer.concat([buf, buf2]);
         },
         deserialize: (buf) => {
             const containsAnything: boolean = buf.readUInt8() > 0;

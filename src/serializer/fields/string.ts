@@ -1,7 +1,7 @@
 import { buildField } from "../register";
 import { uint32 } from "../basic_types";
 
-export const BytesField = buildField<string>({
+export const StringField = buildField<string>({
     serialize: (value, buf) => {
         const buf2 : Buffer = Buffer.alloc(4);
         const buf3 : Buffer = Buffer.from(value);

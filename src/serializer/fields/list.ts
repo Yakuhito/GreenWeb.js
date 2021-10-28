@@ -11,7 +11,8 @@ export const ListField = (field: any) => {
             buf2.writeUInt32BE(value.length);
 
             var buf3: Buffer = Buffer.from([]);
-            for(let item in value) {
+            for(var i = 0; i < value.length; ++i) {
+                const item: any = value[i];
                 buf3 = fieldTyped.__serializer__!.serialize(item, buf3);
             }
             return Buffer.concat([buf, buf2, buf3]);

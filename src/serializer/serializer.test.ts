@@ -5,8 +5,8 @@ import { Serializer } from "./serializer";
 
 class TestClass {
     @fields.Boolean() someBool: boolean = true;
-    @fields.Bytes() someBytes: bytes = Buffer.from([0x13, 0x33, 0x33, 0x37]);
-    @fields.FixedSizeBytes(4) someOtherBytes = Buffer.from([0x24, 0x44, 0x44, 0x48]);
+    @fields.VariableSizeBytes() someBytes: bytes = Buffer.from([0x13, 0x33, 0x33, 0x37]);
+    @fields.Bytes(4) someOtherBytes = Buffer.from([0x24, 0x44, 0x44, 0x48]);
     @fields.List(fields.Uint(32)) uint32Array: uint[] = [1, 2, 3, 4];
     @fields.Optional(fields.String()) totallyOptionalString: Optional<string> = "message";
     @fields.Tuple([fields.Uint(32), fields.String()]) tupleThing: [uint, string] = [1, "Hello World!"];

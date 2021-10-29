@@ -4,7 +4,7 @@ import { fields } from "../serializer";
 import { uint, bytes } from "../serializer/basic_types";
 
 export class Coin {
-    @fields.FixedSizeBytes(32) parent_coin_info: bytes;
-    @fields.FixedSizeBytes(32) puzzle_hash: bytes;
+    @fields.Bytes(32) parent_coin_info: bytes;
+    @fields.Bytes(32) puzzle_hash: bytes;
     @fields.Uint(64) amount: uint;
 }

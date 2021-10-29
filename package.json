@@ -14,7 +14,7 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "nyc mocha -r ts-node/register src/*.test.ts src/**/*.test.ts",
+    "test": "nyc mocha -r ts-node/register src/*.test.ts src/**/*.test.ts --timeout 30000",
     "prepare": "rm -rf dist && npm run build"
   },
   "repository": {
@@ -36,6 +36,7 @@
     "@testdeck/mocha": "^0.1.2",
     "@types/ws": "^8.2.0",
     "nyc": "^15.1.0",
-    "ts-mockito": "^2.6.1"
+    "ts-mockito": "^2.6.1",
+    "ws": "^8.2.3"
   }
 }

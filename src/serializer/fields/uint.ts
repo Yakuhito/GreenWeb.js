@@ -5,8 +5,12 @@ import { uint } from "../basic_types";
 export const UintField = (size: number) => {
     const serializer: FieldSerializer<uint> = {
         serialize: (value, buf) => {
-            var buf2 : Buffer = Buffer.alloc(size / 8);
-            buf2.writeUInt32BE(value);
+            var s: string = value.toString(16);
+            if(s.length < size / 4) {
+                var diff: number = size / 4 - s.length;
+                s = "0".repeat(diff) + s;
+            }
+            const buf2 : Buffer = Buffer.from(s, "hex");
             return Buffer.concat([buf, buf2]);
         },
         deserialize: (buf) => {

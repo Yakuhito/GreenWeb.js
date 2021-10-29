@@ -10,4 +10,8 @@ export class Queue<T> {
     pop(): T | undefined {
         return this._store.shift();
     }
+
+    size(): number {
+        return this._store.length;
+    }
 }

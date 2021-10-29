@@ -1,11 +1,11 @@
 // https://github.com/freddiecoleman/chia-network-scanner/blob/main/MessageChannel.ts
 
 import WebSocket from 'ws';
-import { bytes } from "src/serializer/basic_types";
-import { make_msg, NodeType } from "../types/outbound_message";
-import { ProtocolMessageTypes } from "../types/protocol_message_types";
-import { Capability, Handshake, protocol_version } from "../types/shared_protocol";
-import { getSoftwareVersion } from "../util/software_version";
+import { bytes } from "../../serializer/basic_types";
+import { make_msg, NodeType } from "../../types/outbound_message";
+import { ProtocolMessageTypes } from "../../types/protocol_message_types";
+import { Capability, Handshake, protocol_version } from "../../types/shared_protocol";
+import { getSoftwareVersion } from "../../util/software_version";
 import { CHIA_CERT, CHIA_KEY } from "./chia_ssl";
 
 export interface ChiaMessageChannelOptions {

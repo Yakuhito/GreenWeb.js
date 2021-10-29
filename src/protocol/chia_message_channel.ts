@@ -6,6 +6,7 @@ import { make_msg, NodeType } from "../types/outbound_message";
 import { ProtocolMessageTypes } from "../types/protocol_message_types";
 import { Capability, Handshake, protocol_version } from "../types/shared_protocol";
 import { getSoftwareVersion } from "../util/software_version";
+import { CHIA_CERT, CHIA_KEY } from "./chia_ssl";
 
 export interface ChiaMessageChannelOptions {
     host: string;
@@ -18,6 +19,8 @@ export class ChiaMessageChannel {
     private readonly port: number;
     private readonly host: string;
     private readonly onMessage: (message: Buffer) => void;
+    private readonly cert: Buffer;
+    private readonly key: Buffer;
     private inboundDataBuffer: Buffer = Buffer.from([]);
 
     constructor({host, port, onMessage}: ChiaMessageChannelOptions) {
@@ -35,8 +38,12 @@ export class ChiaMessageChannel {
 
         return new Promise(resolve => {
             this.ws = new WebSocket(url, {
-                rejectUnauthorized: false
+                rejectUnauthorized: false,
+                cert: CHIA_CERT,
+                key: CHIA_KEY
             });
+            // --------------------------------------------------------------------------------
+            console.log("new websocket");
             this.ws.on('message', (data: Buffer): void => this.messageHandler(data));
             this.ws.on('error', (err: Error): void => this.onClose(err));
             this.ws.on('close', (_, reason) => this.onClose(new Error(reason.toString())));
@@ -49,6 +56,7 @@ export class ChiaMessageChannel {
     }
 
     public sendMessage(message: Buffer): void {
+        console.log("Send message: " + message.toString("hex")); // ---------------------------------------
         this.ws?.send(message);
     }
 

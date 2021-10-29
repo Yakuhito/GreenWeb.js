@@ -39,9 +39,9 @@ export class ChiaNodeClient {
             handshake
         );
 
-        new WebSocket(this.full_node_url, {
+        /*new WebSocket(this.full_node_url, {
             rejectUnauthorized: false
-        });
+        });*/
 
         await new Promise<void>((resolve, reject) => {
             const timer = setInterval(() => {

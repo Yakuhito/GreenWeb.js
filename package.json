@@ -14,7 +14,8 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "nyc mocha -r ts-node/register src/*.test.ts src/**/*.test.ts",
+    "test": "nyc mocha -r ts-node/register src/**/*.test.ts",
+    "test-types": "nyc mocha -r ts-node/register src/types/*.test.ts",
     "prepare": "rm -rf dist && npm run build"
   },
   "repository": {

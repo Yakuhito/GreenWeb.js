@@ -11,7 +11,7 @@ export class TransactionsInfo {
     @fields.Bytes(96) aggregated_signature: bytes; // G2Element
     @fields.Uint(64) fees: uint;
     @fields.Uint(64) cost: uint;
-    @fields.List(Coin) reward_claims_incorporated: Coin[];
+    @fields.List(fields.Object(Coin)) reward_claims_incorporated: Coin[];
 }
 
 
@@ -27,7 +27,7 @@ export class FoliageTransactionBlock {
 
 export class FoliageBlockData {
     @fields.Bytes(32) unfinished_reward_block_hash: bytes;
-    pool_target: PoolTarget;
+    @fields.Object(PoolTarget) pool_target: PoolTarget;
     @fields.Optional(fields.Bytes(96)) pool_signature: Optional<bytes>; // Optional<G2Element>
     @fields.Bytes(32) farmer_reward_puzzle_hash: bytes;
     @fields.Bytes(32) extension_data: bytes;
@@ -37,7 +37,7 @@ export class FoliageBlockData {
 export class Foliage {
     @fields.Bytes(32) prev_block_hash: bytes;
     @fields.Bytes(32) reward_block_hash: bytes;
-    foliage_block_data: FoliageBlockData;
+    @fields.Object(FoliageBlockData) foliage_block_data: FoliageBlockData;
     @fields.Bytes(96) foliage_block_data_signature: bytes; // G2Element
     @fields.Optional(fields.Bytes(32)) foliage_transaction_block_hash: Optional<bytes>;
     @fields.Optional(fields.Bytes(96)) foliage_transaction_block_signature: Optional<bytes>; // Optional<G2Element>

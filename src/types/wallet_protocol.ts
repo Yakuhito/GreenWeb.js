@@ -21,7 +21,7 @@ export class PuzzleSolutionResponse {
 
 
 export class RespondPuzzleSolution {
-    response: PuzzleSolutionResponse
+    @fields.Object(PuzzleSolutionResponse) response: PuzzleSolutionResponse
 }
 
 
@@ -32,7 +32,7 @@ export class RejectPuzzleSolution {
 
 
 export class SendTransaction {
-    transaction: SpendBundle;
+    @fields.Object(SpendBundle) transaction: SpendBundle;
 }
 
 
@@ -57,7 +57,7 @@ export class RequestBlockHeader {
 
 
 export class RespondBlockHeader {
-    header_block: HeaderBlock;
+    @fields.Object(HeaderBlock) header_block: HeaderBlock;
 }
 
 
@@ -76,7 +76,7 @@ export class RequestRemovals {
 export class RespondRemovals {
     @fields.Uint(32) height: uint;
     @fields.Bytes(32) header_hash: bytes;
-    @fields.List(fields.Tuple([fields.Bytes(32), fields.Optional(Coin)])) coins: [bytes, Optional<Coin>][];
+    @fields.List(fields.Tuple([fields.Bytes(32), fields.Optional(fields.Object(Coin))])) coins: [bytes, Optional<Coin>][];
     @fields.Optional(fields.List(fields.Tuple([fields.Bytes(32), fields.VariableSizeBytes()]))) proofs: Optional<[bytes, bytes][]>;
 }
 
@@ -97,7 +97,7 @@ export class RequestAdditions {
 export class RespondAdditions {
     @fields.Uint(32) height: uint;
     @fields.Bytes(32) header_hash: bytes;
-    @fields.List(fields.Tuple([fields.Bytes(32), fields.List(Coin)])) coins: [bytes, Coin[]][];
+    @fields.List(fields.Tuple([fields.Bytes(32), fields.List(fields.Object(Coin))])) coins: [bytes, Coin[]][];
     @fields.Optional(fields.List(fields.Tuple([fields.Bytes(32), fields.VariableSizeBytes(), fields.Optional(fields.VariableSizeBytes())]))) proofs: Optional<[bytes, bytes, Optional<bytes>][]>;
 }
 
@@ -123,7 +123,7 @@ export class RejectHeaderBlocks {
 export class RespondHeaderBlocks {
     @fields.Uint(32) start_height: uint;
     @fields.Uint(32) end_height: uint;
-    @fields.List(HeaderBlock) header_blocks: HeaderBlock[];
+    @fields.List(fields.Object(HeaderBlock)) header_blocks: HeaderBlock[];
 }
 
 
@@ -143,7 +143,7 @@ export class RegisterForPhUpdates {
 export class RespondToPhUpdates {
     @fields.List(fields.Bytes(32)) puzzle_hashes: bytes[];
     @fields.Uint(32) min_height: uint;
-    @fields.List(CoinState) coin_states: CoinState[];
+    @fields.List(fields.Object(CoinState)) coin_states: CoinState[];
 }
 
 
@@ -156,7 +156,7 @@ export class RegisterForCoinUpdates {
 export class RespondToCoinUpdates {
     @fields.List(fields.Bytes(32)) coin_ids: bytes[];
     @fields.Uint(32) min_height: uint;
-    @fields.List(CoinState) coin_states: CoinState[];
+    @fields.List(fields.Object(CoinState)) coin_states: CoinState[];
 }
 
 
@@ -164,7 +164,7 @@ export class CoinStateUpdate {
     @fields.Uint(32) height: uint;
     @fields.Uint(32) fork_height: uint;
     @fields.Bytes(32) peak_hash: bytes;
-    @fields.List(CoinState) items: CoinState[];
+    @fields.List(fields.Object(CoinState)) items: CoinState[];
 }
 
 

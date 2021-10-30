@@ -11,13 +11,13 @@ export class RewardChainBlock {
     @fields.Uint(128) total_iters: uint;
     @fields.Uint(8) signage_point_index: uint;
     @fields.Bytes(32) pos_ss_cc_challenge_hash: bytes;
-    proof_of_space: ProofOfSpace;
-    @fields.Optional(VDFInfo) challenge_chain_sp_vdf: Optional<VDFInfo>;
+    @fields.Object(ProofOfSpace) proof_of_space: ProofOfSpace;
+    @fields.Optional(fields.Object(VDFInfo)) challenge_chain_sp_vdf: Optional<VDFInfo>;
     @fields.Bytes(96) challenge_chain_sp_signature: bytes; // G2Element
-    challenge_chain_ip_vdf: VDFInfo;
-    @fields.Optional(VDFInfo) reward_chain_sp_vdf: Optional<VDFInfo>;
+    @fields.Object(VDFInfo) challenge_chain_ip_vdf: VDFInfo;
+    @fields.Optional(fields.Object(VDFInfo)) reward_chain_sp_vdf: Optional<VDFInfo>;
     @fields.Bytes(96) reward_chain_sp_signature: bytes; // G2Element
-    reward_chain_ip_vdf: VDFInfo;
-    @fields.Optional(VDFInfo) infused_challenge_chain_ip_vdf: Optional<VDFInfo>;
+    @fields.Object(VDFInfo) reward_chain_ip_vdf: VDFInfo;
+    @fields.Optional(fields.Object(VDFInfo)) infused_challenge_chain_ip_vdf: Optional<VDFInfo>;
     @fields.Boolean() is_transaction_block: boolean;
 }

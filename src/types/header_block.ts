@@ -9,14 +9,14 @@ import { Foliage, FoliageTransactionBlock, TransactionsInfo } from "./foliage";
 
 export class HeaderBlock {
     @fields.List(EndOfSubSlotBundle) finished_sub_slots: EndOfSubSlotBundle[];
-    reward_chain_block: RewardChainBlock;
-    @fields.Optional(VDFProof) challenge_chain_sp_proof: Optional<VDFProof>;
-    challenge_chain_ip_proof: VDFProof;
-    @fields.Optional(VDFProof) reward_chain_sp_proof: Optional<VDFProof>;
-    reward_chain_ip_proof: VDFProof
-    @fields.Optional(VDFProof) infused_challenge_chain_ip_proof: Optional<VDFProof>;
-    foliage: Foliage;
-    @fields.Optional(FoliageTransactionBlock) foliage_transaction_block: Optional<FoliageTransactionBlock>;
+    @fields.Object(RewardChainBlock) reward_chain_block: RewardChainBlock;
+    @fields.Optional(fields.Object(VDFProof)) challenge_chain_sp_proof: Optional<VDFProof>;
+    @fields.Object(VDFProof) challenge_chain_ip_proof: VDFProof;
+    @fields.Optional(fields.Object(VDFProof)) reward_chain_sp_proof: Optional<VDFProof>;
+    @fields.Object(VDFProof) reward_chain_ip_proof: VDFProof
+    @fields.Optional(fields.Object(VDFProof)) infused_challenge_chain_ip_proof: Optional<VDFProof>;
+    @fields.Object(Foliage) foliage: Foliage;
+    @fields.Optional(fields.Object(FoliageTransactionBlock)) foliage_transaction_block: Optional<FoliageTransactionBlock>;
     @fields.VariableSizeBytes() transactions_filter: bytes;
-    @fields.Optional(TransactionsInfo) transactions_info: Optional<TransactionsInfo>;
+    @fields.Optional(fields.Object(TransactionsInfo)) transactions_info: Optional<TransactionsInfo>;
 }

@@ -5,7 +5,7 @@ import { bytes } from "../serializer/basic_types";
 import { Coin } from "./coin";
 
 export class CoinSpend {
-    coin: Coin;
-    @fields.Bytes() puzzle_reveal: bytes;;
-    @fields.Bytes() solution: bytes;
+    @fields.Object(Coin) coin: Coin;
+    @fields.VariableSizeBytes() puzzle_reveal: bytes;;
+    @fields.VariableSizeBytes() solution: bytes;
 }

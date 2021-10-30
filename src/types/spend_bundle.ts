@@ -4,6 +4,6 @@ import { bytes } from "../serializer/basic_types";
 import { CoinSpend } from "./coin_spend";
 
 export class SpendBundle {
-    @fields.List(CoinSpend) coin_spends: CoinSpend[];
-    @fields.FixedSizeBytes(96) aggregated_signature: bytes;
+    @fields.List(fields.Object(CoinSpend)) coin_spends: CoinSpend[];
+    @fields.Bytes(96) aggregated_signature: bytes;
 }

@@ -2,6 +2,7 @@ import { BooleanField } from './boolean';
 import { VariableSizeBytesField } from './variable_size_bytes'
 import { BytesField } from './bytes';
 import { ListField } from './list';
+import { ObjectField } from './object';
 import { OptionalField } from './optional';
 import { StringField } from './string';
 import { TupleField } from './tuple';
@@ -11,6 +12,7 @@ export default {
     Boolean: BooleanField,
     Bytes: BytesField,
     List: ListField,
+    Object: ObjectField,
     Optional: OptionalField,
     String: StringField,
     Tuple: TupleField,

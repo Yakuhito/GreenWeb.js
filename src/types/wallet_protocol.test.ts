@@ -6,6 +6,37 @@ import { Coin } from './coin';
 import { CoinSpend } from './coin_spend';
 import { SExp, KEYWORD_TO_ATOM, h, t } from "clvm";
 
+/*
+from chia.util.streamable import Streamable, streamable
+from chia.util.ints import uint8, uint32, uint128
+from chia.types.blockchain_format.sized_bytes import bytes4
+from typing import List, Optional, Tuple
+from dataclasses import dataclass
+from chia.protocols.wallet_protocol import SendTransaction
+from chia.types.coin_solution import CoinSolution
+from chia.types.spend_bundle import SpendBundle
+from blspy import AugSchemeMPL
+from chia.types.blockchain_format.coin import Coin
+from clvm import SExp
+from clvm.operators import (OPERATOR_LOOKUP, KEYWORD_TO_ATOM)
+from chia.types.blockchain_format.program import SerializedProgram
+
+# TODO: Update the 'chia' package (CoinSolution -> CoinSpend)
+
+dummy_coin = Coin(bytes.fromhex("01" * 32), bytes.fromhex("02" * 32), 1.37  * 1000000000000)
+def h(val):
+	return int(val.hex(), 16)
+plus = h(KEYWORD_TO_ATOM["+"])
+q = h(KEYWORD_TO_ATOM["q"])
+puzzle_reveal = SerializedProgram.from_bytes(SExp.to([plus, 1, (q, 175)]).as_bin())
+solution = SerializedProgram.from_bytes(SExp.to(25).as_bin())
+coin_solution = CoinSolution(dummy_coin, puzzle_reveal, solution)
+agg_sig = AugSchemeMPL.aggregate([])
+spend_bundle = SpendBundle([coin_solution,], agg_sig)
+
+print(bytes(spend_bundle).hex())
+*/
+
 it('Serializer.serialize() - SendTransaction', () => {
     const expectedOutput: string = "00000001010101010101010101010101010101010101010101010101010101010101010102020202020202020202020202020202020202020202020202020202020202020000013efa5d0400ff10ff01ffff018200af8019c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
     const dummy_coin: Coin = new Coin();

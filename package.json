@@ -16,6 +16,7 @@
     "build": "tsc",
     "test": "nyc mocha -r ts-node/register src/**/*.test.ts",
     "test-types": "nyc mocha -r ts-node/register src/types/*.test.ts",
+    "test-clvm": "nyc mocha -r ts-node/register src/clvm/*.test.ts",
     "prepare": "rm -rf dist && npm run build"
   },
   "repository": {
@@ -34,8 +35,11 @@
   },
   "homepage": "https://github.com/Yakuhito/greenweb.js#readme",
   "dependencies": {
+    "@chiamine/bls-signatures": "^0.2.1-beta.2",
     "@testdeck/mocha": "^0.1.2",
     "@types/ws": "^8.2.0",
+    "clvm": "^1.0.8",
+    "jscrypto": "^1.0.2",
     "nyc": "^15.1.0",
     "ts-mockito": "^2.6.1",
     "ws": "^8.2.3"

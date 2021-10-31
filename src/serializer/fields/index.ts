@@ -7,6 +7,7 @@ import { OptionalField } from './optional';
 import { StringField } from './string';
 import { TupleField } from './tuple';
 import { UintField } from './uint';
+import { SExpField } from './sexp';
 
 export default {
     Boolean: BooleanField,
@@ -17,5 +18,6 @@ export default {
     String: StringField,
     Tuple: TupleField,
     Uint: UintField,
-    VariableSizeBytes: VariableSizeBytesField
+    VariableSizeBytes: VariableSizeBytesField,
+    SExp: SExpField,
 };

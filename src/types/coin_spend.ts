@@ -3,9 +3,10 @@
 import { fields } from "../serializer";
 import { bytes } from "../serializer/basic_types";
 import { Coin } from "./coin";
+import { SExp } from "clvm";
 
 export class CoinSpend {
     @fields.Object(Coin) coin: Coin;
-    @fields.VariableSizeBytes() puzzle_reveal: bytes;;
-    @fields.VariableSizeBytes() solution: bytes;
+    @fields.SExp() puzzle_reveal: SExp;
+    @fields.SExp() solution: SExp;
 }

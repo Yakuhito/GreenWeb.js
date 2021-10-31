@@ -5,6 +5,7 @@ import { uint, bytes, Optional } from "../serializer/basic_types";
 import { SpendBundle } from "./spend_bundle";
 import { Coin } from "./coin";
 import { HeaderBlock } from "./header_block";
+import { SExp } from "clvm";
 
 export class RequestPuzzleSolution {
     @fields.Bytes(32) coin_name: bytes;
@@ -15,8 +16,8 @@ export class RequestPuzzleSolution {
 export class PuzzleSolutionResponse {
     @fields.Bytes(32) coin_name: bytes;
     @fields.Uint(32) height: uint;
-    @fields.VariableSizeBytes() puzzle: bytes;
-    @fields.VariableSizeBytes() solution: bytes;
+    @fields.SExp() puzzle: SExp;
+    @fields.SExp() solution: SExp;
 }
 
 

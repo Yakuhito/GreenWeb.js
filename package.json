@@ -15,7 +15,7 @@
   "scripts": {
     "build": "tsc",
     "test": "nyc mocha -r ts-node/register src/**/*.test.ts",
-    "test-types": "nyc mocha -r ts-node/register src/types/*.test.ts",
+    "test-chia-thing": "nyc mocha -r ts-node/register src/providers/test_lib.ts --timeout 600000",
     "prepare": "rm -rf dist && npm run build"
   },
   "repository": {

@@ -129,7 +129,7 @@ export class RespondHeaderBlocks {
 
 
 export class CoinState {
-    coin: Coin;
+    @fields.Object(Coin) coin: Coin;
     @fields.Optional(fields.Uint(32)) spent_height: Optional<uint>;
     @fields.Optional(fields.Uint(32)) created_height: Optional<uint>;
 }
@@ -175,7 +175,7 @@ export class RequestChildren {
 
 
 export class RespondChildren {
-    @fields.List(CoinState) coin_states: CoinState[];
+    @fields.List(fields.Object(CoinState)) coin_states: CoinState[];
 }
 
 

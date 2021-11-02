@@ -33,7 +33,7 @@ export enum Delivery {
 export class Message {
     @fields.Uint(8) type: uint;
     @fields.Optional(fields.Uint(16)) id: Optional<uint>;
-    @fields.VariableSizeBytes() data: bytes;
+    @fields.Bytes() data: bytes;
 }
 
 export function make_msg(msg_type: ProtocolMessageTypes, data: any): bytes {

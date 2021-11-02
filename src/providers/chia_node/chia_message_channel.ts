@@ -19,8 +19,6 @@ export class ChiaMessageChannel {
     private readonly port: number;
     private readonly host: string;
     private readonly onMessage: (message: Buffer) => void;
-    private readonly cert: Buffer;
-    private readonly key: Buffer;
     private inboundDataBuffer: Buffer = Buffer.from([]);
 
     constructor({host, port, onMessage}: ChiaMessageChannelOptions) {
@@ -42,8 +40,6 @@ export class ChiaMessageChannel {
                 cert: CHIA_CERT,
                 key: CHIA_KEY
             });
-            // --------------------------------------------------------------------------------
-            console.log("new websocket");
             this.ws.on('message', (data: Buffer): void => this.messageHandler(data));
             this.ws.on('error', (err: Error): void => this.onClose(err));
             this.ws.on('close', (_, reason) => this.onClose(new Error(reason.toString())));
@@ -56,7 +52,6 @@ export class ChiaMessageChannel {
     }
 
     public sendMessage(message: Buffer): void {
-        console.log("Send message: " + message.toString("hex")); // ---------------------------------------
         this.ws?.send(message);
     }
 
@@ -91,7 +86,6 @@ export class ChiaMessageChannel {
     }
 
     private onConnected(): void {
-        console.log("Connected!");
         const handshake: Handshake = new Handshake();
         handshake.network_id = "mainnet";
         handshake.protocol_version = protocol_version;

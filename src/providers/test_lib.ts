@@ -1,11 +1,15 @@
-import { ChiaMessageChannel } from "./chia_node/chia_message_channel";
-import { Message, make_msg } from "../types/outbound_message";
-import { Serializer } from "../serializer";
-import { ProtocolMessageTypes } from "../types/protocol_message_types";
-import { RegisterForPhUpdates, RequestBlockHeader, RespondToPhUpdates } from "../types/wallet_protocol";
-import { Handshake } from "../types/shared_protocol";
+import { ChiaNodeProvider } from "./chia_node";
+import { Provider } from "./provider";
 
-it('aaa', async () => {
+it('Test provider', async () => {
+    const p: Provider = new ChiaNodeProvider("chianode.test");
+    await p.initialize();
+    console.log(await p.getBlockNumber());
+
+    await new Promise( resolve => setTimeout(resolve, 600000));
+});
+
+/*it('aaa', async () => {
     var msgCh: ChiaMessageChannel = new ChiaMessageChannel({
         host: 'chianode.test',
         port: 8444,
@@ -19,7 +23,7 @@ it('aaa', async () => {
             }
             if(msg.type === ProtocolMessageTypes.respond_to_ph_update) {
                 const resp = Serializer.deserialize(RespondToPhUpdates, msg.data);
-                //console.log(resp);
+                console.log(resp);
                 console.log(resp.coin_states.length);
                 console.log(resp.coin_states[0].coin.amount);
 
@@ -30,14 +34,6 @@ it('aaa', async () => {
     });
     await msgCh.connect();
     await new Promise( resolve => setTimeout(resolve, 5000));
-
-    /*const pckt: RequestBlockHeader = new RequestBlockHeader();
-    pckt.height = 1000000;
-
-    const msg: Buffer = make_msg(
-        ProtocolMessageTypes.request_block_header,
-        pckt
-    );*/
 
     const pckt: RegisterForPhUpdates = new RegisterForPhUpdates();
     pckt.min_height = 0;
@@ -53,4 +49,4 @@ it('aaa', async () => {
     await msgCh.sendMessage(msg);
 
     await new Promise( resolve => setTimeout(resolve, 600000));
-});
+});*/

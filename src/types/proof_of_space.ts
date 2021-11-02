@@ -9,5 +9,5 @@ export class ProofOfSpace {
     @fields.Optional(fields.Bytes(32)) pool_contract_puzzle_hash: Optional<bytes>;
     @fields.Bytes(48) plot_public_key: bytes;
     @fields.Uint(8) size: uint;
-    @fields.VariableSizeBytes() proof: bytes;
+    @fields.Bytes() proof: bytes;
 }

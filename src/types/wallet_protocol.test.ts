@@ -62,3 +62,25 @@ it('Serializer.serialize() - SendTransaction', () => {
     const s: Buffer = Serializer.serialize(obj);
     assert.equal(s.toString('hex'), expectedOutput);
 });
+
+it('Serializer.deserialize() - SendTransaction', () => {
+    const input: string = "00000001010101010101010101010101010101010101010101010101010101010101010102020202020202020202020202020202020202020202020202020202020202020000013efa5d0400ff10ff01ffff018200af8019c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+    const testObj = Serializer.deserialize(
+        SendTransaction,
+        Buffer.from(input, "hex")
+    );
+
+    assert.isDefined(testObj);
+    assert.instanceOf(testObj, SendTransaction);
+    assert.equal(testObj.transaction.aggregated_signature.toString("hex"), "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+    assert.equal(testObj.transaction.coin_spends.length, 1);
+    
+    const coin_spend: CoinSpend = testObj.transaction.coin_spends[0];
+    const plus = h(KEYWORD_TO_ATOM["+"]);
+    const q = h(KEYWORD_TO_ATOM["q"]);
+    assert.equal(coin_spend.solution.toString(), SExp.to(25).toString());
+    assert.equal(coin_spend.puzzle_reveal.toString(), SExp.to([plus, 1, t(q, 175)]).toString());
+    assert.equal(coin_spend.coin.parent_coin_info.toString("hex"), "01".repeat(32));
+    assert.equal(coin_spend.coin.puzzle_hash.toString("hex"), "02".repeat(32));
+    assert.equal(coin_spend.coin.amount, 1.37  * 1000000000000);
+});

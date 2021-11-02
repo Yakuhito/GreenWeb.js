@@ -12,6 +12,6 @@ export class VDFInfo {
 
 export class VDFProof {
     @fields.Uint(8) witness_type: uint;
-    @fields.VariableSizeBytes() witness: bytes;
+    @fields.Bytes() witness: bytes;
     @fields.Boolean() normalized_to_identity: boolean;
 }

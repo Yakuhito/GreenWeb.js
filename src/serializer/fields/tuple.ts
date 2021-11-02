@@ -18,6 +18,7 @@ export const TupleField = (fields: [...types: any]) => {
                 const deserializationResult: [any, Buffer] = fieldTyped.__serializer__!.deserialize(buf);
                 const deserializedObj: any = deserializationResult[0];
                 buf = deserializationResult[1];
+                if(buf.length == 0 && i < fields.length - 1) throw new Error();
 
                 arr.push(deserializedObj);
             }

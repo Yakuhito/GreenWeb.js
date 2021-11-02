@@ -9,8 +9,13 @@ export const BooleanField = buildField<boolean>({
         return Buffer.concat([buf, buf2]);
     }, 
     deserialize: (buf) => {
+        if(buf.length == 0) throw new Error();
+
+        const val: number = buf.readUInt8();
+        if(val > 1) throw new Error();
+
         return [
-            buf.readUInt8() > 0,
+            val > 0,
             buf.slice(1),
         ];
     }

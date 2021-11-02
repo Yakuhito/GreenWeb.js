@@ -17,6 +17,6 @@ export class HeaderBlock {
     @fields.Optional(fields.Object(VDFProof)) infused_challenge_chain_ip_proof: Optional<VDFProof>;
     @fields.Object(Foliage) foliage: Foliage;
     @fields.Optional(fields.Object(FoliageTransactionBlock)) foliage_transaction_block: Optional<FoliageTransactionBlock>;
-    @fields.VariableSizeBytes() transactions_filter: bytes;
+    @fields.Bytes() transactions_filter: bytes;
     @fields.Optional(fields.Object(TransactionsInfo)) transactions_info: Optional<TransactionsInfo>;
 }

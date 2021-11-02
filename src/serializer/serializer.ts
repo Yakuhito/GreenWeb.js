@@ -24,7 +24,7 @@ export class Serializer {
 
         for (const prop of Object.keys(props)) {
             const deserializationResult: [any, Buffer] = props[prop].deserialize(buf);
-
+            
             result[prop as keyof typeof result] = deserializationResult[0];
             buf = deserializationResult[1];
         }

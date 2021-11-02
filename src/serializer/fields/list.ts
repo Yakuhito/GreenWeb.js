@@ -18,17 +18,16 @@ export const ListField = (field: any) => {
             return Buffer.concat([buf, buf2, buf3]);
         },
         deserialize: (buf) => {
+            if(buf.length < 4) throw new Error();
             const size: uint = buf.readUInt32BE();
             buf = buf.slice(4);
-            if(size == 0 || fieldTyped.__serializer__ == undefined) {
-                return [[], buf];
-            }
             
             var arr: Array<any> = [];
             for(var i = 0; i < size; ++i) {
-                const deserializationResult: [any, Buffer] = fieldTyped.__serializer__.deserialize(buf);
+                const deserializationResult: [any, Buffer] = fieldTyped.__serializer__!.deserialize(buf);
                 const deserializedObj: any = deserializationResult[0];
                 buf = deserializationResult[1];
+                if(buf.length == 0 && i != size - 1) throw new Error();
 
                 arr.push(deserializedObj);
             }

@@ -78,7 +78,7 @@ export class RespondRemovals {
     @fields.Uint(32) height: uint;
     @fields.Bytes(32) header_hash: bytes;
     @fields.List(fields.Tuple([fields.Bytes(32), fields.Optional(fields.Object(Coin))])) coins: [bytes, Optional<Coin>][];
-    @fields.Optional(fields.List(fields.Tuple([fields.Bytes(32), fields.VariableSizeBytes()]))) proofs: Optional<[bytes, bytes][]>;
+    @fields.Optional(fields.List(fields.Tuple([fields.Bytes(32), fields.Bytes()]))) proofs: Optional<[bytes, bytes][]>;
 }
 
 
@@ -99,7 +99,7 @@ export class RespondAdditions {
     @fields.Uint(32) height: uint;
     @fields.Bytes(32) header_hash: bytes;
     @fields.List(fields.Tuple([fields.Bytes(32), fields.List(fields.Object(Coin))])) coins: [bytes, Coin[]][];
-    @fields.Optional(fields.List(fields.Tuple([fields.Bytes(32), fields.VariableSizeBytes(), fields.Optional(fields.VariableSizeBytes())]))) proofs: Optional<[bytes, bytes, Optional<bytes>][]>;
+    @fields.Optional(fields.List(fields.Tuple([fields.Bytes(32), fields.Bytes(), fields.Optional(fields.Bytes())]))) proofs: Optional<[bytes, bytes, Optional<bytes>][]>;
 }
 
 

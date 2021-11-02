@@ -17,7 +17,11 @@ export const OptionalField = (field: Optional<any>) => {
             return Buffer.concat([buf, buf2]);
         },
         deserialize: (buf) => {
-            const containsAnything: boolean = buf.readUInt8() > 0;
+            if(buf.length == 0) throw new Error();
+
+            const val: number = buf.readUInt8();
+            if(val > 1) throw Error();
+            const containsAnything: boolean = val > 0;
             buf = buf.slice(1);
             if(!containsAnything || fieldTyped.__serializer__ == undefined) {
                 return [null, buf];

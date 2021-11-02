@@ -1,5 +1,4 @@
 import { BooleanField } from './boolean';
-import { VariableSizeBytesField } from './variable_size_bytes'
 import { BytesField } from './bytes';
 import { ListField } from './list';
 import { ObjectField } from './object';
@@ -18,6 +17,5 @@ export default {
     String: StringField,
     Tuple: TupleField,
     Uint: UintField,
-    VariableSizeBytes: VariableSizeBytesField,
     SExp: SExpField,
 };

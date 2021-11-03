@@ -13,7 +13,7 @@
   "version": "1.0.0",
   "main": "lib/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "npm test && tsc",
     "test": "nyc mocha -r ts-node/register src/**/*.test.ts",
     "test-chia-thing": "nyc mocha -r ts-node/register src/providers/test_lib.ts --timeout 600000",
     "prepare": "rm -rf dist && npm run build"
@@ -37,6 +37,7 @@
     "@chiamine/bls-signatures": "^0.2.1-beta.2",
     "@testdeck/mocha": "^0.1.2",
     "@types/ws": "^8.2.0",
+    "bech32": "^2.0.0",
     "clvm": "^1.0.8",
     "jscrypto": "^1.0.2",
     "nyc": "^15.1.0",

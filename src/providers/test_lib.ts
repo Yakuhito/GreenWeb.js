@@ -1,12 +1,18 @@
 import { ChiaNodeProvider } from "./chia_node";
 import { Provider } from "./provider";
+import { assert } from "chai";
 
-it('Test provider', async () => {
-    const p: Provider = new ChiaNodeProvider("chianode.test");
+const nodeHost: string = "chianode.test";
+
+it('Test provider - ' + nodeHost, async () => {
+    const p: Provider = new ChiaNodeProvider(nodeHost);
     await p.initialize();
-    console.log(await p.getBlockNumber());
 
-    await new Promise( resolve => setTimeout(resolve, 600000));
+    const blockNumber = await p.getBlockNumber();
+    assert.isTrue(blockNumber != null && blockNumber > 1000000);
+    console.log("Block number: " + blockNumber!.toString());
+
+    await p.close();
 });
 
 /*it('aaa', async () => {

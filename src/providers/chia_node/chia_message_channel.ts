@@ -12,6 +12,7 @@ export interface ChiaMessageChannelOptions {
     host: string;
     port: number;
     onMessage: (message: Buffer) => void;
+    network_id: string;
 }
 
 export class ChiaMessageChannel {
@@ -19,9 +20,10 @@ export class ChiaMessageChannel {
     private readonly port: number;
     private readonly host: string;
     private readonly onMessage: (message: Buffer) => void;
+    private readonly network_id: string;
     private inboundDataBuffer: Buffer = Buffer.from([]);
 
-    constructor({host, port, onMessage}: ChiaMessageChannelOptions) {
+    constructor({host, port, onMessage, network_id}: ChiaMessageChannelOptions) {
         this.port = port;
         this.onMessage = onMessage;
 
@@ -29,6 +31,7 @@ export class ChiaMessageChannel {
             host = "[" + host + "]"
         }
         this.host = host;
+        this.network_id = network_id;
     }
 
     public async connect(): Promise<void> {
@@ -87,7 +90,7 @@ export class ChiaMessageChannel {
 
     private onConnected(): void {
         const handshake: Handshake = new Handshake();
-        handshake.network_id = "mainnet";
+        handshake.network_id = this.network_id;
         handshake.protocol_version = protocol_version;
         handshake.software_version = getSoftwareVersion();
         handshake.server_port = this.port;

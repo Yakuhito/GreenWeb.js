@@ -1,16 +1,20 @@
 import { bech32m } from 'bech32';
 
 export class AddressUtil {
-    static puzzleHashToAddress(puzzleHash: Buffer | string, prefix: string = "xch"): string {
-        if(!(puzzleHash instanceof Buffer)) {
-            var ph: string = puzzleHash;
+    static validatePuzzleHashString(puzzleHash: string): string {
+        var ph: string = puzzleHash;
             if(ph.startsWith("0x"))
                 ph = ph.slice(2, ph.length);
                 
             if(ph.length != 64 || !(new RegExp( /^[0-9A-Fa-f]+$/ )).test(ph))
                 return "";
 
-            puzzleHash = Buffer.from(ph, "hex");
+            return ph;
+    }
+
+    static puzzleHashToAddress(puzzleHash: Buffer | string, prefix: string = "xch"): string {
+        if(!(puzzleHash instanceof Buffer)) {
+            puzzleHash = Buffer.from(AddressUtil.validatePuzzleHashString(puzzleHash), "hex");
         }
 
         if(puzzleHash.length != 32)

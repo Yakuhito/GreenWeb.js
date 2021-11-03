@@ -4,7 +4,7 @@ import { MessageQueue } from "../../util/message_queue";
 import { make_msg, Message } from "../../types/outbound_message";
 import { Serializer } from "../../serializer";
 import { ProtocolMessageTypes } from "../../types/protocol_message_types";
-import { CoinState, NewPeakWallet, RegisterForPhUpdates, RespondToPhUpdates } from "../../types/wallet_protocol";
+import { CoinState, NewPeakWallet, RegisterForPhUpdates, RespondToCoinUpdates, RespondToPhUpdates } from "../../types/wallet_protocol";
 import { AddressUtil } from "../../util/address";
 import { CoinStateStorage } from "../../util/coin_state_storage";
 
@@ -33,7 +33,10 @@ export class ChiaNodeProvider implements Provider {
             this.blockNumber = pckt.height;
         } else if(msg.type == ProtocolMessageTypes.respond_to_ph_update) {
             const pckt: RespondToPhUpdates = Serializer.deserialize(RespondToPhUpdates, msg.data);
-            this.coin_state_storage.update(pckt);
+            this.coin_state_storage.processPhPacket(pckt);
+        } else if(msg.type == ProtocolMessageTypes.respond_to_coin_update) {
+            const pckt: RespondToCoinUpdates = Serializer.deserialize(RespondToCoinUpdates, msg.data);
+            this.coin_state_storage.processCoinPacket(pckt);
         } else {
             this.message_queue.push(msg);
         }
@@ -78,7 +81,7 @@ export class ChiaNodeProvider implements Provider {
         const puzHash_str = puzHash.toString("hex");
 
         // accept packets containing that puzzle hash
-        this.coin_state_storage.listenForPuzzleHash(puzHash_str);
+        this.coin_state_storage.willExpectUpdate(puzHash_str);
 
         // Register for updates
         const pckt: RegisterForPhUpdates = new RegisterForPhUpdates();

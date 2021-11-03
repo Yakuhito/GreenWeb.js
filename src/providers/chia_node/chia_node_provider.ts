@@ -1,10 +1,10 @@
-import { Provider, Optional, getBalanceArgs } from "../provider";
+import { Provider, Optional, getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs } from "../provider";
 import { ChiaMessageChannel } from './chia_message_channel';
 import { MessageQueue } from "../../util/message_queue";
 import { make_msg, Message } from "../../types/outbound_message";
 import { Serializer } from "../../serializer";
 import { ProtocolMessageTypes } from "../../types/protocol_message_types";
-import { CoinState, NewPeakWallet, RegisterForPhUpdates, RespondToCoinUpdates, RespondToPhUpdates } from "../../types/wallet_protocol";
+import { CoinState, NewPeakWallet, RegisterForCoinUpdates, RegisterForPhUpdates, RespondToCoinUpdates, RespondToPhUpdates } from "../../types/wallet_protocol";
 import { AddressUtil } from "../../util/address";
 import { CoinStateStorage } from "../../util/coin_state_storage";
 
@@ -62,7 +62,7 @@ export class ChiaNodeProvider implements Provider {
     public async getBalance({
         address,
         puzzleHash,
-        min_height = 0
+        minHeight = 0
     }: getBalanceArgs): Promise<Optional<number>> {
         var puzHash: Buffer;
 
@@ -74,7 +74,7 @@ export class ChiaNodeProvider implements Provider {
             }
         }
         else if(puzzleHash != undefined) {
-            puzHash = Buffer.from(AddressUtil.validatePuzzleHashString(puzzleHash), "hex");
+            puzHash = Buffer.from(AddressUtil.validateHashString(puzzleHash), "hex");
         }
         else return null;
 
@@ -85,7 +85,7 @@ export class ChiaNodeProvider implements Provider {
 
         // Register for updates
         const pckt: RegisterForPhUpdates = new RegisterForPhUpdates();
-        pckt.min_height = min_height;
+        pckt.min_height = minHeight;
         pckt.puzzle_hashes = [puzHash];
 
         this.message_channel.sendMessage(
@@ -109,5 +109,51 @@ export class ChiaNodeProvider implements Provider {
         }
 
         return balance;
+    }
+
+    public subscribeToPuzzleHashUpdates({ puzzleHash, callback, minHeight = 0 }: subscribeToPuzzleHashUpdatesArgs): void {
+        puzzleHash = AddressUtil.validateHashString(puzzleHash);
+        if(puzzleHash.length == 0) return;
+
+        this.coin_state_storage.willExpectUpdate(puzzleHash);
+
+        // Register for updates
+        const pckt: RegisterForPhUpdates = new RegisterForPhUpdates();
+        pckt.min_height = minHeight;
+        pckt.puzzle_hashes = [
+            Buffer.from(puzzleHash, "hex"),
+        ];
+
+        this.message_channel.sendMessage(
+            make_msg(
+                ProtocolMessageTypes.register_interest_in_puzzle_hash,
+                pckt,
+            )
+        );
+
+        this.coin_state_storage.addCallback(puzzleHash, callback);
+    }
+
+    public subscribeToCoinUpdates({ coinId, callback, minHeight = 0 }: subscribeToCoinUpdatesArgs): void {
+        coinId = AddressUtil.validateHashString(coinId);
+        if(coinId.length == 0) return;
+
+        this.coin_state_storage.willExpectUpdate(coinId);
+
+        // Register for updates
+        const pckt: RegisterForCoinUpdates = new RegisterForCoinUpdates();
+        pckt.min_height = minHeight;
+        pckt.coin_ids = [
+            Buffer.from(coinId, "hex"),
+        ];
+
+        this.message_channel.sendMessage(
+            make_msg(
+                ProtocolMessageTypes.register_interest_in_coin,
+                pckt,
+            )
+        );
+
+        this.coin_state_storage.addCallback(coinId, callback);
     }
 }

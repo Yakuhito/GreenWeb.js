@@ -1,7 +1,7 @@
 import { bech32m } from 'bech32';
 
 export class AddressUtil {
-    static validatePuzzleHashString(puzzleHash: string): string {
+    static validateHashString(puzzleHash: string): string {
         var ph: string = puzzleHash;
             if(ph.startsWith("0x"))
                 ph = ph.slice(2, ph.length);
@@ -14,7 +14,7 @@ export class AddressUtil {
 
     static puzzleHashToAddress(puzzleHash: Buffer | string, prefix: string = "xch"): string {
         if(!(puzzleHash instanceof Buffer)) {
-            puzzleHash = Buffer.from(AddressUtil.validatePuzzleHashString(puzzleHash), "hex");
+            puzzleHash = Buffer.from(AddressUtil.validateHashString(puzzleHash), "hex");
         }
 
         if(puzzleHash.length != 32)

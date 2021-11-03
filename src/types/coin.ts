@@ -3,7 +3,6 @@
 import { fields } from "../serializer";
 import { uint, bytes } from "../serializer/basic_types";
 import { int_to_bytes } from "clvm";
-import sha256 from 'crypto-js/sha256';
 import CryptoJS from 'crypto-js';
 import { bech32m } from 'bech32';
 
@@ -20,9 +19,8 @@ export class Coin {
         ]);
         
         return Buffer.from(
-            bech32m.fromWords(sha256(CryptoJS.lib.WordArray.create(
-                bech32m.toWords(toHash)
-            )).words)
+            CryptoJS.enc.Hex.stringify(CryptoJS.SHA256(CryptoJS.enc.Hex.parse(toHash.toString("hex")))),
+            "hex"
         );
     }
 }

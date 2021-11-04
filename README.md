@@ -28,7 +28,7 @@ Documentation can be found at [ReadTheDocs](https://greenwebjs.readthedocs.io).
 npm test
 ```
 
-If you point `chianode.test` to a running Chia node, you can also run a few more tests:
+Point `chianode.test` to a running Chia nodet to run more tests:
 
 ```
 npm run test-extensive

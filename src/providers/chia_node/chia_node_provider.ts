@@ -1,12 +1,13 @@
-import { Provider, Optional, getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs } from "../provider";
+import { Provider, Optional, getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs } from "../provider";
 import { ChiaMessageChannel } from './chia_message_channel';
 import { MessageQueue } from "../../util/message_queue";
 import { make_msg, Message } from "../../types/outbound_message";
 import { Serializer } from "../../serializer";
 import { ProtocolMessageTypes } from "../../types/protocol_message_types";
-import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdates, RegisterForPhUpdates, RequestChildren, RequestPuzzleSolution, RespondChildren, RespondPuzzleSolution, RespondToCoinUpdates, RespondToPhUpdates } from "../../types/wallet_protocol";
+import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdates, RegisterForPhUpdates, RequestBlockHeader, RequestChildren, RequestHeaderBlocks, RequestPuzzleSolution, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondPuzzleSolution, RespondToCoinUpdates, RespondToPhUpdates } from "../../types/wallet_protocol";
 import { AddressUtil } from "../../util/address";
 import { CoinStateStorage } from "../../util/coin_state_storage";
+import { HeaderBlock } from "../../types/header_block";
 
 const ADDRESS_PREFIX: string = "xch";
 const NETWORK_ID: string = "mainnet";
@@ -206,5 +207,54 @@ export class ChiaNodeProvider implements Provider {
         var resp_pckt = Serializer.deserialize(RespondChildren, resp_msg.data);
 
         return resp_pckt.coin_states;
+    }
+
+    public async getBlockHeader({ height }: getBlockHeaderArgs): Promise<Optional<HeaderBlock>> {
+        const pckt: RequestBlockHeader = new RequestBlockHeader();
+        pckt.height = height;
+
+        this.message_queue.clear(ProtocolMessageTypes.respond_block_header);
+        this.message_queue.clear(ProtocolMessageTypes.reject_header_request);
+        this.message_channel.sendMessage(
+            make_msg(
+                ProtocolMessageTypes.request_block_header,
+                pckt,
+            )
+        );
+
+        var resp_msg: Message = await this.message_queue.waitFor([
+            ProtocolMessageTypes.respond_block_header,
+            ProtocolMessageTypes.reject_header_request
+        ]);
+        if(resp_msg.type == ProtocolMessageTypes.reject_header_request)
+            return null;
+
+        var resp_pckt: RespondBlockHeader = Serializer.deserialize(RespondBlockHeader, resp_msg.data);
+        return resp_pckt.header_block;
+    }
+
+    public async getBlocksHeaders({ startHeight, endHeight }: getBlocksHeadersArgs): Promise<Optional<HeaderBlock[]>> {
+        const pckt: RequestHeaderBlocks = new RequestHeaderBlocks();
+        pckt.start_height = startHeight;
+        pckt.end_height = endHeight;
+
+        this.message_queue.clear(ProtocolMessageTypes.respond_header_blocks);
+        this.message_queue.clear(ProtocolMessageTypes.reject_header_blocks);
+        this.message_channel.sendMessage(
+            make_msg(
+                ProtocolMessageTypes.request_header_blocks,
+                pckt,
+            )
+        );
+
+        var resp_msg: Message = await this.message_queue.waitFor([
+            ProtocolMessageTypes.respond_header_blocks,
+            ProtocolMessageTypes.reject_header_blocks
+        ]);
+        if(resp_msg.type == ProtocolMessageTypes.reject_header_blocks)
+            return null;
+
+        var resp_pckt: RespondHeaderBlocks = Serializer.deserialize(RespondHeaderBlocks, resp_msg.data);
+        return resp_pckt.header_blocks;
     }
 }

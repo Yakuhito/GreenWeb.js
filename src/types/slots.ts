@@ -7,7 +7,7 @@ import { VDFInfo, VDFProof } from "./vdf";
 
 export class ChallengeBlockInfo {
     @fields.Object(ProofOfSpace) proof_of_space: ProofOfSpace;
-    @fields.Optional(fields.Object(VDFProof)) challenge_chain_sp_vdf: Optional<VDFInfo>;
+    @fields.Optional(fields.Object(VDFInfo)) challenge_chain_sp_vdf: Optional<VDFInfo>;
     @fields.Bytes(96) challenge_chain_sp_signature: bytes;
     @fields.Object(VDFInfo) challenge_chain_ip_vdf: VDFInfo;
 }

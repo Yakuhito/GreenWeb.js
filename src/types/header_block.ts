@@ -8,7 +8,7 @@ import { VDFProof } from "./vdf";
 import { Foliage, FoliageTransactionBlock, TransactionsInfo } from "./foliage";
 
 export class HeaderBlock {
-    @fields.List(EndOfSubSlotBundle) finished_sub_slots: EndOfSubSlotBundle[];
+    @fields.List(fields.Object(EndOfSubSlotBundle)) finished_sub_slots: EndOfSubSlotBundle[];
     @fields.Object(RewardChainBlock) reward_chain_block: RewardChainBlock;
     @fields.Optional(fields.Object(VDFProof)) challenge_chain_sp_proof: Optional<VDFProof>;
     @fields.Object(VDFProof) challenge_chain_ip_proof: VDFProof;

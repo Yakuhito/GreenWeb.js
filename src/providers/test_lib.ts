@@ -2,6 +2,7 @@ import { ChiaNodeProvider } from "./chia_node";
 import { Provider } from "./provider";
 import { assert } from "chai";
 import { CoinState, PuzzleSolutionResponse } from "../types/wallet_protocol";
+import { HeaderBlock } from "../types/header_block";
 
 const nodeHost: string = "chianode.test";
 
@@ -119,7 +120,52 @@ describe('ChiaNodeProvider with ' + nodeHost, () => {
         assert.equal(resp.length, 2);
         assert.equal(resp[0].coin.getId().toString("hex"), "7200b9a8a799717b2b54809b7ed6bd2bacfa113dcf9564569a8182bd7f588cf8");
         assert.equal(resp[1].coin.getId().toString("hex"), "6aba6282e60ea52367596c258b5a54b7263dd42d8040c06c94b13d8eca682e45");
+    });
+
+    it('getBlockHeader()', async () => {
+        // https://www.chiaexplorer.com/blockchain/block/0x5a3c793a73aa5976eca2b3ee8843b7ed63513aa82fcd8d5e94248855ba7f4410
+        const blockHeight: number = 1000000;
+        const farmerPuzHash: string = "5b0505e3f90f5ba40a4eb50871b8a3c4f39af795389723286cdebd7706a4bcf5";
         
+        const resp = await p.getBlockHeader({
+            height: blockHeight
+        });
+    
+        assert.isNotNull(resp);
+        assert.instanceOf(resp, HeaderBlock);
+        
+        const hb: HeaderBlock = resp!;
+        assert.equal(hb.foliage.foliage_block_data.farmer_reward_puzzle_hash.toString("hex"), farmerPuzHash);
+    });
+
+    it('getBlocksHeaders()', async () => {
+        // https://www.chiaexplorer.com/blockchain/block/0xf5d672dae94768f8cd119331490b2725d505355522bc81bb7ae314a2d0412b1d
+        // https://www.chiaexplorer.com/blockchain/block/0x5a3c793a73aa5976eca2b3ee8843b7ed63513aa82fcd8d5e94248855ba7f4410
+        // https://www.chiaexplorer.com/blockchain/block/0x6f15a6d088ce8d940c220f80d16d6743c8a9cf5e2544ad15a57b58a06dbd9284
+        const startHeight: number = 999999;
+        const endHeight: number = 1000001;
+        const farmerPuzHashes: string[] = [
+            "e704e276dac3ea7824e03b6b298649ebedf0e51f3294a2d31f0b6eedd232661c",
+            "5b0505e3f90f5ba40a4eb50871b8a3c4f39af795389723286cdebd7706a4bcf5",
+            "9aad5849cd9512fbf92a2937d28bb4cc3f83e70984f13a9481b871ee7ef88eb3"
+        ];
+        
+        const resp = await p.getBlocksHeaders({
+            startHeight: startHeight,
+            endHeight: endHeight
+        });
+    
+        assert.isNotNull(resp);
+        assert.isArray(resp);
+
+        const hbs: HeaderBlock[] = resp!;
+        assert.equal(hbs.length, farmerPuzHashes.length);
+        for(var i = 0; i < hbs.length; ++i) {
+            assert.equal(
+                hbs[i].foliage.foliage_block_data.farmer_reward_puzzle_hash.toString("hex"),
+                farmerPuzHashes[i]
+            );
+        }
     });
 
     it('close()', () => {

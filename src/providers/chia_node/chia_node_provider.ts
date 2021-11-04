@@ -1,13 +1,15 @@
-import { Provider, Optional, getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs } from "../provider";
+import { Provider, Optional, getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs } from "../provider";
 import { ChiaMessageChannel } from './chia_message_channel';
 import { MessageQueue } from "../../util/message_queue";
 import { make_msg, Message } from "../../types/outbound_message";
 import { Serializer } from "../../serializer";
 import { ProtocolMessageTypes } from "../../types/protocol_message_types";
-import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdates, RegisterForPhUpdates, RequestBlockHeader, RequestChildren, RequestHeaderBlocks, RequestPuzzleSolution, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondPuzzleSolution, RespondToCoinUpdates, RespondToPhUpdates } from "../../types/wallet_protocol";
+import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdates, RegisterForPhUpdates, RequestAdditions, RequestBlockHeader, RequestChildren, RequestHeaderBlocks, RequestPuzzleSolution, RequestRemovals, RespondAdditions, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondPuzzleSolution, RespondRemovals, RespondToCoinUpdates, RespondToPhUpdates } from "../../types/wallet_protocol";
 import { AddressUtil } from "../../util/address";
 import { CoinStateStorage } from "../../util/coin_state_storage";
 import { HeaderBlock } from "../../types/header_block";
+import { Coin } from "../../types/coin";
+import { bytes } from "../../serializer/basic_types";
 
 const ADDRESS_PREFIX: string = "xch";
 const NETWORK_ID: string = "mainnet";
@@ -256,5 +258,83 @@ export class ChiaNodeProvider implements Provider {
 
         var resp_pckt: RespondHeaderBlocks = Serializer.deserialize(RespondHeaderBlocks, resp_msg.data);
         return resp_pckt.header_blocks;
+    }
+
+    public async getCoinRemovals({ height, headerHash, coinIds = undefined }: getCoinRemovalsArgs): Promise<Optional<[bytes, Optional<Coin>][]>> {
+        headerHash = AddressUtil.validateHashString(headerHash);
+        if(headerHash.length == 0) return null;
+
+        var parsedCoinIds: Buffer[] = [];
+        if(coinIds != undefined) {
+            for(var i = 0;i < coinIds.length; ++i) {
+                const parsed: string = AddressUtil.validateHashString(coinIds[i]);
+
+                if(parsed.length == 0) return null;
+                parsedCoinIds.push(Buffer.from(parsed, "hex"));
+            }
+        }
+
+        const pckt: RequestRemovals = new RequestRemovals();
+        pckt.height = height;
+        pckt.header_hash = Buffer.from(headerHash, "hex");
+        pckt.coin_names = coinIds != undefined ? parsedCoinIds : null;
+
+        this.message_queue.clear(ProtocolMessageTypes.respond_removals);
+        this.message_queue.clear(ProtocolMessageTypes.reject_removals_request);
+        this.message_channel.sendMessage(
+            make_msg(
+                ProtocolMessageTypes.request_removals,
+                pckt,
+            )
+        );
+
+        var resp_msg: Message = await this.message_queue.waitFor([
+            ProtocolMessageTypes.respond_removals,
+            ProtocolMessageTypes.reject_removals_request
+        ]);
+        if(resp_msg.type == ProtocolMessageTypes.reject_removals_request)
+            return null;
+
+        const resp_pckt: RespondRemovals = Serializer.deserialize(RespondRemovals, resp_msg.data);
+        return resp_pckt.coins;
+    }
+
+    public async getCoinAdditions({ height, headerHash, puzzleHashes = undefined }: getCoinAdditionsArgs): Promise<Optional<[bytes, Coin[]][]>> {
+        headerHash = AddressUtil.validateHashString(headerHash);
+        if(headerHash.length == 0) return null;
+
+        var parsedpuzzleHashes: Buffer[] = [];
+        if(puzzleHashes != undefined) {
+            for(var i = 0;i < puzzleHashes.length; ++i) {
+                const parsed: string = AddressUtil.validateHashString(puzzleHashes[i]);
+
+                if(parsed.length == 0) return null;
+                parsedpuzzleHashes.push(Buffer.from(parsed, "hex"));
+            }
+        }
+
+        const pckt: RequestAdditions = new RequestAdditions();
+        pckt.height = height;
+        pckt.header_hash = Buffer.from(headerHash, "hex");
+        pckt.puzzle_hashes = puzzleHashes != undefined ? parsedpuzzleHashes : null;
+
+        this.message_queue.clear(ProtocolMessageTypes.respond_additions);
+        this.message_queue.clear(ProtocolMessageTypes.reject_additions_request);
+        this.message_channel.sendMessage(
+            make_msg(
+                ProtocolMessageTypes.request_additions,
+                pckt,
+            )
+        );
+        
+        var resp_msg: Message = await this.message_queue.waitFor([
+            ProtocolMessageTypes.respond_additions,
+            ProtocolMessageTypes.reject_additions_request
+        ]);
+        if(resp_msg.type == ProtocolMessageTypes.reject_additions_request)
+            return null;
+
+        const resp_pckt: RespondAdditions = Serializer.deserialize(RespondAdditions, resp_msg.data);
+        return resp_pckt.coins;
     }
 }

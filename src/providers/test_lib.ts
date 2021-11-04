@@ -1,9 +1,11 @@
 import { ChiaNodeProvider } from "./chia_node";
-import { Provider } from "./provider";
+import { Optional, Provider } from "./provider";
 import { assert } from "chai";
 import { CoinState, PuzzleSolutionResponse } from "../types/wallet_protocol";
 import { HeaderBlock } from "../types/header_block";
 import { Serializer } from "../serializer";
+import { bytes } from "../serializer/basic_types";
+import { Coin } from "../types/coin";
 
 const nodeHost: string = "chianode.test";
 
@@ -136,7 +138,7 @@ describe('ChiaNodeProvider with ' + nodeHost, () => {
         assert.instanceOf(resp, HeaderBlock);
         
         const hb: HeaderBlock = resp!;
-        assert.equal(hb.headerHash().toString("hex"), headerHash);
+        assert.equal(hb.headerHash(), headerHash);
     });
 
     it('getBlocksHeaders()', async () => {
@@ -163,10 +165,111 @@ describe('ChiaNodeProvider with ' + nodeHost, () => {
         assert.equal(hbs.length, headerHashes.length);
         for(var i = 0; i < hbs.length; ++i) {
             assert.equal(
-                hbs[i].headerHash().toString("hex"),
+                hbs[i].headerHash(),
                 headerHashes[i]
             );
         }
+    });
+
+    it('getCoinRemovals()', async () => {
+        // https://www.chiaexplorer.com/blockchain/block/0xfca56891047b75eab372e59c034ddc250102a64abac588a8f30c53e47bc99702
+        const blockHeight: number = 894633;
+        const headerHash: string = "fca56891047b75eab372e59c034ddc250102a64abac588a8f30c53e47bc99702";
+        // https://www.chiaexplorer.com/blockchain/coin/0x8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01
+        const coinId: string = "8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01";
+
+        const resp = await p.getCoinRemovals({
+            height: blockHeight,
+            headerHash: headerHash
+        });
+    
+        assert.isNotNull(resp);
+        assert.isArray(resp);
+        
+        const arr: [bytes, Optional<Coin>][] = resp!;
+        var ok: boolean = false;
+        for(var i = 0; i < arr.length; i++) {
+            if(arr[i][0].toString('hex') == coinId && arr[i][1]!.getId().toString('hex') === coinId) {
+                ok = true;
+                break;
+            }
+        }
+
+        assert.isTrue(ok);
+    });
+
+    it('getCoinRemovals() - only one coin', async () => {
+        // https://www.chiaexplorer.com/blockchain/block/0xfca56891047b75eab372e59c034ddc250102a64abac588a8f30c53e47bc99702
+        const blockHeight: number = 894633;
+        const headerHash: string = "fca56891047b75eab372e59c034ddc250102a64abac588a8f30c53e47bc99702";
+        // https://www.chiaexplorer.com/blockchain/coin/0x8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01
+        const coinId: string = "8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01";
+
+        const resp = await p.getCoinRemovals({
+            height: blockHeight,
+            headerHash: headerHash,
+            coinIds: [coinId],
+        });
+    
+        assert.isNotNull(resp);
+        assert.isArray(resp);
+        
+        const arr: [bytes, Optional<Coin>][] = resp!;
+        assert.equal(arr.length, 1);
+        assert.isTrue(arr[0][0].toString('hex') == coinId);
+        assert.isTrue(arr[0][1]!.getId().toString('hex') === coinId);
+    });
+
+    it('getCoinAdditions()', async () => {
+        // https://www.chiaexplorer.com/blockchain/block/0xa1559da62ec56609ca8c1239b7dfc8f8efcdc281be4ef1f968c4c19a034257fb
+        const blockHeight: number = 894597;
+        const headerHash: string = "a1559da62ec56609ca8c1239b7dfc8f8efcdc281be4ef1f968c4c19a034257fb";
+        // https://www.chiaexplorer.com/blockchain/coin/0x8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01
+        const puzHash: string = "bef81a693292ae286b32700ddf8fc8dda095f274140b358673d9fbef1d1eb0e2";
+
+        const resp = await p.getCoinAdditions({
+            height: blockHeight,
+            headerHash: headerHash
+        });
+    
+        assert.isNotNull(resp);
+        assert.isArray(resp);
+        
+        const arr: [bytes, Coin[]][] = resp!;
+        var ok: boolean = false;
+        for(var i = 0; i < arr.length; i++) {
+            if(arr[i][1][0].puzzle_hash.toString('hex') === puzHash && arr[i][0].toString('hex') == puzHash) {
+                ok = true;
+                break;
+            }
+        }
+
+        assert.isTrue(ok);
+    });
+
+    it('getCoinAdditions() - two puzzle hashes', async () => {
+        // https://www.chiaexplorer.com/blockchain/block/0xa1559da62ec56609ca8c1239b7dfc8f8efcdc281be4ef1f968c4c19a034257fb
+        const blockHeight: number = 894597;
+        // https://www.chiaexplorer.com/blockchain/coin/0x8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01
+        const puzzHash: string = "bef81a693292ae286b32700ddf8fc8dda095f274140b358673d9fbef1d1eb0e2";
+        const nonExistentPuzzHash: string = "bef81a693292ae286b32700ddf8fc8dda095f274140b358673d9fbef1d1eb0e3";
+
+        const resp = await p.getCoinAdditions({
+            height: blockHeight,
+            headerHash: "a1559da62ec56609ca8c1239b7dfc8f8efcdc281be4ef1f968c4c19a034257fb",
+            puzzleHashes: [puzzHash, nonExistentPuzzHash]
+        });
+    
+        assert.isNotNull(resp);
+        assert.isArray(resp);
+        
+        const arr: [bytes, Coin[]][] = resp!;
+        assert.equal(arr.length, 2);
+        assert.equal(arr[0][0].toString('hex'), puzzHash);
+        assert.equal(arr[0][1].length, 1);
+        assert.equal(arr[0][1][0].puzzle_hash.toString('hex'), puzzHash);
+        assert.equal(arr[1][0].toString('hex'), nonExistentPuzzHash);
+        assert.equal(arr[1][1].length, 0);
     });
 
     it('close()', () => {

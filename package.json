@@ -16,8 +16,8 @@
   "scripts": {
     "build": "npm test && tsc",
     "test": "nyc mocha -r ts-node/register src/**/*.test.ts",
-    "test-chia-thing": "nyc mocha -r ts-node/register src/providers/test_lib.ts --timeout 60000",
-    "test-extended": "nyc mocha -r ts-node/register src/**/*.test.ts src/providers/test_lib.ts --timeout 60000",
+    "test-chia-thing": "nyc mocha -r ts-node/register src/providers/test_lib.ts --timeout 600000",
+    "test-extended": "nyc mocha -r ts-node/register src/**/*.test.ts src/providers/test_lib.ts --timeout 10000",
     "prepare": "rm -rf dist && npm run build"
   },
   "repository": {

@@ -21,14 +21,11 @@ export class HeaderBlock {
     @fields.Bytes() transactions_filter: bytes;
     @fields.Optional(fields.Object(TransactionsInfo)) transactions_info: Optional<TransactionsInfo>;
 
-    headerHash(): bytes {
+    headerHash(): string {
         const toHash: Buffer = Serializer.serialize(this.foliage);
 
-        return Buffer.from(
-            CryptoJS.enc.Hex.stringify(CryptoJS.SHA256(CryptoJS.enc.Hex.parse(
-                toHash.toString("hex")
-            ))),
-            "hex"
-        );
+        return CryptoJS.enc.Hex.stringify(CryptoJS.SHA256(CryptoJS.enc.Hex.parse(
+            toHash.toString("hex")
+        )));
     }
 }

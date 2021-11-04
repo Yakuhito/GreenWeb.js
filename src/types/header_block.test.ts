@@ -14,7 +14,7 @@ describe('Serializer', () => {
             );            
 
             assert.equal(
-                blockHeader.headerHash().toString("hex"),
+                blockHeader.headerHash(),
                 "5a3c793a73aa5976eca2b3ee8843b7ed63513aa82fcd8d5e94248855ba7f4410"
             );
         });

@@ -1,3 +1,5 @@
+import { bytes } from "../serializer/basic_types";
+import { Coin } from "../types/coin";
 import { HeaderBlock } from "../types/header_block";
 import { CoinState, PuzzleSolutionResponse } from "../types/wallet_protocol";
 
@@ -39,6 +41,18 @@ export type getBlocksHeadersArgs = {
     endHeight: number
 };
 
+export type getCoinRemovalsArgs = {
+    height: number,
+    headerHash: string,
+    coinIds?: string[]
+};
+
+export type getCoinAdditionsArgs = {
+    height: number,
+    headerHash: string, // apparently not optional...
+    puzzleHashes?: string[]
+};
+
 export interface Provider {
     initialize(): Promise<void>;
     close(): Promise<void>;
@@ -55,4 +69,7 @@ export interface Provider {
 
     getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<HeaderBlock>>;
     getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<HeaderBlock[]>>;
+
+    getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<[bytes, Optional<Coin>][]>>; // appears to be [coin_id, Coin][]
+    getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<[bytes, Coin[]][]>>;
 }

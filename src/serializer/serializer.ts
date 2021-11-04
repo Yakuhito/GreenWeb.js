@@ -7,6 +7,7 @@ import { IPropsType } from './interfaces';
 // This class is a port of the 'Streamable' class from
 // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/util/streamable.py#L260
 export class Serializer {
+    // for some reason, serializing objects for hashing != serializing objects for the comm protocol
     static serialize<T>(object: T): Buffer {
         let buf: Buffer = Buffer.from([]);
         const props: IPropsType = Object.getPrototypeOf(object)[propertySerializerName];

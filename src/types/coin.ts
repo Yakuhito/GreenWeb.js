@@ -4,7 +4,6 @@ import { fields } from "../serializer";
 import { uint, bytes } from "../serializer/basic_types";
 import { int_to_bytes } from "clvm";
 import CryptoJS from 'crypto-js';
-import { bech32m } from 'bech32';
 
 export class Coin {
     @fields.Bytes(32) parent_coin_info: bytes;

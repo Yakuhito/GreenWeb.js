@@ -3,8 +3,8 @@ import { Coin } from "./coin";
 
 describe('Coin', () => {
     describe('getId()', () => {
-        // https://www.chiaexplorer.com/blockchain/coin/0x7200b9a8a799717b2b54809b7ed6bd2bacfa113dcf9564569a8182bd7f588cf8
         it('Works as expected', () => {
+            // https://www.chiaexplorer.com/blockchain/coin/0x7200b9a8a799717b2b54809b7ed6bd2bacfa113dcf9564569a8182bd7f588cf8
             const coin: Coin = new Coin();
             coin.amount = 87;
             coin.puzzle_hash = Buffer.from("b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664", "hex");

@@ -1,11 +1,12 @@
 // https://github.com/Chia-Network/chia-blockchain/blob/6205d954e8ac2ea40ee7386b1ee3124da21f4c4a/chia/types/header_block.py#L13
 
-import { fields } from "../serializer";
+import { fields, Serializer } from "../serializer";
 import { bytes, Optional } from "../serializer/basic_types";
 import { EndOfSubSlotBundle } from "./end_of_sub_slot_bundle";
 import { RewardChainBlock } from "./reward_chain_block";
 import { VDFProof } from "./vdf";
 import { Foliage, FoliageTransactionBlock, TransactionsInfo } from "./foliage";
+import CryptoJS from 'crypto-js';
 
 export class HeaderBlock {
     @fields.List(fields.Object(EndOfSubSlotBundle)) finished_sub_slots: EndOfSubSlotBundle[];
@@ -19,4 +20,15 @@ export class HeaderBlock {
     @fields.Optional(fields.Object(FoliageTransactionBlock)) foliage_transaction_block: Optional<FoliageTransactionBlock>;
     @fields.Bytes() transactions_filter: bytes;
     @fields.Optional(fields.Object(TransactionsInfo)) transactions_info: Optional<TransactionsInfo>;
+
+    headerHash(): bytes {
+        const toHash: Buffer = Serializer.serialize(this.foliage);
+
+        return Buffer.from(
+            CryptoJS.enc.Hex.stringify(CryptoJS.SHA256(CryptoJS.enc.Hex.parse(
+                toHash.toString("hex")
+            ))),
+            "hex"
+        );
+    }
 }

@@ -9,17 +9,17 @@ import { Foliage, FoliageTransactionBlock, TransactionsInfo } from "./foliage";
 import CryptoJS from 'crypto-js';
 
 export class HeaderBlock {
-    @fields.List(fields.Object(EndOfSubSlotBundle)) finished_sub_slots: EndOfSubSlotBundle[];
-    @fields.Object(RewardChainBlock) reward_chain_block: RewardChainBlock;
-    @fields.Optional(fields.Object(VDFProof)) challenge_chain_sp_proof: Optional<VDFProof>;
-    @fields.Object(VDFProof) challenge_chain_ip_proof: VDFProof;
-    @fields.Optional(fields.Object(VDFProof)) reward_chain_sp_proof: Optional<VDFProof>;
-    @fields.Object(VDFProof) reward_chain_ip_proof: VDFProof
-    @fields.Optional(fields.Object(VDFProof)) infused_challenge_chain_ip_proof: Optional<VDFProof>;
+    @fields.List(fields.Object(EndOfSubSlotBundle)) finishedSubSlots: EndOfSubSlotBundle[];
+    @fields.Object(RewardChainBlock) rewardChainBlock: RewardChainBlock;
+    @fields.Optional(fields.Object(VDFProof)) challengeChainSpProof: Optional<VDFProof>;
+    @fields.Object(VDFProof) challengeChainIpProof: VDFProof;
+    @fields.Optional(fields.Object(VDFProof)) rewardChainSpProof: Optional<VDFProof>;
+    @fields.Object(VDFProof) rewardChainIpProof: VDFProof
+    @fields.Optional(fields.Object(VDFProof)) infusedChallengeChainIpProof: Optional<VDFProof>;
     @fields.Object(Foliage) foliage: Foliage;
-    @fields.Optional(fields.Object(FoliageTransactionBlock)) foliage_transaction_block: Optional<FoliageTransactionBlock>;
-    @fields.Bytes() transactions_filter: bytes;
-    @fields.Optional(fields.Object(TransactionsInfo)) transactions_info: Optional<TransactionsInfo>;
+    @fields.Optional(fields.Object(FoliageTransactionBlock)) foliageTransactionBlock: Optional<FoliageTransactionBlock>;
+    @fields.Bytes() transactionsFilter: bytes;
+    @fields.Optional(fields.Object(TransactionsInfo)) transactionsInfo: Optional<TransactionsInfo>;
 
     headerHash(): string {
         const toHash: Buffer = Serializer.serialize(this.foliage);

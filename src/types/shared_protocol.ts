@@ -3,7 +3,7 @@
 import { fields } from "../serializer";
 import { uint } from "../serializer/basic_types";
 
-export const protocol_version = "0.0.33";
+export const PROTOCOL_VERSION = "0.0.33";
 
 export enum Capability {
     BASE = 1,
@@ -11,10 +11,10 @@ export enum Capability {
 
 
 export class Handshake {
-    @fields.String() network_id: string;
-    @fields.String() protocol_version: string;
-    @fields.String() software_version: string;
-    @fields.Uint(16) server_port: uint;
-    @fields.Uint(8) node_type: uint;
+    @fields.String() networkId: string;
+    @fields.String() protocolVersion: string;
+    @fields.String() softwareVersion: string;
+    @fields.Uint(16) serverPort: uint;
+    @fields.Uint(8) nodeType: uint;
     @fields.List(fields.Tuple([fields.Uint(16), fields.String()])) capabilities: [uint, string][];
 }

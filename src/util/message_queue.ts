@@ -7,39 +7,39 @@ export class MessageQueue {
     private readonly _messages: Map<uint, Queue<bytes>> = new Map();
 
     public push(msg: Message) {
-        const msg_type: uint = msg.type;
-        const msg_content: bytes = msg.data;
+        const msgType: uint = msg.type;
+        const msgContent: bytes = msg.data;
 
-        if(!this._messages.has(msg_type)) {
-            this._messages.set(msg_type, new Queue<bytes>());
+        if(!this._messages.has(msgType)) {
+            this._messages.set(msgType, new Queue<bytes>());
         }
-        if(this._messages.get(msg_type)!.size() > 10) {
-            this._messages.get(msg_type)!.pop();
+        if(this._messages.get(msgType)!.size() > 10) {
+            this._messages.get(msgType)!.pop();
         }
-        this._messages.get(msg_type)!.push(msg_content);
+        this._messages.get(msgType)!.push(msgContent);
     }
 
-    public pop(msg_type: uint): bytes | undefined {
-        if(!this._messages.has(msg_type)) {
+    public pop(msgType: uint): bytes | undefined {
+        if(!this._messages.has(msgType)) {
             return undefined;
         }
-        return this._messages.get(msg_type)!.pop();
+        return this._messages.get(msgType)!.pop();
     }
 
-    public clear(msg_type: uint) {
-        this._messages.set(msg_type, new Queue<bytes>());
+    public clear(msgType: uint) {
+        this._messages.set(msgType, new Queue<bytes>());
     }
 
-    public async waitFor(msg_types: uint[]): Promise<Message> {
+    public async waitFor(msgTypes: uint[]): Promise<Message> {
         // eslint-disable-next-line no-constant-condition
         while(true) {
-            for(let i = 0; i < msg_types.length; ++i) {
-                const res: bytes | undefined = this.pop(msg_types[i]);
+            for(let i = 0; i < msgTypes.length; ++i) {
+                const res: bytes | undefined = this.pop(msgTypes[i]);
                 if(res != undefined) {
                     const a = new Message();
                     a.data = res;
                     a.id = null;
-                    a.type = msg_types[i];
+                    a.type = msgTypes[i];
 
                     return a;
                 }

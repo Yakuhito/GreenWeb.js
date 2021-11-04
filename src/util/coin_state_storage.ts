@@ -3,44 +3,44 @@ import { CoinState, RespondToCoinUpdates, RespondToPhUpdates } from "../types/wa
 
 export class CoinStateStorage {
     private callbacks: { [key: string]: { (coin_states: CoinState[]): void; } [] } = {};
-    private coin_states: { [puzHash: string]: Optional<CoinState[]> } = {};
+    private coinStates: { [puzHash: string]: Optional<CoinState[]> } = {};
 
     public processPhPacket(pckt: RespondToPhUpdates) {
-        const puzzle_hashes: string[] = pckt.puzzle_hashes.map((e) => e.toString("hex"));
+        const puzzleHashes: string[] = pckt.puzzleHashes.map((e) => e.toString("hex"));
 
-        for(let i = 0;i < puzzle_hashes.length; ++i) {
-            const puzzle_hash: string = puzzle_hashes[i];
+        for(let i = 0;i < puzzleHashes.length; ++i) {
+            const puzzleHash: string = puzzleHashes[i];
 
-            const coin_states = pckt.coin_states.filter((e) => e.coin.puzzle_hash.toString("hex") == puzzle_hash);
-            this.coin_states[puzzle_hash] = coin_states;
+            const coinStates = pckt.coinStates.filter((e) => e.coin.puzzleHash.toString("hex") == puzzleHash);
+            this.coinStates[puzzleHash] = coinStates;
 
-            if(this.callbacks[puzzle_hash] !== undefined && this.callbacks[puzzle_hash].length > 0) {
-                for(let j = 0; j < this.callbacks[puzzle_hash].length; ++j) {
-                    this.callbacks[puzzle_hash][j](coin_states);
+            if(this.callbacks[puzzleHash] !== undefined && this.callbacks[puzzleHash].length > 0) {
+                for(let j = 0; j < this.callbacks[puzzleHash].length; ++j) {
+                    this.callbacks[puzzleHash][j](coinStates);
                 }
             }
         }
     }
 
     public processCoinPacket(pckt: RespondToCoinUpdates) {
-        const coin_ids: string[] = pckt.coin_ids.map((e) => e.toString("hex"));
+        const coinIds: string[] = pckt.coinIds.map((e) => e.toString("hex"));
 
-        for(let i = 0;i < coin_ids.length; ++i) {
-            const coin_id: string = coin_ids[i];
+        for(let i = 0;i < coinIds.length; ++i) {
+            const coinId: string = coinIds[i];
 
-            const coin_states = pckt.coin_states.filter((e) => e.coin.getId().toString("hex") == coin_id);
-            this.coin_states[coin_id] = coin_states;
+            const coinStates = pckt.coinStates.filter((e) => e.coin.getId().toString("hex") == coinId);
+            this.coinStates[coinId] = coinStates;
 
-            if(this.callbacks[coin_id] !== undefined && this.callbacks[coin_id].length > 0) {
-                for(let j = 0; j < this.callbacks[coin_id].length; ++j) {
-                    this.callbacks[coin_id][j](coin_states);
+            if(this.callbacks[coinId] !== undefined && this.callbacks[coinId].length > 0) {
+                for(let j = 0; j < this.callbacks[coinId].length; ++j) {
+                    this.callbacks[coinId][j](coinStates);
                 }
             }
         }
     }
 
     public get(key: string): Optional<CoinState[]> {
-        return this.coin_states[key] ?? null;
+        return this.coinStates[key] ?? null;
     }
 
     public addCallback(puzzleHashOrCoinId: string, callback: { (coin_states: CoinState[]): void; }) {
@@ -50,7 +50,7 @@ export class CoinStateStorage {
     }
 
     public willExpectUpdate(puzzleHashOrCoinId: string) {
-        this.coin_states[puzzleHashOrCoinId] = null;
+        this.coinStates[puzzleHashOrCoinId] = null;
     }
 
     public async waitFor(key: string): Promise<CoinState[]> {

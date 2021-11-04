@@ -5,13 +5,13 @@ import { uint, bytes } from "../serializer/basic_types";
 
 export class VDFInfo {
     @fields.Bytes(32) challenge: bytes;
-    @fields.Uint(64) number_of_iterations: uint;
+    @fields.Uint(64) numberOfIterations: uint;
     @fields.Bytes(100) output: bytes; // ClassgroupElement
 }
 
 
 export class VDFProof {
-    @fields.Uint(8) witness_type: uint;
+    @fields.Uint(8) witnessType: uint;
     @fields.Bytes() witness: bytes;
-    @fields.Boolean() normalized_to_identity: boolean;
+    @fields.Boolean() normalizedToIdentity: boolean;
 }

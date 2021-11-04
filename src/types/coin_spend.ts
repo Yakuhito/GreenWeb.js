@@ -6,6 +6,6 @@ import { SExp } from "clvm";
 
 export class CoinSpend {
     @fields.Object(Coin) coin: Coin;
-    @fields.SExp() puzzle_reveal: SExp;
+    @fields.SExp() puzzleReveal: SExp;
     @fields.SExp() solution: SExp;
 }

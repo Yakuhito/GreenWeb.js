@@ -2,18 +2,19 @@
 
 import { fields } from "../serializer";
 import { uint, bytes } from "../serializer/basic_types";
+// eslint-disable-next-line camelcase
 import { int_to_bytes } from "clvm";
 import CryptoJS from 'crypto-js';
 
 export class Coin {
-    @fields.Bytes(32) parent_coin_info: bytes;
-    @fields.Bytes(32) puzzle_hash: bytes;
+    @fields.Bytes(32) parentCoinInfo: bytes;
+    @fields.Bytes(32) puzzleHash: bytes;
     @fields.Uint(64) amount: uint;
 
     public getId(): bytes {
         const toHash: Buffer = Buffer.concat([
-            this.parent_coin_info,
-            this.puzzle_hash,
+            this.parentCoinInfo,
+            this.puzzleHash,
             int_to_bytes(this.amount).data(),
         ]);
         

@@ -4,6 +4,6 @@ import { fields } from "../serializer";
 import { bytes, uint } from "../serializer/basic_types";
 
 export class PoolTarget {
-    @fields.Bytes(32) puzzle_hash: bytes;
-    @fields.Uint(32) max_height: uint;
+    @fields.Bytes(32) puzzleHash: bytes;
+    @fields.Uint(32) maxHeight: uint;
 }

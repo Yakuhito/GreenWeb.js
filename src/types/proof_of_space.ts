@@ -5,9 +5,9 @@ import { uint, bytes, Optional } from "../serializer/basic_types";
 
 export class ProofOfSpace {
     @fields.Bytes(32) challenge: bytes;
-    @fields.Optional(fields.Bytes(48)) pool_public_key: Optional<bytes>;
-    @fields.Optional(fields.Bytes(32)) pool_contract_puzzle_hash: Optional<bytes>;
-    @fields.Bytes(48) plot_public_key: bytes;
+    @fields.Optional(fields.Bytes(48)) poolPublicKey: Optional<bytes>;
+    @fields.Optional(fields.Bytes(32)) poolContractPuzzleHash: Optional<bytes>;
+    @fields.Bytes(48) plotPublicKey: bytes;
     @fields.Uint(8) size: uint;
     @fields.Bytes() proof: bytes;
 }

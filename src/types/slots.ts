@@ -6,37 +6,37 @@ import { ProofOfSpace } from "./proof_of_space";
 import { VDFInfo, VDFProof } from "./vdf";
 
 export class ChallengeBlockInfo {
-    @fields.Object(ProofOfSpace) proof_of_space: ProofOfSpace;
-    @fields.Optional(fields.Object(VDFInfo)) challenge_chain_sp_vdf: Optional<VDFInfo>;
-    @fields.Bytes(96) challenge_chain_sp_signature: bytes;
-    @fields.Object(VDFInfo) challenge_chain_ip_vdf: VDFInfo;
+    @fields.Object(ProofOfSpace) proofOfSpace: ProofOfSpace;
+    @fields.Optional(fields.Object(VDFInfo)) challengeChainSpVdf: Optional<VDFInfo>;
+    @fields.Bytes(96) challengeChainSpSignature: bytes;
+    @fields.Object(VDFInfo) challengeChainIpVdf: VDFInfo;
 }
 
 
 export class ChallengeChainSubSlot {
-    @fields.Object(VDFInfo) challenge_chain_end_of_slot_vdf: VDFInfo;
-    @fields.Optional(fields.Bytes(32)) infused_challenge_chain_sub_slot_hash: Optional<bytes>;
-    @fields.Optional(fields.Bytes(32)) subepoch_summary_hash: Optional<bytes>;
-    @fields.Optional(fields.Uint(64)) new_sub_slot_iters: Optional<uint>;
-    @fields.Optional(fields.Uint(64)) new_difficulty: Optional<uint>;
+    @fields.Object(VDFInfo) challengeChainEndOfSlotVdf: VDFInfo;
+    @fields.Optional(fields.Bytes(32)) infusedChallengeChainSubSlotHash: Optional<bytes>;
+    @fields.Optional(fields.Bytes(32)) subepochSummaryHash: Optional<bytes>;
+    @fields.Optional(fields.Uint(64)) newSubSlotIters: Optional<uint>;
+    @fields.Optional(fields.Uint(64)) newDifficulty: Optional<uint>;
 }
 
 
 export class InfusedChallengeChainSubSlot {
-    @fields.Object(VDFInfo) infused_challenge_chain_end_of_slot_vdf: VDFInfo;
+    @fields.Object(VDFInfo) infusedChallengeChainEndOfSlotVdf: VDFInfo;
 }
 
 
 export class RewardChainSubSlot {
-    @fields.Object(VDFInfo) end_of_slot_vdf: VDFInfo;
-    @fields.Bytes(32) challenge_chain_sub_slot_hash: bytes;
-    @fields.Optional(fields.Bytes(32)) infused_challenge_chain_sub_slot_hash: Optional<bytes>;
+    @fields.Object(VDFInfo) endOfSlotVdf: VDFInfo;
+    @fields.Bytes(32) challengeChainSubSlotHash: bytes;
+    @fields.Optional(fields.Bytes(32)) infusedChallengeChainSubSlotHash: Optional<bytes>;
     @fields.Uint(8) deficit: uint;
 }
 
 
 export class SubSlotProofs {
-    @fields.Object(VDFProof) challenge_chain_slot_proof: VDFProof;
-    @fields.Optional(fields.Object(VDFProof)) infused_challenge_chain_slot_proof: Optional<VDFProof>;
-    @fields.Object(VDFProof) reward_chain_slot_proof: VDFProof;
+    @fields.Object(VDFProof) challengeChainSlotProof: VDFProof;
+    @fields.Optional(fields.Object(VDFProof)) infusedChallengeChainSlotProof: Optional<VDFProof>;
+    @fields.Object(VDFProof) rewardChainSlotProof: VDFProof;
 }

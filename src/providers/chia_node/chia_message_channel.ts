@@ -2,9 +2,9 @@
 
 import WebSocket from 'ws';
 import { bytes } from "../../serializer/basic_types";
-import { make_msg, NodeType } from "../../types/outbound_message";
+import { makeMsg, NodeType } from "../../types/outbound_message";
 import { ProtocolMessageTypes } from "../../types/protocol_message_types";
-import { Capability, Handshake, protocol_version } from "../../types/shared_protocol";
+import { Capability, Handshake, PROTOCOL_VERSION } from "../../types/shared_protocol";
 import { getSoftwareVersion } from "../../util/software_version";
 import { CHIA_CERT, CHIA_KEY } from "./chia_ssl";
 
@@ -12,7 +12,7 @@ export interface ChiaMessageChannelOptions {
     host: string;
     port: number;
     onMessage: (message: Buffer) => void;
-    network_id: string;
+    networkId: string;
 }
 
 export class ChiaMessageChannel {
@@ -20,10 +20,10 @@ export class ChiaMessageChannel {
     private readonly port: number;
     private readonly host: string;
     private readonly onMessage: (message: Buffer) => void;
-    private readonly network_id: string;
+    private readonly networkId: string;
     private inboundDataBuffer: Buffer = Buffer.from([]);
 
-    constructor({host, port, onMessage, network_id}: ChiaMessageChannelOptions) {
+    constructor({host, port, onMessage, networkId}: ChiaMessageChannelOptions) {
         this.port = port;
         this.onMessage = onMessage;
 
@@ -31,7 +31,7 @@ export class ChiaMessageChannel {
             host = "[" + host + "]"
         }
         this.host = host;
-        this.network_id = network_id;
+        this.networkId = networkId;
     }
 
     public async connect(): Promise<void> {
@@ -89,18 +89,18 @@ export class ChiaMessageChannel {
 
     private onConnected(): void {
         const handshake: Handshake = new Handshake();
-        handshake.network_id = this.network_id;
-        handshake.protocol_version = protocol_version;
-        handshake.software_version = getSoftwareVersion();
-        handshake.server_port = this.port;
-        handshake.node_type = NodeType.WALLET;
+        handshake.networkId = this.networkId;
+        handshake.protocolVersion = PROTOCOL_VERSION;
+        handshake.softwareVersion = getSoftwareVersion();
+        handshake.serverPort = this.port;
+        handshake.nodeType = NodeType.WALLET;
         handshake.capabilities = [[Capability.BASE, "1"], ];
-        const hanshake_msg: bytes = make_msg(
+        const hanshakeMsg: bytes = makeMsg(
             ProtocolMessageTypes.handshake,
             handshake
         );
 
-        this.sendMessage(hanshake_msg);
+        this.sendMessage(hanshakeMsg);
     }
 
     //private onClose(err?: Error): void {}

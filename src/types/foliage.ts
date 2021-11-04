@@ -6,39 +6,39 @@ import { Coin } from "./coin";
 import { PoolTarget } from "./pool_target";
 
 export class TransactionsInfo {
-    @fields.Bytes(32) generator_root: bytes;
-    @fields.Bytes(32) generator_refs_root: bytes;
-    @fields.Bytes(96) aggregated_signature: bytes; // G2Element
+    @fields.Bytes(32) generatorRoot: bytes;
+    @fields.Bytes(32) generatorRefsRoot: bytes;
+    @fields.Bytes(96) aggregatedSignature: bytes; // G2Element
     @fields.Uint(64) fees: uint;
     @fields.Uint(64) cost: uint;
-    @fields.List(fields.Object(Coin)) reward_claims_incorporated: Coin[];
+    @fields.List(fields.Object(Coin)) rewardClaimsIncorporated: Coin[];
 }
 
 
 export class FoliageTransactionBlock {
-    @fields.Bytes(32) prev_transaction_block_hash: bytes;
+    @fields.Bytes(32) prevTransactionBlockHash: bytes;
     @fields.Uint(64) timestamp: uint;
-    @fields.Bytes(32) filter_hash: bytes;
-    @fields.Bytes(32) additions_root: bytes;
-    @fields.Bytes(32) removals_root: bytes;
-    @fields.Bytes(32) transactions_info_hash: bytes;
+    @fields.Bytes(32) filterHash: bytes;
+    @fields.Bytes(32) additionsRoot: bytes;
+    @fields.Bytes(32) removalsroot: bytes;
+    @fields.Bytes(32) transactionsInfoHash: bytes;
 }
 
 
 export class FoliageBlockData {
-    @fields.Bytes(32) unfinished_reward_block_hash: bytes;
-    @fields.Object(PoolTarget) pool_target: PoolTarget;
-    @fields.Optional(fields.Bytes(96)) pool_signature: Optional<bytes>; // Optional<G2Element>
-    @fields.Bytes(32) farmer_reward_puzzle_hash: bytes;
-    @fields.Bytes(32) extension_data: bytes;
+    @fields.Bytes(32) unfinishedRewardBlockHash: bytes;
+    @fields.Object(PoolTarget) poolTarget: PoolTarget;
+    @fields.Optional(fields.Bytes(96)) poolSignature: Optional<bytes>; // Optional<G2Element>
+    @fields.Bytes(32) farmerRewardPuzzleHash: bytes;
+    @fields.Bytes(32) extensionData: bytes;
 }
 
 
 export class Foliage {
-    @fields.Bytes(32) prev_block_hash: bytes;
-    @fields.Bytes(32) reward_block_hash: bytes;
-    @fields.Object(FoliageBlockData) foliage_block_data: FoliageBlockData;
-    @fields.Bytes(96) foliage_block_data_signature: bytes; // G2Element
-    @fields.Optional(fields.Bytes(32)) foliage_transaction_block_hash: Optional<bytes>;
-    @fields.Optional(fields.Bytes(96)) foliage_transaction_block_signature: Optional<bytes>; // Optional<G2Element>
+    @fields.Bytes(32) prevBlockHash: bytes;
+    @fields.Bytes(32) rewardBlockHash: bytes;
+    @fields.Object(FoliageBlockData) foliageBlockData: FoliageBlockData;
+    @fields.Bytes(96) foliageBlockDataSignature: bytes; // G2Element
+    @fields.Optional(fields.Bytes(32)) foliageTransactionBlockHash: Optional<bytes>;
+    @fields.Optional(fields.Bytes(96)) foliageTransactionBlockSignature: Optional<bytes>; // Optional<G2Element>
 }

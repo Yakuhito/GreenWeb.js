@@ -1,7 +1,7 @@
 import { Provider, Optional, getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs } from "../provider";
 import { ChiaMessageChannel } from './chia_message_channel';
 import { MessageQueue } from "../../util/message_queue";
-import { make_msg, Message } from "../../types/outbound_message";
+import { makeMsg, Message } from "../../types/outbound_message";
 import { Serializer } from "../../serializer";
 import { ProtocolMessageTypes } from "../../types/protocol_message_types";
 import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdates, RegisterForPhUpdates, RequestAdditions, RequestBlockHeader, RequestChildren, RequestHeaderBlocks, RequestPuzzleSolution, RequestRemovals, RespondAdditions, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondPuzzleSolution, RespondRemovals, RespondToCoinUpdates, RespondToPhUpdates } from "../../types/wallet_protocol";
@@ -15,43 +15,43 @@ const ADDRESS_PREFIX = "xch";
 const NETWORK_ID = "mainnet";
 
 export class ChiaNodeProvider implements Provider {
-    private message_channel: ChiaMessageChannel;
-    private message_queue: MessageQueue = new MessageQueue();
+    private messageChannel: ChiaMessageChannel;
+    private messageQueue: MessageQueue = new MessageQueue();
     private blockNumber: Optional<number> = null;
-    private coin_state_storage: CoinStateStorage = new CoinStateStorage();
+    private coinStateStorage: CoinStateStorage = new CoinStateStorage();
 
     constructor(host: string, port = 8444) {
-        this.message_channel = new ChiaMessageChannel({
+        this.messageChannel = new ChiaMessageChannel({
             host: host,
             port: port,
             onMessage: (message: Buffer) => this._onMessage(message),
-            network_id: NETWORK_ID
+            networkId: NETWORK_ID
         });
     }
 
-    private _onMessage(raw_msg: Buffer) {
-        const msg: Message = Serializer.deserialize(Message, raw_msg);
+    private _onMessage(rawMsg: Buffer) {
+        const msg: Message = Serializer.deserialize(Message, rawMsg);
         if(msg.type == ProtocolMessageTypes.new_peak_wallet) {
             const pckt: NewPeakWallet = Serializer.deserialize(NewPeakWallet, msg.data);
             this.blockNumber = pckt.height;
         } else if(msg.type == ProtocolMessageTypes.respond_to_ph_update) {
             const pckt: RespondToPhUpdates = Serializer.deserialize(RespondToPhUpdates, msg.data);
-            this.coin_state_storage.processPhPacket(pckt);
+            this.coinStateStorage.processPhPacket(pckt);
         } else if(msg.type == ProtocolMessageTypes.respond_to_coin_update) {
             const pckt: RespondToCoinUpdates = Serializer.deserialize(RespondToCoinUpdates, msg.data);
-            this.coin_state_storage.processCoinPacket(pckt);
+            this.coinStateStorage.processCoinPacket(pckt);
         } else {
-            this.message_queue.push(msg);
+            this.messageQueue.push(msg);
         }
     }
 
     public async initialize() {
-        await this.message_channel.connect();
-        await this.message_queue.waitFor([ProtocolMessageTypes.handshake]);
+        await this.messageChannel.connect();
+        await this.messageQueue.waitFor([ProtocolMessageTypes.handshake]);
     }
 
     public async close(): Promise<void> {
-        await this.message_channel.close();
+        await this.messageChannel.close();
     }
 
     public getNetworkId(): string {
@@ -81,34 +81,34 @@ export class ChiaNodeProvider implements Provider {
         }
         else return null;
 
-        const puzHash_str = puzHash.toString("hex");
+        const puzHashStr = puzHash.toString("hex");
 
         // accept packets containing that puzzle hash
-        this.coin_state_storage.willExpectUpdate(puzHash_str);
+        this.coinStateStorage.willExpectUpdate(puzHashStr);
 
         // Register for updates
         const pckt: RegisterForPhUpdates = new RegisterForPhUpdates();
-        pckt.min_height = minHeight;
-        pckt.puzzle_hashes = [puzHash];
+        pckt.minHeight = minHeight;
+        pckt.puzzleHashes = [puzHash];
 
-        this.message_channel.sendMessage(
-            make_msg(
+        this.messageChannel.sendMessage(
+            makeMsg(
                 ProtocolMessageTypes.register_interest_in_puzzle_hash,
                 pckt,
             )
         );
 
         // wait for coin states
-        const coin_states: CoinState[] = await this.coin_state_storage.waitFor(puzHash_str);
+        const coinStates: CoinState[] = await this.coinStateStorage.waitFor(puzHashStr);
 
         // filter received list of puzzle hashes and compute balance
-        const unspent_coins: CoinState[] = coin_states.filter(
-            (coin_state) => coin_state.spent_height == null
+        const unspentCoins: CoinState[] = coinStates.filter(
+            (coinState) => coinState.spentHeight == null
         );
 
         let balance = 0;
-        for(let i = 0; i < unspent_coins.length; ++i) {
-            balance += unspent_coins[i].coin.amount;
+        for(let i = 0; i < unspentCoins.length; ++i) {
+            balance += unspentCoins[i].coin.amount;
         }
 
         return balance;
@@ -118,46 +118,46 @@ export class ChiaNodeProvider implements Provider {
         puzzleHash = AddressUtil.validateHashString(puzzleHash);
         if(puzzleHash.length == 0) return;
 
-        this.coin_state_storage.willExpectUpdate(puzzleHash);
+        this.coinStateStorage.willExpectUpdate(puzzleHash);
 
         // Register for updates
         const pckt: RegisterForPhUpdates = new RegisterForPhUpdates();
-        pckt.min_height = minHeight;
-        pckt.puzzle_hashes = [
+        pckt.minHeight = minHeight;
+        pckt.puzzleHashes = [
             Buffer.from(puzzleHash, "hex"),
         ];
 
-        this.message_channel.sendMessage(
-            make_msg(
+        this.messageChannel.sendMessage(
+            makeMsg(
                 ProtocolMessageTypes.register_interest_in_puzzle_hash,
                 pckt,
             )
         );
 
-        this.coin_state_storage.addCallback(puzzleHash, callback);
+        this.coinStateStorage.addCallback(puzzleHash, callback);
     }
 
     public subscribeToCoinUpdates({ coinId, callback, minHeight = 0 }: subscribeToCoinUpdatesArgs): void {
         coinId = AddressUtil.validateHashString(coinId);
         if(coinId.length == 0) return;
 
-        this.coin_state_storage.willExpectUpdate(coinId);
+        this.coinStateStorage.willExpectUpdate(coinId);
 
         // Register for updates
         const pckt: RegisterForCoinUpdates = new RegisterForCoinUpdates();
-        pckt.min_height = minHeight;
-        pckt.coin_ids = [
+        pckt.minHeight = minHeight;
+        pckt.coinIds = [
             Buffer.from(coinId, "hex"),
         ];
 
-        this.message_channel.sendMessage(
-            make_msg(
+        this.messageChannel.sendMessage(
+            makeMsg(
                 ProtocolMessageTypes.register_interest_in_coin,
                 pckt,
             )
         );
 
-        this.coin_state_storage.addCallback(coinId, callback);
+        this.coinStateStorage.addCallback(coinId, callback);
     }
 
     public async getPuzzleSolution({coinId, height}: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolutionResponse>> {
@@ -165,27 +165,27 @@ export class ChiaNodeProvider implements Provider {
         if(coinId.length == 0) return null;
 
         const pckt: RequestPuzzleSolution = new RequestPuzzleSolution();
-        pckt.coin_name = Buffer.from(coinId, "hex");
+        pckt.coinName = Buffer.from(coinId, "hex");
         pckt.height = height;
 
-        this.message_queue.clear(ProtocolMessageTypes.respond_puzzle_solution);
-        this.message_queue.clear(ProtocolMessageTypes.reject_puzzle_solution);
-        this.message_channel.sendMessage(
-            make_msg(
+        this.messageQueue.clear(ProtocolMessageTypes.respond_puzzle_solution);
+        this.messageQueue.clear(ProtocolMessageTypes.reject_puzzle_solution);
+        this.messageChannel.sendMessage(
+            makeMsg(
                 ProtocolMessageTypes.request_puzzle_solution,
                 pckt,
             )
         );
 
-        const resp_msg: Message = await this.message_queue.waitFor([
+        const respMsg: Message = await this.messageQueue.waitFor([
             ProtocolMessageTypes.respond_puzzle_solution,
             ProtocolMessageTypes.reject_puzzle_solution
         ]);
-        if(resp_msg.type == ProtocolMessageTypes.reject_puzzle_solution) return null;
+        if(respMsg.type == ProtocolMessageTypes.reject_puzzle_solution) return null;
 
-        const resp_pckt: PuzzleSolutionResponse = Serializer.deserialize(RespondPuzzleSolution, resp_msg.data).response;
+        const respPckt: PuzzleSolutionResponse = Serializer.deserialize(RespondPuzzleSolution, respMsg.data).response;
 
-        return resp_pckt;
+        return respPckt;
     }
 
     public async getCoinChildren({ coinId }: getCoinChildrenArgs): Promise<CoinState[]> {
@@ -193,71 +193,71 @@ export class ChiaNodeProvider implements Provider {
         if(coinId.length === 0) return [];
 
         const pckt: RequestChildren = new RequestChildren();
-        pckt.coin_name = Buffer.from(coinId, "hex");
+        pckt.coinName = Buffer.from(coinId, "hex");
 
-        this.message_queue.clear(ProtocolMessageTypes.respond_children);
-        this.message_channel.sendMessage(
-            make_msg(
+        this.messageQueue.clear(ProtocolMessageTypes.respond_children);
+        this.messageChannel.sendMessage(
+            makeMsg(
                 ProtocolMessageTypes.request_children,
                 pckt,
             )
         );
 
-        const resp_msg: Message = await this.message_queue.waitFor([
+        const respMsg: Message = await this.messageQueue.waitFor([
             ProtocolMessageTypes.respond_children
         ]);
-        const resp_pckt = Serializer.deserialize(RespondChildren, resp_msg.data);
+        const respPckt = Serializer.deserialize(RespondChildren, respMsg.data);
 
-        return resp_pckt.coin_states;
+        return respPckt.coinStates;
     }
 
     public async getBlockHeader({ height }: getBlockHeaderArgs): Promise<Optional<HeaderBlock>> {
         const pckt: RequestBlockHeader = new RequestBlockHeader();
         pckt.height = height;
 
-        this.message_queue.clear(ProtocolMessageTypes.respond_block_header);
-        this.message_queue.clear(ProtocolMessageTypes.reject_header_request);
-        this.message_channel.sendMessage(
-            make_msg(
+        this.messageQueue.clear(ProtocolMessageTypes.respond_block_header);
+        this.messageQueue.clear(ProtocolMessageTypes.reject_header_request);
+        this.messageChannel.sendMessage(
+            makeMsg(
                 ProtocolMessageTypes.request_block_header,
                 pckt,
             )
         );
 
-        const resp_msg: Message = await this.message_queue.waitFor([
+        const respMsg: Message = await this.messageQueue.waitFor([
             ProtocolMessageTypes.respond_block_header,
             ProtocolMessageTypes.reject_header_request
         ]);
-        if(resp_msg.type == ProtocolMessageTypes.reject_header_request)
+        if(respMsg.type == ProtocolMessageTypes.reject_header_request)
             return null;
 
-        const resp_pckt: RespondBlockHeader = Serializer.deserialize(RespondBlockHeader, resp_msg.data);
-        return resp_pckt.header_block;
+        const respPckt: RespondBlockHeader = Serializer.deserialize(RespondBlockHeader, respMsg.data);
+        return respPckt.headerBlock;
     }
 
     public async getBlocksHeaders({ startHeight, endHeight }: getBlocksHeadersArgs): Promise<Optional<HeaderBlock[]>> {
         const pckt: RequestHeaderBlocks = new RequestHeaderBlocks();
-        pckt.start_height = startHeight;
-        pckt.end_height = endHeight;
+        pckt.startHeight = startHeight;
+        pckt.endHeight = endHeight;
 
-        this.message_queue.clear(ProtocolMessageTypes.respond_header_blocks);
-        this.message_queue.clear(ProtocolMessageTypes.reject_header_blocks);
-        this.message_channel.sendMessage(
-            make_msg(
+        this.messageQueue.clear(ProtocolMessageTypes.respond_header_blocks);
+        this.messageQueue.clear(ProtocolMessageTypes.reject_header_blocks);
+        this.messageChannel.sendMessage(
+            makeMsg(
                 ProtocolMessageTypes.request_header_blocks,
                 pckt,
             )
         );
 
-        const resp_msg: Message = await this.message_queue.waitFor([
+        const respMsg: Message = await this.messageQueue.waitFor([
             ProtocolMessageTypes.respond_header_blocks,
             ProtocolMessageTypes.reject_header_blocks
         ]);
-        if(resp_msg.type == ProtocolMessageTypes.reject_header_blocks)
+        if(respMsg.type == ProtocolMessageTypes.reject_header_blocks)
             return null;
 
-        const resp_pckt: RespondHeaderBlocks = Serializer.deserialize(RespondHeaderBlocks, resp_msg.data);
-        return resp_pckt.header_blocks;
+        const respPckt: RespondHeaderBlocks = Serializer.deserialize(RespondHeaderBlocks, respMsg.data);
+        return respPckt.headerBlocks;
     }
 
     public async getCoinRemovals({ height, headerHash, coinIds = undefined }: getCoinRemovalsArgs): Promise<Optional<[bytes, Optional<Coin>][]>> {
@@ -276,27 +276,27 @@ export class ChiaNodeProvider implements Provider {
 
         const pckt: RequestRemovals = new RequestRemovals();
         pckt.height = height;
-        pckt.header_hash = Buffer.from(headerHash, "hex");
-        pckt.coin_names = coinIds != undefined ? parsedCoinIds : null;
+        pckt.headerHash = Buffer.from(headerHash, "hex");
+        pckt.coinNames = coinIds != undefined ? parsedCoinIds : null;
 
-        this.message_queue.clear(ProtocolMessageTypes.respond_removals);
-        this.message_queue.clear(ProtocolMessageTypes.reject_removals_request);
-        this.message_channel.sendMessage(
-            make_msg(
+        this.messageQueue.clear(ProtocolMessageTypes.respond_removals);
+        this.messageQueue.clear(ProtocolMessageTypes.reject_removals_request);
+        this.messageChannel.sendMessage(
+            makeMsg(
                 ProtocolMessageTypes.request_removals,
                 pckt,
             )
         );
 
-        const resp_msg: Message = await this.message_queue.waitFor([
+        const respMsg: Message = await this.messageQueue.waitFor([
             ProtocolMessageTypes.respond_removals,
             ProtocolMessageTypes.reject_removals_request
         ]);
-        if(resp_msg.type == ProtocolMessageTypes.reject_removals_request)
+        if(respMsg.type == ProtocolMessageTypes.reject_removals_request)
             return null;
 
-        const resp_pckt: RespondRemovals = Serializer.deserialize(RespondRemovals, resp_msg.data);
-        return resp_pckt.coins;
+        const respPckt: RespondRemovals = Serializer.deserialize(RespondRemovals, respMsg.data);
+        return respPckt.coins;
     }
 
     public async getCoinAdditions({ height, headerHash, puzzleHashes = undefined }: getCoinAdditionsArgs): Promise<Optional<[bytes, Coin[]][]>> {
@@ -315,26 +315,26 @@ export class ChiaNodeProvider implements Provider {
 
         const pckt: RequestAdditions = new RequestAdditions();
         pckt.height = height;
-        pckt.header_hash = Buffer.from(headerHash, "hex");
-        pckt.puzzle_hashes = puzzleHashes != undefined ? parsedpuzzleHashes : null;
+        pckt.headerHash = Buffer.from(headerHash, "hex");
+        pckt.puzzleHashes = puzzleHashes != undefined ? parsedpuzzleHashes : null;
 
-        this.message_queue.clear(ProtocolMessageTypes.respond_additions);
-        this.message_queue.clear(ProtocolMessageTypes.reject_additions_request);
-        this.message_channel.sendMessage(
-            make_msg(
+        this.messageQueue.clear(ProtocolMessageTypes.respond_additions);
+        this.messageQueue.clear(ProtocolMessageTypes.reject_additions_request);
+        this.messageChannel.sendMessage(
+            makeMsg(
                 ProtocolMessageTypes.request_additions,
                 pckt,
             )
         );
         
-        const resp_msg: Message = await this.message_queue.waitFor([
+        const respMsg: Message = await this.messageQueue.waitFor([
             ProtocolMessageTypes.respond_additions,
             ProtocolMessageTypes.reject_additions_request
         ]);
-        if(resp_msg.type == ProtocolMessageTypes.reject_additions_request)
+        if(respMsg.type == ProtocolMessageTypes.reject_additions_request)
             return null;
 
-        const resp_pckt: RespondAdditions = Serializer.deserialize(RespondAdditions, resp_msg.data);
-        return resp_pckt.coins;
+        const respPckt: RespondAdditions = Serializer.deserialize(RespondAdditions, respMsg.data);
+        return respPckt.coins;
     }
 }

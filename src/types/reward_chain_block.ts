@@ -8,16 +8,16 @@ import { VDFInfo } from "./vdf";
 export class RewardChainBlock {
     @fields.Uint(128) weight: uint;
     @fields.Uint(32) height: uint;
-    @fields.Uint(128) total_iters: uint;
-    @fields.Uint(8) signage_point_index: uint;
-    @fields.Bytes(32) pos_ss_cc_challenge_hash: bytes;
-    @fields.Object(ProofOfSpace) proof_of_space: ProofOfSpace;
-    @fields.Optional(fields.Object(VDFInfo)) challenge_chain_sp_vdf: Optional<VDFInfo>;
-    @fields.Bytes(96) challenge_chain_sp_signature: bytes; // G2Element
-    @fields.Object(VDFInfo) challenge_chain_ip_vdf: VDFInfo;
-    @fields.Optional(fields.Object(VDFInfo)) reward_chain_sp_vdf: Optional<VDFInfo>;
-    @fields.Bytes(96) reward_chain_sp_signature: bytes; // G2Element
-    @fields.Object(VDFInfo) reward_chain_ip_vdf: VDFInfo;
-    @fields.Optional(fields.Object(VDFInfo)) infused_challenge_chain_ip_vdf: Optional<VDFInfo>;
-    @fields.Boolean() is_transaction_block: boolean;
+    @fields.Uint(128) totalIters: uint;
+    @fields.Uint(8) signagePointIndex: uint;
+    @fields.Bytes(32) posSsCcChallengeHash: bytes;
+    @fields.Object(ProofOfSpace) proofOfSpace: ProofOfSpace;
+    @fields.Optional(fields.Object(VDFInfo)) challengeChainSpVdf: Optional<VDFInfo>;
+    @fields.Bytes(96) challengeChainSpSignature: bytes; // G2Element
+    @fields.Object(VDFInfo) challengeChainIpVdf: VDFInfo;
+    @fields.Optional(fields.Object(VDFInfo)) rewardChainSpVdf: Optional<VDFInfo>;
+    @fields.Bytes(96) rewardChainSpSignature: bytes; // G2Element
+    @fields.Object(VDFInfo) rewardChainIpVdf: VDFInfo;
+    @fields.Optional(fields.Object(VDFInfo)) infusedChallengeChainIpVdf: Optional<VDFInfo>;
+    @fields.Boolean() isTransactionBlock: boolean;
 }

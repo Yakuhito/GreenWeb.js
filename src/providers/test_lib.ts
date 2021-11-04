@@ -31,57 +31,57 @@ describe('ChiaNodeProvider with ' + nodeHost, () => {
     });
 
     it('getNetworkId()', () => {
-        const network_id: string = p.getNetworkId();
-        assert.equal(network_id, "mainnet");
+        const networkId: string = p.getNetworkId();
+        assert.equal(networkId, "mainnet");
     });
     
     it('subscribeToCoinUpdates()', async () => {
         const coinId = "7200b9a8a799717b2b54809b7ed6bd2bacfa113dcf9564569a8182bd7f588cf8";
-        let coin_states: CoinState[] | boolean = true;
+        let coinStates: CoinState[] | boolean = true;
     
         p.subscribeToCoinUpdates({
             coinId: coinId,
-            callback: (arg) => coin_states = arg,
+            callback: (arg) => coinStates = arg,
         });
     
-        while(coin_states === true) {
+        while(coinStates === true) {
             await new Promise( resolve => setTimeout(resolve, 100));
         }
     
-        assert.isArray(coin_states);
+        assert.isArray(coinStates);
         
-        const cs: CoinState[] = coin_states;
+        const cs: CoinState[] = coinStates;
         assert.isTrue(cs.length === 1);
 
-        const coin_state: CoinState = cs[0];
+        const coinState: CoinState = cs[0];
         assert.equal(
             coinId,
-            coin_state.coin.getId().toString("hex")
+            coinState.coin.getId().toString("hex")
         );
     });
 
     it('subscribeToPuzzleHashUpdates()', async () => {
         const puzzleHash = "0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664";
-        let coin_states: CoinState[] | boolean = true;
+        let coinStates: CoinState[] | boolean = true;
     
         p.subscribeToPuzzleHashUpdates({
             puzzleHash: puzzleHash,
-            callback: (arg) => coin_states = arg,
+            callback: (arg) => coinStates = arg,
         });
     
-        while(coin_states === true) {
+        while(coinStates === true) {
             await new Promise( resolve => setTimeout(resolve, 100));
         }
     
-        assert.isArray(coin_states);
+        assert.isArray(coinStates);
         
-        const cs: CoinState[] = coin_states;
+        const cs: CoinState[] = coinStates;
         assert.isTrue(cs.length >= 26);
 
-        const coin_state: CoinState = cs[0];
+        const coinState: CoinState = cs[0];
         assert.equal(
             puzzleHash,
-            "0x" + coin_state.coin.puzzle_hash.toString("hex")
+            "0x" + coinState.coin.puzzleHash.toString("hex")
         );
     });
 
@@ -101,7 +101,7 @@ describe('ChiaNodeProvider with ' + nodeHost, () => {
         assert.instanceOf(resp, PuzzleSolutionResponse);
         assert.equal(
             coinId,
-            "0x" + resp!.coin_name.toString("hex")
+            "0x" + resp!.coinName.toString("hex")
         );
         assert.equal(resp!.height, height);
         assert.equal(resp!.puzzle.toString(), puzzle);
@@ -238,7 +238,7 @@ describe('ChiaNodeProvider with ' + nodeHost, () => {
         const arr: [bytes, Coin[]][] = resp!;
         let ok = false;
         for(let i = 0; i < arr.length; i++) {
-            if(arr[i][1][0].puzzle_hash.toString('hex') === puzHash && arr[i][0].toString('hex') == puzHash) {
+            if(arr[i][1][0].puzzleHash.toString('hex') === puzHash && arr[i][0].toString('hex') == puzHash) {
                 ok = true;
                 break;
             }
@@ -267,7 +267,7 @@ describe('ChiaNodeProvider with ' + nodeHost, () => {
         assert.equal(arr.length, 2);
         assert.equal(arr[0][0].toString('hex'), puzzHash);
         assert.equal(arr[0][1].length, 1);
-        assert.equal(arr[0][1][0].puzzle_hash.toString('hex'), puzzHash);
+        assert.equal(arr[0][1][0].puzzleHash.toString('hex'), puzzHash);
         assert.equal(arr[1][0].toString('hex'), nonExistentPuzzHash);
         assert.equal(arr[1][1].length, 0);
     });

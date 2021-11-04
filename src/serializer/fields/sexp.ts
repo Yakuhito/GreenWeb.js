@@ -1,4 +1,5 @@
 import { buildField } from "../register";
+// eslint-disable-next-line camelcase
 import { Stream, Bytes, SExp, sexp_to_stream, sexp_from_stream } from "clvm";
 
 export const SExpField = buildField<SExp>({

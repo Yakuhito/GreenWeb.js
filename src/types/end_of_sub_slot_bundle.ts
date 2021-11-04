@@ -5,8 +5,8 @@ import { Optional } from "../serializer/basic_types";
 import { ChallengeChainSubSlot, InfusedChallengeChainSubSlot, RewardChainSubSlot, SubSlotProofs } from "./slots";
 
 export class EndOfSubSlotBundle {
-    @fields.Object(ChallengeChainSubSlot) challenge_chain: ChallengeChainSubSlot;
-    @fields.Optional(fields.Object(InfusedChallengeChainSubSlot)) infused_challenge_chain: Optional<InfusedChallengeChainSubSlot>;
-    @fields.Object(RewardChainSubSlot) reward_chain: RewardChainSubSlot;
+    @fields.Object(ChallengeChainSubSlot) challengeChain: ChallengeChainSubSlot;
+    @fields.Optional(fields.Object(InfusedChallengeChainSubSlot)) infusedChallengeChain: Optional<InfusedChallengeChainSubSlot>;
+    @fields.Object(RewardChainSubSlot) rewardChain: RewardChainSubSlot;
     @fields.Object(SubSlotProofs) proofs: SubSlotProofs;
 }

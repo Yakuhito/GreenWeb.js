@@ -1,4 +1,5 @@
 import { Provider } from "./providers/provider";
+import { Util } from "./util/util";
 
 export type GreenWebOptions = {
     provider: null | Provider;
@@ -8,6 +9,7 @@ export type GreenWebOptions = {
 
 export class GreenWeb {
     private readonly provider: Provider;
+    public static util: Util = Util;
 
     constructor({
         provider = null,

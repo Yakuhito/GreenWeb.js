@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { uint, bytes } from '../serializer/basic_types';
 import { Queue } from './queue';
 import { Message } from '../types/outbound_message';
@@ -30,11 +31,12 @@ export class MessageQueue {
     }
 
     public async waitFor(msg_types: uint[]): Promise<Message> {
+        // eslint-disable-next-line no-constant-condition
         while(true) {
-            for(var i = 0; i < msg_types.length; ++i) {
-                var res: bytes | undefined = this.pop(msg_types[i]);
+            for(let i = 0; i < msg_types.length; ++i) {
+                const res: bytes | undefined = this.pop(msg_types[i]);
                 if(res != undefined) {
-                    var a = new Message();
+                    const a = new Message();
                     a.data = res;
                     a.id = null;
                     a.type = msg_types[i];

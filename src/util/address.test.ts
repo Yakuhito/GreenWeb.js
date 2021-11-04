@@ -5,11 +5,11 @@ import { AddressUtil } from "./address";
 These tests use the original yakuSwap fee wallet address:
 */
 
-const ADDRESS: string = "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3";
-const PUZZLE_HASH: string = "b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664"
+const ADDRESS = "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3";
+const PUZZLE_HASH = "b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664"
 const PUZZLE_HASH_0x: string = "0x" + PUZZLE_HASH;
 const PUZZLE_HASH_buf: Buffer = Buffer.from(PUZZLE_HASH, "hex");
-const YAKU_ADDRESS: string = "yaku1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejqrlyg4k";
+const YAKU_ADDRESS = "yaku1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejqrlyg4k";
 
 describe('AddressUtil', () => {
     describe('puzzleHashToAddress', () => {

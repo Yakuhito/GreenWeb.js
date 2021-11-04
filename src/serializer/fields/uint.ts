@@ -5,12 +5,13 @@ import { uint } from "../basic_types";
 export const UintField = (size: number, byteorder: "big" | "little" = "big") => {
     const serializer: FieldSerializer<uint> = {
         serialize: (value, buf) => {
-            var s: string = value.toString(16);
+            let s: string = value.toString(16);
             if(s.length < size / 4) {
-                var diff: number = size / 4 - s.length;
+                const diff: number = size / 4 - s.length;
                 s = "0".repeat(diff) + s;
             }
             if(byteorder === "little") {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 s = s.match(/../g)!.reverse().join('');
             }
             const buf2 : Buffer = Buffer.from(s, "hex");
@@ -23,8 +24,9 @@ export const UintField = (size: number, byteorder: "big" | "little" = "big") => 
             const buf2 = buf.slice(0, numOfBytes);
             buf = buf.slice(numOfBytes);
 
-            var num: number;
+            let num: number;
             if(byteorder === "little") {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 num = parseInt(buf2.toString('hex').match(/../g)!.reverse().join(''), 16);
             } else {
                 num = parseInt(buf2.toString('hex'), 16);

@@ -1,6 +1,6 @@
 import { ObjectWithProps, FieldSerializer, FieldDecorator } from './interfaces';
 
-export const propertySerializerName: string = '__serializer__';
+export const propertySerializerName = '__serializer__';
 
 export function register<T>(
     target: ObjectWithProps,
@@ -16,7 +16,8 @@ export function register<T>(
         });
     }
 
-    target[propertySerializerName][property.toString()] = serializer;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    target[propertySerializerName]![property.toString()] = serializer;
 }
 
 export function buildField<T>(serializer: FieldSerializer<T>) {

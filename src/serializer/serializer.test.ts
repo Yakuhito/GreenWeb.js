@@ -31,7 +31,7 @@ print(bytes(b).hex())
 describe('Serializer', () => {
     describe('TestClass', () => {
         class TestClass {
-            @fields.Boolean() someBool: boolean = true;
+            @fields.Boolean() someBool = true;
             @fields.Bytes() someBytes: bytes = Buffer.from([0x13, 0x33, 0x33, 0x37]);
             @fields.Bytes(4) someOtherBytes = Buffer.from([0x24, 0x44, 0x44, 0x48]);
             @fields.List(fields.Uint(32)) uint32Array: uint[] = [1, 2, 3, 4];
@@ -42,7 +42,7 @@ describe('Serializer', () => {
     
         describe('Test 1', () => {
             it('serialize()', () => {
-                const expectedOutput: string = "01000000041333333724444448000000040000000100000002000000030000000401000000076d657373616765000000010000000c48656c6c6f20576f726c642100000539";
+                const expectedOutput = "01000000041333333724444448000000040000000100000002000000030000000401000000076d657373616765000000010000000c48656c6c6f20576f726c642100000539";
                 const testObj = new TestClass();
                 const buff = Serializer.serialize(testObj);
             
@@ -50,7 +50,7 @@ describe('Serializer', () => {
             });
 
             it('deserialize()', () => {
-                const input: string = "01000000041333333724444448000000040000000100000002000000030000000401000000076d657373616765000000010000000c48656c6c6f20576f726c642100000539";
+                const input = "01000000041333333724444448000000040000000100000002000000030000000401000000076d657373616765000000010000000c48656c6c6f20576f726c642100000539";
                 const testObj = Serializer.deserialize(
                     TestClass,
                     Buffer.from(input, "hex")
@@ -71,7 +71,7 @@ describe('Serializer', () => {
 
         describe('Test 2', () => {
             it('serialize()', () => {
-                const expectedOutput: string = "0000000003133337244444480000000000000000010000000c48656c6c6f20576f726c642100000000";
+                const expectedOutput = "0000000003133337244444480000000000000000010000000c48656c6c6f20576f726c642100000000";
                 const testObj = new TestClass();
                 testObj.someBool = false;
                 testObj.someBytes = Buffer.from([0x13, 0x33, 0x37]);
@@ -85,7 +85,7 @@ describe('Serializer', () => {
             });
 
             it('deserialize()', () => {
-                const input: string = "0000000003133337244444480000000000000000010000000c48656c6c6f20576f726c642100000000";
+                const input = "0000000003133337244444480000000000000000010000000c48656c6c6f20576f726c642100000000";
                 const testObj = Serializer.deserialize(
                     TestClass,
                     Buffer.from(input, "hex")

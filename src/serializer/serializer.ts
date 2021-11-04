@@ -19,11 +19,13 @@ export class Serializer {
         return buf;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     static deserialize<T>(classType: new (...args: any[]) => T, buf: Buffer): T {
         const props: IPropsType = classType.prototype[propertySerializerName];
         const result = new classType();
 
         for (const prop of Object.keys(props)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const deserializationResult: [any, Buffer] = props[prop].deserialize(buf);
             
             result[prop as keyof typeof result] = deserializationResult[0];

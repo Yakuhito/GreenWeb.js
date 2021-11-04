@@ -36,8 +36,9 @@ export class Message {
     @fields.Bytes() data: bytes;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function make_msg(msg_type: ProtocolMessageTypes, data: any): bytes {
-    var msg: Message = new Message();
+    const msg: Message = new Message();
     msg.type = msg_type;
     msg.id = null;
     msg.data = Serializer.serialize(data);

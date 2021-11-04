@@ -44,8 +44,8 @@ export class ChiaMessageChannel {
                 key: CHIA_KEY
             });
             this.ws.on('message', (data: Buffer): void => this.messageHandler(data));
-            this.ws.on('error', (err: Error): void => this.onClose(err));
-            this.ws.on('close', (_, reason) => this.onClose(new Error(reason.toString())));
+            // this.ws.on('error', (err: Error): void => this.onClose(err));
+            // this.ws.on('close', (_, reason) => this.onClose(new Error(reason.toString())));
             this.ws.on('open', () => {
                 this.onConnected();
 
@@ -67,7 +67,6 @@ export class ChiaMessageChannel {
 
         // Buffer is big enough to contain the length
         if (this.inboundDataBuffer.byteLength >= 5) {
-            const messageType = data[0];
             const haveMessageId = data.readUInt8(1);
             const messageLength = haveMessageId > 0 ?
                 data.readUInt32BE(4) :
@@ -104,5 +103,5 @@ export class ChiaMessageChannel {
         this.sendMessage(hanshake_msg);
     }
 
-    private onClose(err?: Error): void {}
+    //private onClose(err?: Error): void {}
 }

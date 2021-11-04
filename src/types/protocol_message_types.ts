@@ -95,4 +95,4 @@ export enum ProtocolMessageTypes {
     respond_children = 75,
     request_ses_hashes = 76,
     respond_ses_hashes = 77
-};
+}

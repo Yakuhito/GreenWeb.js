@@ -11,8 +11,8 @@ import { HeaderBlock } from "../../types/header_block";
 import { Coin } from "../../types/coin";
 import { bytes } from "../../serializer/basic_types";
 
-const ADDRESS_PREFIX: string = "xch";
-const NETWORK_ID: string = "mainnet";
+const ADDRESS_PREFIX = "xch";
+const NETWORK_ID = "mainnet";
 
 export class ChiaNodeProvider implements Provider {
     private message_channel: ChiaMessageChannel;
@@ -20,14 +20,14 @@ export class ChiaNodeProvider implements Provider {
     private blockNumber: Optional<number> = null;
     private coin_state_storage: CoinStateStorage = new CoinStateStorage();
 
-    constructor(host: string, port: number = 8444) {
+    constructor(host: string, port = 8444) {
         this.message_channel = new ChiaMessageChannel({
             host: host,
             port: port,
             onMessage: (message: Buffer) => this._onMessage(message),
             network_id: NETWORK_ID
         });
-    };
+    }
 
     private _onMessage(raw_msg: Buffer) {
         const msg: Message = Serializer.deserialize(Message, raw_msg);
@@ -67,7 +67,7 @@ export class ChiaNodeProvider implements Provider {
         puzzleHash,
         minHeight = 0
     }: getBalanceArgs): Promise<Optional<number>> {
-        var puzHash: Buffer;
+        let puzHash: Buffer;
 
         // get puzHash: Buffer from address / puzzle hash
         if(address != undefined && address.startsWith(ADDRESS_PREFIX)) {
@@ -106,8 +106,8 @@ export class ChiaNodeProvider implements Provider {
             (coin_state) => coin_state.spent_height == null
         );
 
-        var balance: number = 0;
-        for(var i = 0; i < unspent_coins.length; ++i) {
+        let balance = 0;
+        for(let i = 0; i < unspent_coins.length; ++i) {
             balance += unspent_coins[i].coin.amount;
         }
 
@@ -177,13 +177,13 @@ export class ChiaNodeProvider implements Provider {
             )
         );
 
-        var resp_msg: Message = await this.message_queue.waitFor([
+        const resp_msg: Message = await this.message_queue.waitFor([
             ProtocolMessageTypes.respond_puzzle_solution,
             ProtocolMessageTypes.reject_puzzle_solution
         ]);
         if(resp_msg.type == ProtocolMessageTypes.reject_puzzle_solution) return null;
 
-        var resp_pckt: PuzzleSolutionResponse = Serializer.deserialize(RespondPuzzleSolution, resp_msg.data).response;
+        const resp_pckt: PuzzleSolutionResponse = Serializer.deserialize(RespondPuzzleSolution, resp_msg.data).response;
 
         return resp_pckt;
     }
@@ -203,10 +203,10 @@ export class ChiaNodeProvider implements Provider {
             )
         );
 
-        var resp_msg: Message = await this.message_queue.waitFor([
+        const resp_msg: Message = await this.message_queue.waitFor([
             ProtocolMessageTypes.respond_children
         ]);
-        var resp_pckt = Serializer.deserialize(RespondChildren, resp_msg.data);
+        const resp_pckt = Serializer.deserialize(RespondChildren, resp_msg.data);
 
         return resp_pckt.coin_states;
     }
@@ -224,14 +224,14 @@ export class ChiaNodeProvider implements Provider {
             )
         );
 
-        var resp_msg: Message = await this.message_queue.waitFor([
+        const resp_msg: Message = await this.message_queue.waitFor([
             ProtocolMessageTypes.respond_block_header,
             ProtocolMessageTypes.reject_header_request
         ]);
         if(resp_msg.type == ProtocolMessageTypes.reject_header_request)
             return null;
 
-        var resp_pckt: RespondBlockHeader = Serializer.deserialize(RespondBlockHeader, resp_msg.data);
+        const resp_pckt: RespondBlockHeader = Serializer.deserialize(RespondBlockHeader, resp_msg.data);
         return resp_pckt.header_block;
     }
 
@@ -249,14 +249,14 @@ export class ChiaNodeProvider implements Provider {
             )
         );
 
-        var resp_msg: Message = await this.message_queue.waitFor([
+        const resp_msg: Message = await this.message_queue.waitFor([
             ProtocolMessageTypes.respond_header_blocks,
             ProtocolMessageTypes.reject_header_blocks
         ]);
         if(resp_msg.type == ProtocolMessageTypes.reject_header_blocks)
             return null;
 
-        var resp_pckt: RespondHeaderBlocks = Serializer.deserialize(RespondHeaderBlocks, resp_msg.data);
+        const resp_pckt: RespondHeaderBlocks = Serializer.deserialize(RespondHeaderBlocks, resp_msg.data);
         return resp_pckt.header_blocks;
     }
 
@@ -264,9 +264,9 @@ export class ChiaNodeProvider implements Provider {
         headerHash = AddressUtil.validateHashString(headerHash);
         if(headerHash.length == 0) return null;
 
-        var parsedCoinIds: Buffer[] = [];
+        const parsedCoinIds: Buffer[] = [];
         if(coinIds != undefined) {
-            for(var i = 0;i < coinIds.length; ++i) {
+            for(let i = 0;i < coinIds.length; ++i) {
                 const parsed: string = AddressUtil.validateHashString(coinIds[i]);
 
                 if(parsed.length == 0) return null;
@@ -288,7 +288,7 @@ export class ChiaNodeProvider implements Provider {
             )
         );
 
-        var resp_msg: Message = await this.message_queue.waitFor([
+        const resp_msg: Message = await this.message_queue.waitFor([
             ProtocolMessageTypes.respond_removals,
             ProtocolMessageTypes.reject_removals_request
         ]);
@@ -303,9 +303,9 @@ export class ChiaNodeProvider implements Provider {
         headerHash = AddressUtil.validateHashString(headerHash);
         if(headerHash.length == 0) return null;
 
-        var parsedpuzzleHashes: Buffer[] = [];
+        const parsedpuzzleHashes: Buffer[] = [];
         if(puzzleHashes != undefined) {
-            for(var i = 0;i < puzzleHashes.length; ++i) {
+            for(let i = 0;i < puzzleHashes.length; ++i) {
                 const parsed: string = AddressUtil.validateHashString(puzzleHashes[i]);
 
                 if(parsed.length == 0) return null;
@@ -327,7 +327,7 @@ export class ChiaNodeProvider implements Provider {
             )
         );
         
-        var resp_msg: Message = await this.message_queue.waitFor([
+        const resp_msg: Message = await this.message_queue.waitFor([
             ProtocolMessageTypes.respond_additions,
             ProtocolMessageTypes.reject_additions_request
         ]);

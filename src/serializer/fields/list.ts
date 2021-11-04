@@ -10,8 +10,8 @@ export const ListField = (field: any) => {
             const buf2 : Buffer = Buffer.alloc(4);
             buf2.writeUInt32BE(value.length);
 
-            var buf3: Buffer = Buffer.from([]);
-            for(var i = 0; i < value.length; ++i) {
+            let buf3: Buffer = Buffer.from([]);
+            for(let i = 0; i < value.length; ++i) {
                 const item: any = value[i];
                 buf3 = fieldTyped.__serializer__!.serialize(item, buf3);
             }
@@ -22,8 +22,8 @@ export const ListField = (field: any) => {
             const size: uint = buf.readUInt32BE();
             buf = buf.slice(4);
             
-            var arr: Array<any> = [];
-            for(var i = 0; i < size; ++i) {
+            const arr: Array<any> = [];
+            for(let i = 0; i < size; ++i) {
                 const deserializationResult: [any, Buffer] = fieldTyped.__serializer__!.deserialize(buf);
                 const deserializedObj: any = deserializationResult[0];
                 buf = deserializationResult[1];

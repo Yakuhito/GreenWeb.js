@@ -3,7 +3,7 @@
 import { fields } from "../serializer";
 import { uint } from "../serializer/basic_types";
 
-export const protocol_version: string = "0.0.33";
+export const protocol_version = "0.0.33";
 
 export enum Capability {
     BASE = 1,

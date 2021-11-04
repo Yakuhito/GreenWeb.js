@@ -1,10 +1,11 @@
+import { ChiaNodeProvider } from "./providers/chia_node";
 import { Provider } from "./providers/provider";
 import { Util } from "./util/util";
 
 export type GreenWebOptions = {
     provider: null | Provider;
-    host: string | null;
-    port: number | null;
+    host?: string;
+    port?: number;
 };
 
 export class GreenWeb {
@@ -18,8 +19,11 @@ export class GreenWeb {
     } : GreenWebOptions) {
         if(provider != null) {
             this.provider =  provider;
-        } else {
-            // todo
+        } else if(host !== undefined) {
+            if(port !== undefined)
+                this.provider = new ChiaNodeProvider(host, port);
+            else
+            this.provider = new ChiaNodeProvider(host);
         }
     }
 }

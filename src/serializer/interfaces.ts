@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface IPropsType {
     [prop: string]: FieldSerializer;
 }
@@ -17,4 +18,5 @@ export interface ObjectWithSerializer<T = any> {
 
 export type FieldRegistered = (target: ObjectWithProps, property: string | symbol) => void;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FieldDecorator = (...args: any[]) => FieldRegistered;

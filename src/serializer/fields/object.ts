@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { buildField, propertySerializerName } from "../register";
 import { FieldSerializer, IPropsType } from '../interfaces';
 

@@ -1,10 +1,10 @@
-import { Provider, Optional, getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs } from "../provider";
+import { Provider, Optional, getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs } from "../provider";
 import { ChiaMessageChannel } from './chia_message_channel';
 import { MessageQueue } from "../../util/message_queue";
 import { make_msg, Message } from "../../types/outbound_message";
 import { Serializer } from "../../serializer";
 import { ProtocolMessageTypes } from "../../types/protocol_message_types";
-import { CoinState, NewPeakWallet, RegisterForCoinUpdates, RegisterForPhUpdates, RespondToCoinUpdates, RespondToPhUpdates } from "../../types/wallet_protocol";
+import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdates, RegisterForPhUpdates, RequestPuzzleSolution, RespondPuzzleSolution, RespondToCoinUpdates, RespondToPhUpdates } from "../../types/wallet_protocol";
 import { AddressUtil } from "../../util/address";
 import { CoinStateStorage } from "../../util/coin_state_storage";
 
@@ -155,5 +155,33 @@ export class ChiaNodeProvider implements Provider {
         );
 
         this.coin_state_storage.addCallback(coinId, callback);
+    }
+
+    public async getPuzzleSolution({coinId, height}: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolutionResponse>> {
+        coinId = AddressUtil.validateHashString(coinId);
+        if(coinId.length == 0) return null;
+        this.message_queue.clear(ProtocolMessageTypes.respond_puzzle_solution);
+        this.message_queue.clear(ProtocolMessageTypes.reject_puzzle_solution);
+
+        const pckt: RequestPuzzleSolution = new RequestPuzzleSolution();
+        pckt.coin_name = Buffer.from(coinId, "hex");
+        pckt.height = height;
+
+        this.message_channel.sendMessage(
+            make_msg(
+                ProtocolMessageTypes.request_puzzle_solution,
+                pckt,
+            )
+        );
+
+        var resp_msg: Message = await this.message_queue.waitFor([
+            ProtocolMessageTypes.respond_puzzle_solution,
+            ProtocolMessageTypes.reject_puzzle_solution
+        ]);
+        if(resp_msg.type == ProtocolMessageTypes.reject_puzzle_solution) return null;
+
+        var resp_pckt: PuzzleSolutionResponse = Serializer.deserialize(RespondPuzzleSolution, resp_msg.data).response;
+
+        return resp_pckt;
     }
 }

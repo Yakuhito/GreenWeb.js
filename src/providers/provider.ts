@@ -1,4 +1,4 @@
-import { CoinState } from "../types/wallet_protocol";
+import { CoinState, PuzzleSolutionResponse } from "../types/wallet_protocol";
 
 export type Optional<T> = T | null;
 
@@ -20,6 +20,11 @@ export type subscribeToCoinUpdatesArgs = {
     minHeight?: number
 };
 
+export type getPuzzleSolutionArgs = {
+    coinId: string,
+    height: number
+};
+
 export interface Provider {
     initialize(): Promise<void>;
     close(): Promise<void>;
@@ -30,4 +35,6 @@ export interface Provider {
 
     subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void;
     subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void;
+
+    getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolutionResponse>>;
 }

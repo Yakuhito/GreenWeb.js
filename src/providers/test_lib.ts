@@ -104,6 +104,24 @@ describe('ChiaNodeProvider with ' + nodeHost, () => {
         assert.equal(resp!.solution.toString(), solution);
     });
 
+    it('getCoinChildren()', async () => {
+        // https://www.chiaexplorer.com/blockchain/coin/0x8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01
+        const coinId: string = "0x8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01";
+        
+        const resp = await p.getCoinChildren({
+            coinId: coinId
+        });
+    
+        assert.isNotNull(resp);
+        assert.isArray(resp);
+        
+        const arr: CoinState[] = resp;
+        assert.equal(resp.length, 2);
+        assert.equal(resp[0].coin.getId().toString("hex"), "7200b9a8a799717b2b54809b7ed6bd2bacfa113dcf9564569a8182bd7f588cf8");
+        assert.equal(resp[1].coin.getId().toString("hex"), "6aba6282e60ea52367596c258b5a54b7263dd42d8040c06c94b13d8eca682e45");
+        
+    });
+
     it('close()', () => {
         assert.doesNotThrow(async () => await p.close());
     });

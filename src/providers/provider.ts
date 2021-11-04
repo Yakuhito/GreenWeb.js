@@ -25,6 +25,10 @@ export type getPuzzleSolutionArgs = {
     height: number
 };
 
+export type getCoinChildrenArgs = {
+    coinId: string
+};
+
 export interface Provider {
     initialize(): Promise<void>;
     close(): Promise<void>;
@@ -37,4 +41,5 @@ export interface Provider {
     subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void;
 
     getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolutionResponse>>;
+    getCoinChildren(args: getCoinChildrenArgs): Promise<CoinState[]>;
 }

@@ -21,3 +21,19 @@ Then include `dist/web3.min.js` in your html file
 ## Documentation
 
 Documentation can be found at [ReadTheDocs](https://greenwebjs.readthedocs.io).
+
+## Testing 
+
+```
+npm test
+```
+
+If you point `chianode.test` to a running Chia node, you can also run a few more tests:
+
+```
+npm run test-extensive
+```
+
+## Community
+
+Join the [Discord server](https://discord.gg/yNVNvQyYXn)

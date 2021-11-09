@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { buildField } from "../register";
-import { FieldSerializer, ObjectWithSerializer } from '../interfaces';
+import { FieldSerializer, ObjectWithSerializer } from "../interfaces";
 
 export const TupleField = (fields: [...types: any]) => {
     const serializer: FieldSerializer<[...types: any]> = {
@@ -20,7 +20,7 @@ export const TupleField = (fields: [...types: any]) => {
                 const deserializationResult: [any, Buffer] = fieldTyped.__serializer__!.deserialize(buf);
                 const deserializedObj: any = deserializationResult[0];
                 buf = deserializationResult[1];
-                if(buf.length == 0 && i < fields.length - 1) throw new Error();
+                if(buf.length === 0 && i < fields.length - 1) throw new Error();
 
                 arr.push(deserializedObj);
             }

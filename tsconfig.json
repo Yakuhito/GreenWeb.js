@@ -1,19 +1,29 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "removeComments": true,
     "experimentalDecorators": true,
-    "target": "es5",
-    "downlevelIteration": true,
+    "outDir": "./dist/npm",
+    "module": "CommonJS",
+    "target": "es2016",
+    "allowJs": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "strict": true,
-    "outDir": "dist",
+    "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
-    "baseUrl": "./",
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "declaration": true,
+    "newLine": "lf",
     "strictPropertyInitialization": false,
     "esModuleInterop": true
   },
   "exclude": [
-    "node_modules",
-    "dist"
-  ]
+    "node_modules"
+  ],
+  "include": [
+    "src/**/*"
+  ],
 }

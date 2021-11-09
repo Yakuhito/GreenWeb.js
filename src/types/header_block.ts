@@ -6,7 +6,7 @@ import { EndOfSubSlotBundle } from "./end_of_sub_slot_bundle";
 import { RewardChainBlock } from "./reward_chain_block";
 import { VDFProof } from "./vdf";
 import { Foliage, FoliageTransactionBlock, TransactionsInfo } from "./foliage";
-import CryptoJS from 'crypto-js';
+import CryptoJS from "crypto-js";
 
 export class HeaderBlock {
     @fields.List(fields.Object(EndOfSubSlotBundle)) finishedSubSlots: EndOfSubSlotBundle[];

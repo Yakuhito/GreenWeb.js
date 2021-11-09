@@ -16,5 +16,5 @@ export class Handshake {
     @fields.String() softwareVersion: string;
     @fields.Uint(16) serverPort: uint;
     @fields.Uint(8) nodeType: uint;
-    @fields.List(fields.Tuple([fields.Uint(16), fields.String()])) capabilities: [uint, string][];
+    @fields.List(fields.Tuple([fields.Uint(16), fields.String()])) capabilities: Array<[uint, string]>;
 }

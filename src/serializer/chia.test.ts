@@ -1,14 +1,14 @@
 // Chia test code:
 // https://github.com/Chia-Network/chia-blockchain/blob/main/tests/core/util/test_streamable.py
 
-import fields from './fields';
-import { assert } from 'chai';
-import { uint, bytes, Optional } from './basic_types';
-import { Serializer } from './serializer';
-import { SExp } from 'clvm';
+import fields from "./fields";
+import { assert } from "chai";
+import { uint, bytes, Optional } from "./basic_types";
+import { Serializer } from "./serializer";
+import { SExp } from "clvm";
 
-describe('Serializer', () => {
-    describe('Chia TestStreamable', () => {
+describe("Serializer", () => {
+    describe("Chia TestStreamable", () => {
         class TestClass {
             @fields.Uint(32) a: uint;
             @fields.Uint(32) b: uint;
@@ -19,7 +19,7 @@ describe('Serializer', () => {
             @fields.Tuple([fields.Uint(32), fields.String(), fields.Bytes()]) g: [uint, string, bytes];
         }
         
-        it('test_basic', () => {
+        it("test_basic", () => {
             const a = new TestClass();
             a.a = 24;
             a.b = 352;
@@ -27,7 +27,7 @@ describe('Serializer', () => {
             a.d = [[1, 2, 3], [3, 4]];
             a.e = 728;
             a.f = null;
-            a.g = [383, 'hello', Buffer.from('goodbye')];
+            a.g = [383, "hello", Buffer.from("goodbye")];
         
             const serialized: bytes = Serializer.serialize(a);
             const d: TestClass = Serializer.deserialize(TestClass, serialized);
@@ -52,30 +52,30 @@ describe('Serializer', () => {
             @fields.Bytes() c: bytes;
         }
         
-        it('test_variablesize', () => {
+        it("test_variablesize", () => {
             const a = new TestClass2();
             a.a = 1;
             a.b = 2;
-            a.c = Buffer.from('3');
+            a.c = Buffer.from("3");
         
             const serialized: bytes = Serializer.serialize(a);
             
-            assert.equal(serialized.toString('hex').length / 2, 4 + 4 + 4 + 1); // a - 4 bytes, b - 4 bytes, c - 4 (size) + 1 (data) bytes
+            assert.equal(serialized.toString("hex").length / 2, 4 + 4 + 4 + 1); // a - 4 bytes, b - 4 bytes, c - 4 (size) + 1 (data) bytes
         });
         
         class TestClassOptional {
             @fields.Optional(fields.Uint(8)) a: Optional<uint>;
         }
         
-        it('test_ambiguous_deserialization_optionals', () => {
-            const s1: bytes = Buffer.from('');
+        it("test_ambiguous_deserialization_optionals", () => {
+            const s1: bytes = Buffer.from("");
             assert.throws(() => Serializer.deserialize(TestClassOptional, s1));
         
-            const s2: bytes = Buffer.from('00', 'hex');
+            const s2: bytes = Buffer.from("00", "hex");
             const d2: TestClassOptional = Serializer.deserialize(TestClassOptional, s2);
             assert.isNull(d2.a);
         
-            const s3: bytes = Buffer.from('0102', 'hex');
+            const s3: bytes = Buffer.from("0102", "hex");
             const d3: TestClassOptional = Serializer.deserialize(TestClassOptional, s3);
             assert.equal(d3.a, 0x2);
         });
@@ -84,7 +84,7 @@ describe('Serializer', () => {
             @fields.Uint(32) a: uint;
         }
         
-        it('test_ambiguous_deserialization_int', () => {
+        it("test_ambiguous_deserialization_int", () => {
             const s1: bytes = Buffer.from([0, 0]);
             assert.throws(() => Serializer.deserialize(TestClassUint, s1));
         });
@@ -93,7 +93,7 @@ describe('Serializer', () => {
             @fields.List(fields.Uint(8)) a: uint[];
         }
         
-        it('test_ambiguous_deserialization_list', () => {
+        it("test_ambiguous_deserialization_list", () => {
             const s1: bytes = Buffer.from([0, 0, 100, 24]);
             assert.throws(() => Serializer.deserialize(TestClassList, s1));
         });
@@ -102,7 +102,7 @@ describe('Serializer', () => {
             @fields.Tuple([fields.Uint(8), fields.String()]) a: [uint, string];
         }
         
-        it('test_ambiguous_deserialization_tuple', () => {
+        it("test_ambiguous_deserialization_tuple", () => {
             const s1: bytes = Buffer.from([0, 0, 100, 24]);
             assert.throws(() => Serializer.deserialize(TestClassTuple, s1));
         });
@@ -111,7 +111,7 @@ describe('Serializer', () => {
             @fields.String() a: string;
         }
         
-        it('test_ambiguous_deserialization_str', () => {
+        it("test_ambiguous_deserialization_str", () => {
             const s1: bytes = Buffer.from([0, 0, 100, 24, 52]);
             assert.throws(() => Serializer.deserialize(TestClassStr, s1));
         
@@ -120,18 +120,18 @@ describe('Serializer', () => {
         
             const s3: bytes = Buffer.from([0, 0, 0, 1, 52]);
             const d3: TestClassStr = Serializer.deserialize(TestClassStr, s3);
-            assert.equal(d3.a, '4');
+            assert.equal(d3.a, "4");
         
             const s4: bytes = Buffer.from([0, 0, 0, 2, 52, 21]);
             const d4: TestClassStr = Serializer.deserialize(TestClassStr, s4);
-            assert.equal(d4.a, '4\x15');
+            assert.equal(d4.a, "4\x15");
         });
         
         class TestClassBytes {
             @fields.Bytes() a: bytes;
         }
         
-        it('test_ambiguous_deserialization_bytes', () => {
+        it("test_ambiguous_deserialization_bytes", () => {
             const s1: bytes = Buffer.from([0, 0, 100, 24, 52]);
             assert.throws(() => Serializer.deserialize(TestClassBytes, s1));
         
@@ -140,18 +140,18 @@ describe('Serializer', () => {
         
             const s3: bytes = Buffer.from([0, 0, 0, 1, 52]);
             const d3: TestClassBytes = Serializer.deserialize(TestClassBytes, s3);
-            assert.equal(d3.a.toString('hex'), Buffer.from([52]).toString('hex'));
+            assert.equal(d3.a.toString("hex"), Buffer.from([52]).toString("hex"));
         
             const s4: bytes = Buffer.from([0, 0, 0, 2, 52, 21]);
             const d4: TestClassBytes = Serializer.deserialize(TestClassBytes, s4);
-            assert.equal(d4.a.toString('hex'), Buffer.from([52, 21]).toString('hex'));
+            assert.equal(d4.a.toString("hex"), Buffer.from([52, 21]).toString("hex"));
         });
         
         class TestClassBool {
             @fields.Boolean() a: boolean;
         }
         
-        it('test_ambiguous_deserialization_bool', () => {
+        it("test_ambiguous_deserialization_bool", () => {
             const s1: bytes = Buffer.from([]);
             assert.throws(() => Serializer.deserialize(TestClassBool, s1));
         
@@ -168,19 +168,19 @@ describe('Serializer', () => {
             @fields.SExp() a: SExp;
         }
         
-        it('test_ambiguous_deserialization_program', () => {
-            const s1: bytes = Buffer.from(SExp.to([]).toString(), 'hex');
+        it("test_ambiguous_deserialization_program", () => {
+            const s1: bytes = Buffer.from(SExp.to([]).toString(), "hex");
             const d1: TestClassProgram = Serializer.deserialize(TestClassProgram, s1);
             assert.equal(d1.a.toString(), SExp.to([]).toString());
         
-            const s2: bytes = Buffer.concat([s1, Buffer.from('9')]);
+            const s2: bytes = Buffer.concat([s1, Buffer.from("9")]);
             // this test case doesn't make any sense...
             // assert.throw(() => Serializer.deserialize(TestClassProgram, s2));
             const d2: TestClassProgram = Serializer.deserialize(TestClassProgram, s2);
             assert.equal(d2.a.toString(), SExp.to([]).toString());
         });
         
-        it('test_parse_bool', () => {
+        it("test_parse_bool", () => {
             assert.isTrue(
                 Serializer.deserialize(TestClassBool, Buffer.from([1])).a
             );
@@ -203,10 +203,10 @@ describe('Serializer', () => {
         });
         
         class TestClassUintLittle {
-            @fields.Uint(32, 'little') a: uint;
+            @fields.Uint(32, "little") a: uint;
         }
         
-        it('test_uint32', () => {
+        it("test_uint32", () => {
             assert.equal(
                 Serializer.deserialize(TestClassUint, Buffer.from([0, 0, 0, 0])).a,
                 0
@@ -299,7 +299,7 @@ describe('Serializer', () => {
             @fields.Optional(fields.Boolean()) a: Optional<boolean>;
         }
         
-        it('test_parse_optional', () => {
+        it("test_parse_optional", () => {
             assert.isNull(
                 Serializer.deserialize(TestClassOptionalBool, Buffer.from([0])).a
             );
@@ -326,48 +326,48 @@ describe('Serializer', () => {
             );
         });
         
-        it('test_parse_bytes', () => {
+        it("test_parse_bytes", () => {
             assert.equal(
-                Serializer.deserialize(TestClassBytes, Buffer.from([0, 0, 0, 0])).a.toString('hex'),
-                ''
+                Serializer.deserialize(TestClassBytes, Buffer.from([0, 0, 0, 0])).a.toString("hex"),
+                ""
             );
         
             assert.equal(
-                Serializer.deserialize(TestClassBytes, Buffer.from([0, 0, 0, 1, 0xff])).a.toString('hex'),
-                'ff'
+                Serializer.deserialize(TestClassBytes, Buffer.from([0, 0, 0, 1, 0xff])).a.toString("hex"),
+                "ff"
             );
         
             assert.equal(
                 Serializer.deserialize(TestClassBytes, Buffer.concat([
                     Buffer.from([0, 0, 2, 0]),
-                    Buffer.from('a'.repeat(0x200))
-                ])).a.toString('hex'),
-                Buffer.from('a'.repeat(0x200)).toString('hex')
+                    Buffer.from("a".repeat(0x200))
+                ])).a.toString("hex"),
+                Buffer.from("a".repeat(0x200)).toString("hex")
             );
         
             assert.equal(
                 Serializer.deserialize(TestClassBytes, Buffer.concat([
                     Buffer.from([0, 0, 0, 0xff]),
-                    Buffer.from('a'.repeat(0xff))
-                ])).a.toString('hex'),
-                Buffer.from('a'.repeat(255)).toString('hex')
+                    Buffer.from("a".repeat(0xff))
+                ])).a.toString("hex"),
+                Buffer.from("a".repeat(255)).toString("hex")
             );
         
         
             assert.throw(
-                () => Serializer.deserialize(TestClassBytes, Buffer.from('000000ff010203', 'hex'))
+                () => Serializer.deserialize(TestClassBytes, Buffer.from("000000ff010203", "hex"))
             );
         
             assert.throw(
-                () => Serializer.deserialize(TestClassBytes, Buffer.from('ffffffff', 'hex'))
+                () => Serializer.deserialize(TestClassBytes, Buffer.from("ffffffff", "hex"))
             );
         
             assert.throw(
-                () => Serializer.deserialize(TestClassBytes, Buffer.from('ffffffff' + '41'.repeat(512), 'hex'))
+                () => Serializer.deserialize(TestClassBytes, Buffer.from("ffffffff" + "41".repeat(512), "hex"))
             );
         
             assert.throw(
-                () => Serializer.deserialize(TestClassBytes, Buffer.from('00000201' + '42'.repeat(512), 'hex'))
+                () => Serializer.deserialize(TestClassBytes, Buffer.from("00000201" + "42".repeat(512), "hex"))
             );
         });
         
@@ -375,7 +375,7 @@ describe('Serializer', () => {
             @fields.List(fields.Boolean()) a: boolean[];
         }
         
-        it('test_parse_list', () => {
+        it("test_parse_list", () => {
             assert.equal(
                 Serializer.deserialize(TestClassListBool, Buffer.from([0, 0, 0, 0])).a.length,
                 0
@@ -383,12 +383,12 @@ describe('Serializer', () => {
         
             assert.equal(
                 Serializer.deserialize(TestClassListBool, Buffer.from([0, 0, 0, 1, 1])).a.toString(),
-                'true'
+                "true"
             );
         
             assert.equal(
                 Serializer.deserialize(TestClassListBool, Buffer.from([0, 0, 0, 3, 1, 0, 1])).a.toString(),
-                'true,false,true'
+                "true,false,true"
             );
         
         
@@ -409,7 +409,7 @@ describe('Serializer', () => {
             );
         });
         
-        it('test_parse_list', () => {
+        it("test_parse_list", () => {
             assert.equal(
                 Serializer.deserialize(TestClassListBool, Buffer.from([0, 0, 0, 0])).a.length,
                 0
@@ -417,12 +417,12 @@ describe('Serializer', () => {
         
             assert.equal(
                 Serializer.deserialize(TestClassListBool, Buffer.from([0, 0, 0, 1, 1])).a.toString(),
-                'true'
+                "true"
             );
         
             assert.equal(
                 Serializer.deserialize(TestClassListBool, Buffer.from([0, 0, 0, 3, 1, 0, 1])).a.toString(),
-                'true,false,true'
+                "true,false,true"
             );
         
         
@@ -451,7 +451,7 @@ describe('Serializer', () => {
             @fields.Tuple([]) a: [];
         }
         
-        it('test_parse_tuple', () => {
+        it("test_parse_tuple", () => {
             assert.equal(
                 Serializer.deserialize(TestClassTupleEmpty, Buffer.from([])).a.length,
                 0
@@ -459,12 +459,12 @@ describe('Serializer', () => {
         
             assert.equal(
                 Serializer.deserialize(TestClassTupleBool, Buffer.from([0, 0])).a.toString(),
-                'false,false'
+                "false,false"
             );
         
             assert.equal(
                 Serializer.deserialize(TestClassTupleBool, Buffer.from([0, 1])).a.toString(),
-                'false,true'
+                "false,true"
             );
         
         
@@ -477,31 +477,31 @@ describe('Serializer', () => {
             );
         });
         
-        it('est_parse_str', () => {
+        it("est_parse_str", () => {
             assert.equal(
                 Serializer.deserialize(TestClassStr, Buffer.from([0, 0, 0, 0])).a,
-                ''
+                ""
             );
         
             assert.equal(
                 Serializer.deserialize(TestClassStr, Buffer.from([0, 0, 0, 1, 0x61])).a,
-                'a'
+                "a"
             );
         
             assert.equal(
                 Serializer.deserialize(TestClassStr, Buffer.concat([
                     Buffer.from([0, 0, 2, 0]),
-                    Buffer.from('a'.repeat(512))
+                    Buffer.from("a".repeat(512))
                 ])).a,
-                'a'.repeat(512)
+                "a".repeat(512)
             );
         
             assert.equal(
                 Serializer.deserialize(TestClassStr, Buffer.concat([
                     Buffer.from([0, 0, 0, 0xff]),
-                    Buffer.from('a'.repeat(255))
+                    Buffer.from("a".repeat(255))
                 ])).a,
-                'a'.repeat(255)
+                "a".repeat(255)
             );
         
         
@@ -516,14 +516,14 @@ describe('Serializer', () => {
             assert.throws(
                 () => Serializer.deserialize(TestClassStr, Buffer.concat([
                     Buffer.from([0xff, 0xff, 0xff, 0xff]),
-                    Buffer.from('a'.repeat(512))
+                    Buffer.from("a".repeat(512))
                 ]))
             );
         
             assert.throws(
                 () => Serializer.deserialize(TestClassStr, Buffer.concat([
                     Buffer.from([0, 0, 2, 1]),
-                    Buffer.from('a'.repeat(512))
+                    Buffer.from("a".repeat(512))
                 ]))
             );
         });

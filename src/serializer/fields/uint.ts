@@ -1,5 +1,5 @@
 import { buildField } from "../register";
-import { FieldSerializer } from '../interfaces';
+import { FieldSerializer } from "../interfaces";
 import { uint } from "../basic_types";
 
 export const UintField = (size: number, byteorder: "big" | "little" = "big") => {
@@ -12,7 +12,7 @@ export const UintField = (size: number, byteorder: "big" | "little" = "big") => 
             }
             if(byteorder === "little") {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                s = s.match(/../g)!.reverse().join('');
+                s = s.match(/../g)!.reverse().join("");
             }
             const buf2 : Buffer = Buffer.from(s, "hex");
             return Buffer.concat([buf, buf2]);
@@ -27,9 +27,9 @@ export const UintField = (size: number, byteorder: "big" | "little" = "big") => 
             let num: number;
             if(byteorder === "little") {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                num = parseInt(buf2.toString('hex').match(/../g)!.reverse().join(''), 16);
+                num = parseInt(buf2.toString("hex").match(/../g)!.reverse().join(""), 16);
             } else {
-                num = parseInt(buf2.toString('hex'), 16);
+                num = parseInt(buf2.toString("hex"), 16);
             }
             return [num, buf];
         },

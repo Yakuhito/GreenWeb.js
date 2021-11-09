@@ -77,8 +77,8 @@ export class RequestRemovals {
 export class RespondRemovals {
     @fields.Uint(32) height: uint;
     @fields.Bytes(32) headerHash: bytes;
-    @fields.List(fields.Tuple([fields.Bytes(32), fields.Optional(fields.Object(Coin))])) coins: [bytes, Optional<Coin>][];
-    @fields.Optional(fields.List(fields.Tuple([fields.Bytes(32), fields.Bytes()]))) proofs: Optional<[bytes, bytes][]>;
+    @fields.List(fields.Tuple([fields.Bytes(32), fields.Optional(fields.Object(Coin))])) coins: Array<[bytes, Optional<Coin>]>;
+    @fields.Optional(fields.List(fields.Tuple([fields.Bytes(32), fields.Bytes()]))) proofs: Optional<Array<[bytes, bytes]>>;
 }
 
 
@@ -98,8 +98,12 @@ export class RequestAdditions {
 export class RespondAdditions {
     @fields.Uint(32) height: uint;
     @fields.Bytes(32) headerHash: bytes;
-    @fields.List(fields.Tuple([fields.Bytes(32), fields.List(fields.Object(Coin))])) coins: [bytes, Coin[]][];
-    @fields.Optional(fields.List(fields.Tuple([fields.Bytes(32), fields.Bytes(), fields.Optional(fields.Bytes())]))) proofs: Optional<[bytes, bytes, Optional<bytes>][]>;
+    @fields.List(fields.Tuple([fields.Bytes(32), fields.List(fields.Object(Coin))])) coins: Array<[bytes, Coin[]]>;
+    @fields.Optional(fields.List(fields.Tuple([
+        fields.Bytes(32),
+        fields.Bytes(),
+        fields.Optional(fields.Bytes())
+    ]))) proofs: Optional<Array<[bytes, bytes, Optional<bytes>]>>;
 }
 
 

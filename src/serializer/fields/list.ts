@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { buildField } from "../register";
-import { FieldSerializer, ObjectWithSerializer } from '../interfaces';
+import { FieldSerializer, ObjectWithSerializer } from "../interfaces";
 import { uint } from "../basic_types";
 
 export const ListField = (field: any) => {
     const fieldTyped: ObjectWithSerializer = field;
     
-    const serializer: FieldSerializer<Array<any>> = {
+    const serializer: FieldSerializer<any[]> = {
         serialize: (value, buf) => {
             const buf2 : Buffer = Buffer.alloc(4);
             buf2.writeUInt32BE(value.length);
@@ -24,12 +24,12 @@ export const ListField = (field: any) => {
             const size: uint = buf.readUInt32BE();
             buf = buf.slice(4);
             
-            const arr: Array<any> = [];
+            const arr: any[] = [];
             for(let i = 0; i < size; ++i) {
                 const deserializationResult: [any, Buffer] = fieldTyped.__serializer__!.deserialize(buf);
                 const deserializedObj: any = deserializationResult[0];
                 buf = deserializationResult[1];
-                if(buf.length == 0 && i != size - 1) throw new Error();
+                if(buf.length === 0 && i !== size - 1) throw new Error();
 
                 arr.push(deserializedObj);
             }
@@ -37,5 +37,5 @@ export const ListField = (field: any) => {
         },
     };
 
-    return buildField<Array<any>>(serializer)();
+    return buildField<any[]>(serializer)();
 };

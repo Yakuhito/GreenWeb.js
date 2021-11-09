@@ -1,5 +1,5 @@
-import fields from './fields';
-import { assert } from 'chai';
+import fields from "./fields";
+import { assert } from "chai";
 import { uint, bytes } from "./basic_types";
 import { Serializer } from "./serializer";
 
@@ -7,8 +7,8 @@ import { Serializer } from "./serializer";
 // they were bugging me in the test coverage table
 
 
-describe('Serializer', () => {
-    describe('Chia TestStreamable (extra)', () => {
+describe("Serializer", () => {
+    describe("Chia TestStreamable (extra)", () => {
         class TestClassBytes {
             @fields.Bytes() a: bytes;
         }

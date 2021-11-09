@@ -1,9 +1,8 @@
 // https://github.com/Chia-Network/chia-blockchain/blob/b7e8e9c9a67fd696cfa2c16747d64dc0c3224611/chia/server/outbound_message.py#L10
 
-import { fields } from "../serializer";
+import { fields , Serializer } from "../serializer";
 import { uint, bytes, Optional } from "../serializer/basic_types";
 import { ProtocolMessageTypes } from "./protocol_message_types";
-import { Serializer } from "../serializer";
 
 export enum NodeType {
     FULL_NODE = 1,

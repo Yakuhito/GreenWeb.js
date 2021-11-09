@@ -1,9 +1,9 @@
-import { Serializer } from '../serializer';
-import { assert } from 'chai';
-import { SendTransaction } from './wallet_protocol';
-import { SpendBundle } from './spend_bundle';
-import { Coin } from './coin';
-import { CoinSpend } from './coin_spend';
+import { Serializer } from "../serializer";
+import { assert } from "chai";
+import { SendTransaction } from "./wallet_protocol";
+import { SpendBundle } from "./spend_bundle";
+import { Coin } from "./coin";
+import { CoinSpend } from "./coin_spend";
 import { SExp, KEYWORD_TO_ATOM, h, t } from "clvm";
 
 /*
@@ -37,9 +37,10 @@ spend_bundle = SpendBundle([coin_solution,], agg_sig)
 print(bytes(spend_bundle).hex())
 */
 
-describe('Serializer', () => {
-    describe('SendTransaction', () => {
-        it('serialize()', () => {
+describe("Serializer", () => {
+    describe("SendTransaction", () => {
+        it("serialize()", () => {
+            // eslint-disable-next-line max-len
             const expectedOutput = "00000001010101010101010101010101010101010101010101010101010101010101010102020202020202020202020202020202020202020202020202020202020202020000013efa5d0400ff10ff01ffff018200af8019c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
             const dummyCoin: Coin = new Coin();
             dummyCoin.parentCoinInfo = Buffer.from("01".repeat(32), "hex");
@@ -56,16 +57,18 @@ describe('Serializer', () => {
             const spendBundle: SpendBundle = new SpendBundle();
             spendBundle.coinSpends = [coinSpend];
             // empty agg_sig (has to be valid)
+            // eslint-disable-next-line max-len
             spendBundle.aggregatedSignature = Buffer.from("c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "hex");
 
             const obj: SendTransaction = new SendTransaction();
             obj.transaction = spendBundle;
 
             const s: Buffer = Serializer.serialize(obj);
-            assert.equal(s.toString('hex'), expectedOutput);
+            assert.equal(s.toString("hex"), expectedOutput);
         });
 
-        it('deserialize()', () => {
+        it("deserialize()", () => {
+            // eslint-disable-next-line max-len
             const input = "00000001010101010101010101010101010101010101010101010101010101010101010102020202020202020202020202020202020202020202020202020202020202020000013efa5d0400ff10ff01ffff018200af8019c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
             const testObj = Serializer.deserialize(
                 SendTransaction,
@@ -74,6 +77,7 @@ describe('Serializer', () => {
 
             assert.isDefined(testObj);
             assert.instanceOf(testObj, SendTransaction);
+            // eslint-disable-next-line max-len
             assert.equal(testObj.transaction.aggregatedSignature.toString("hex"), "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
             assert.equal(testObj.transaction.coinSpends.length, 1);
     

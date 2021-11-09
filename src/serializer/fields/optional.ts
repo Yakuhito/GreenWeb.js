@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { buildField } from "../register";
-import { FieldSerializer, ObjectWithSerializer } from '../interfaces';
+import { FieldSerializer, ObjectWithSerializer } from "../interfaces";
 import { Optional } from "../basic_types";
 
 export const OptionalField = (field: Optional<any>) => {
@@ -9,7 +9,7 @@ export const OptionalField = (field: Optional<any>) => {
     const serializer: FieldSerializer<Optional<any>> = {
         serialize: (value, buf) => {
             let buf2: Buffer = Buffer.from([0]);
-            if(value == null || fieldTyped.__serializer__ == undefined) {
+            if(value == null || fieldTyped.__serializer__ === undefined) {
                 return Buffer.concat([buf, buf2]);
             }
 
@@ -18,13 +18,13 @@ export const OptionalField = (field: Optional<any>) => {
             return Buffer.concat([buf, buf2]);
         },
         deserialize: (buf) => {
-            if(buf.length == 0) throw new Error();
+            if(buf.length === 0) throw new Error();
 
             const val: number = buf.readUInt8();
             if(val > 1) throw Error();
             const containsAnything: boolean = val > 0;
             buf = buf.slice(1);
-            if(!containsAnything || fieldTyped.__serializer__ == undefined) {
+            if(!containsAnything || fieldTyped.__serializer__ === undefined) {
                 return [null, buf];
             }
 

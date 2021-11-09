@@ -1,15 +1,15 @@
-import { bech32m } from 'bech32';
+import { bech32m } from "bech32";
 
 export class AddressUtil {
     static validateHashString(puzzleHash: string): string {
         let ph: string = puzzleHash;
-            if(ph.startsWith("0x"))
-                ph = ph.slice(2, ph.length);
+        if(ph.startsWith("0x"))
+            ph = ph.slice(2, ph.length);
                 
-            if(ph.length != 64 || !(new RegExp( /^[0-9A-Fa-f]+$/ )).test(ph))
-                return "";
+        if(ph.length !== 64 || !(new RegExp(/^[0-9A-Fa-f]+$/)).test(ph))
+            return "";
 
-            return ph;
+        return ph;
     }
 
     static puzzleHashToAddress(puzzleHash: Buffer | string, prefix = "xch"): string {
@@ -17,7 +17,7 @@ export class AddressUtil {
             puzzleHash = Buffer.from(AddressUtil.validateHashString(puzzleHash), "hex");
         }
 
-        if(puzzleHash.length != 32)
+        if(puzzleHash.length !== 32)
             return "";
 
         return bech32m.encode(prefix, bech32m.toWords(puzzleHash));

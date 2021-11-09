@@ -1,5 +1,5 @@
 import { buildField } from "../register";
-import { FieldSerializer } from '../interfaces';
+import { FieldSerializer } from "../interfaces";
 import { bytes, uint } from "../basic_types";
 
 export const BytesField = (size: number | null = null) => {

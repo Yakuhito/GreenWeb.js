@@ -1,8 +1,8 @@
 // special thanks to this StackOverflow thread
 // https://stackoverflow.com/questions/57086672/element-implicitly-has-an-any-type-because-expression-of-type-string-cant-b
 
-import { propertySerializerName } from './register';
-import { IPropsType } from './interfaces';
+import { propertySerializerName } from "./register";
+import { IPropsType } from "./interfaces";
 
 // This class is a port of the 'Streamable' class from
 // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/util/streamable.py#L260

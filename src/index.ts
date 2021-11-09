@@ -1,5 +1,5 @@
-import { GreenWeb } from './greenweb';
+import { GreenWeb } from "./greenweb";
 
 export default {
-  GreenWeb: GreenWeb,
+    GreenWeb: GreenWeb,
 };

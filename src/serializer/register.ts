@@ -1,6 +1,6 @@
-import { ObjectWithProps, FieldSerializer, FieldDecorator } from './interfaces';
+import { ObjectWithProps, FieldSerializer, FieldDecorator } from "./interfaces";
 
-export const propertySerializerName = '__serializer__';
+export const propertySerializerName = "__serializer__";
 
 export function register<T>(
     target: ObjectWithProps,

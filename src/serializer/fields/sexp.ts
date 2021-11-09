@@ -8,7 +8,7 @@ export const SExpField = buildField<SExp>({
         sexp_to_stream(value, f);
         
         return Buffer.concat([buf, Buffer.from(f.getValue().raw())]);
-    }, 
+    },
     deserialize: (buf) => {
         const f: Stream = new Stream(new Bytes(buf));
         const obj: SExp = sexp_from_stream(f, SExp.to);

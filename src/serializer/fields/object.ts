@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { buildField, propertySerializerName } from "../register";
-import { FieldSerializer, IPropsType } from '../interfaces';
+import { FieldSerializer, IPropsType } from "../interfaces";
 
 export const ObjectField = (objClass: any) => {
     const serializer: FieldSerializer<typeof objClass> = {

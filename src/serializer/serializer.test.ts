@@ -1,5 +1,5 @@
-import fields from './fields';
-import { assert } from 'chai';
+import fields from "./fields";
+import { assert } from "chai";
 import { uint, bytes, Optional } from "./basic_types";
 import { Serializer } from "./serializer";
 
@@ -28,8 +28,8 @@ b = TestClass(False, bytes.fromhex('133337'), bytes.fromhex('24444448'), [], Non
 print(bytes(b).hex())
 */
 
-describe('Serializer', () => {
-    describe('TestClass', () => {
+describe("Serializer", () => {
+    describe("TestClass", () => {
         class TestClass {
             @fields.Boolean() someBool = true;
             @fields.Bytes() someBytes: bytes = Buffer.from([0x13, 0x33, 0x33, 0x37]);
@@ -40,16 +40,18 @@ describe('Serializer', () => {
             @fields.Uint(32) someUint32: uint = 1337;
         }
     
-        describe('Test 1', () => {
-            it('serialize()', () => {
+        describe("Test 1", () => {
+            it("serialize()", () => {
+                // eslint-disable-next-line max-len
                 const expectedOutput = "01000000041333333724444448000000040000000100000002000000030000000401000000076d657373616765000000010000000c48656c6c6f20576f726c642100000539";
                 const testObj = new TestClass();
                 const buff = Serializer.serialize(testObj);
             
-                assert.equal(buff.toString('hex'), expectedOutput);
+                assert.equal(buff.toString("hex"), expectedOutput);
             });
 
-            it('deserialize()', () => {
+            it("deserialize()", () => {
+                // eslint-disable-next-line max-len
                 const input = "01000000041333333724444448000000040000000100000002000000030000000401000000076d657373616765000000010000000c48656c6c6f20576f726c642100000539";
                 const testObj = Serializer.deserialize(
                     TestClass,
@@ -69,8 +71,8 @@ describe('Serializer', () => {
             });
         });
 
-        describe('Test 2', () => {
-            it('serialize()', () => {
+        describe("Test 2", () => {
+            it("serialize()", () => {
                 const expectedOutput = "0000000003133337244444480000000000000000010000000c48656c6c6f20576f726c642100000000";
                 const testObj = new TestClass();
                 testObj.someBool = false;
@@ -81,10 +83,10 @@ describe('Serializer', () => {
             
                 const buff = Serializer.serialize(testObj);
             
-                assert.equal(buff.toString('hex'), expectedOutput);               
+                assert.equal(buff.toString("hex"), expectedOutput);
             });
 
-            it('deserialize()', () => {
+            it("deserialize()", () => {
                 const input = "0000000003133337244444480000000000000000010000000c48656c6c6f20576f726c642100000000";
                 const testObj = Serializer.deserialize(
                     TestClass,

@@ -23,7 +23,7 @@ export class GreenWeb {
             if(port !== undefined)
                 this.provider = new ChiaNodeProvider(host, port);
             else
-            this.provider = new ChiaNodeProvider(host);
+                this.provider = new ChiaNodeProvider(host);
         }
     }
 }

@@ -13,13 +13,13 @@ export type getBalanceArgs = {
 
 export type subscribeToPuzzleHashUpdatesArgs = {
     puzzleHash: string,
-    callback: { (coin_states: CoinState[]): void; },
+    callback: (coin_states: CoinState[]) => void,
     minHeight?: number
 };
 
 export type subscribeToCoinUpdatesArgs = {
     coinId: string,
-    callback: { (coin_states: CoinState[]): void; },
+    callback: (coin_states: CoinState[]) => void,
     minHeight?: number
 };
 
@@ -70,6 +70,6 @@ export interface Provider {
     getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<HeaderBlock>>;
     getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<HeaderBlock[]>>;
 
-    getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<[bytes, Optional<Coin>][]>>; // appears to be [coin_id, Coin][]
-    getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<[bytes, Coin[]][]>>;
+    getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Array<[bytes, Optional<Coin>]>>>; // appears to be [coin_id, Coin][]
+    getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Array<[bytes, Coin[]]>>>;
 }

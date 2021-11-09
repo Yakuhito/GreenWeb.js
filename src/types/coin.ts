@@ -4,7 +4,7 @@ import { fields } from "../serializer";
 import { uint, bytes } from "../serializer/basic_types";
 // eslint-disable-next-line camelcase
 import { int_to_bytes } from "clvm";
-import CryptoJS from 'crypto-js';
+import CryptoJS from "crypto-js";
 
 export class Coin {
     @fields.Bytes(32) parentCoinInfo: bytes;

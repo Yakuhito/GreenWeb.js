@@ -1,27 +1,9 @@
 {
-  "devDependencies": {
-    "@types/chai": "^4.2.22",
-    "@types/crypto-js": "^4.0.2",
-    "@types/mocha": "^9.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.3.0",
-    "@typescript-eslint/parser": "^5.3.0",
-    "chai": "^4.3.4",
-    "mocha": "^9.1.3",
-    "ts-node": "^10.4.0",
-    "tslint": "^6.1.3",
-    "typescript": "^4.4.4"
-  },
   "name": "greenweb",
-  "description": "Chia JavaScript API",
   "version": "1.0.0",
-  "main": "lib/index.js",
-  "scripts": {
-    "build": "npm test && tsc",
-    "test": "nyc mocha -r ts-node/register src/**/*.test.ts",
-    "test-chia-thing": "nyc mocha -r ts-node/register src/providers/test_lib.ts --timeout 600000",
-    "test-extended": "nyc mocha -r ts-node/register src/**/*.test.ts src/providers/test_lib.ts --timeout 10000",
-    "prepare": "rm -rf dist && npm run build"
-  },
+  "author": "yakuhito",
+  "description": "Chia JavaScript API",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Yakuhito/greenweb.js.git"
@@ -31,22 +13,60 @@
     "JavaScript",
     "API"
   ],
-  "author": "yakuhito",
-  "license": "MIT",
+  "homepage": "https://github.com/Yakuhito/greenweb.js#readme",
   "bugs": {
     "url": "https://github.com/Yakuhito/greenweb.js/issues"
   },
-  "homepage": "https://github.com/Yakuhito/greenweb.js#readme",
+  "main": "lib/index.js",
+  "typings": "./index.d.ts",
+  "scripts": {
+    "build": "npm test && tsc",
+    "test": "nyc mocha -r ts-node/register src/**/*.test.ts",
+    "test-chia-thing": "nyc mocha -r ts-node/register src/providers/test_lib.ts --timeout 600000",
+    "test-extended": "nyc mocha -r ts-node/register src/**/*.test.ts src/providers/test_lib.ts --timeout 10000",
+    "prepare": "rm -rf dist && npm run build"
+  },
   "dependencies": {
     "@chiamine/bls-signatures": "^0.2.1-beta.2",
-    "@testdeck/mocha": "^0.1.2",
-    "@types/ws": "^8.2.0",
     "bech32": "^2.0.0",
     "clvm": "^1.0.8",
-    "crypto-js": "^4.1.1",
-    "jscrypto": "^1.0.2",
+    "crypto-js": "^4.1.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.22",
+    "@types/crypto-js": "^4.0.2",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^15.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.1.0",
+    "@typescript-eslint/parser": "^4.1.0",
+    "chai": "^4.3.4",
+    "eslint": "^7.8.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsdoc": "^30.4.1",
+    "fork-ts-checker-webpack-plugin": "^6.2.12",
+    "mocha": "^9.1.3",
     "nyc": "^15.1.0",
-    "ts-mockito": "^2.6.1",
-    "ws": "^8.2.3"
-  }
+    "terser-webpack-plugin": "^5.1.3",
+    "ts-loader": "^9.2.3",
+    "ts-node": "^10.4.0",
+    "tslint": "^6.1.3",
+    "typescript": "^4.4.4",
+    "webpack": "^5.39.1",
+    "webpack-cli": "^4.7.2"
+  },
+  "browserslist": [
+    "edge >= 79",
+    "firefox >= 68",
+    "chrome >= 67",
+    "safari > 14",
+    "opera >= 54",
+    "ios_saf >= 14.4",
+    "android >= 67",
+    "op_mob >= 48",
+    "and_chr >= 67",
+    "and_ff >= 68",
+    "samsung >= 9.2",
+    "node >= 10.4.0",
+    "electron >= 4.0.0"
+  ]
 }

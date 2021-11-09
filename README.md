@@ -10,13 +10,13 @@ Please read the [documentation](https://greenwebjs.readthedocs.io) for more.
 
 ## Installation
 
-Bbuild using the GreenWeb.js repository:
+Build using the GreenWeb.js repository:
 
 ```
 npm run build
 ```
 
-Then include `dist/web3.min.js` in your html file
+Then include `dist/greenweb.js` in your html file
 
 ## Documentation
 

@@ -20,11 +20,10 @@
   "main": "lib/index.js",
   "typings": "./index.d.ts",
   "scripts": {
-    "build": "npm test && tsc",
+    "build": "webpack",
     "test": "nyc mocha -r ts-node/register src/**/*.test.ts",
     "test-chia-thing": "nyc mocha -r ts-node/register src/providers/test_lib.ts --timeout 600000",
-    "test-extended": "nyc mocha -r ts-node/register src/**/*.test.ts src/providers/test_lib.ts --timeout 10000",
-    "prepare": "rm -rf dist && npm run build"
+    "test-extended": "nyc mocha -r ts-node/register src/**/*.test.ts src/providers/test_lib.ts --timeout 10000"
   },
   "dependencies": {
     "@chiamine/bls-signatures": "^0.2.1-beta.2",

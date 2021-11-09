@@ -1,13 +1,11 @@
 const fs = require("fs");
 const path = require("path");
-// const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
-const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 
 module.exports = {
   mode: "production",
   context: __dirname, // to automatically find tsconfig.json
-  plugins: [/*new CleanWebpackPlugin()*/],
+  plugins: [],
   devtool: false,
   module: {
     rules: [
@@ -44,10 +42,11 @@ module.exports = {
   },
   entry: "./src/index.ts",
   output: {
-    path: path.resolve(__dirname, "dist", "npm", "browser"),
-    filename: "index.js",
+    path: path.resolve(__dirname, "dist"),
+    filename: "greenweb.js",
     library: ["greenweb"],
     libraryTarget: "umd",
     globalObject: "this",
+    chunkFormat: "commonjs"
   },
 };

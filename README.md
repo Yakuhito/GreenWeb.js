@@ -37,3 +37,10 @@ npm run test-extensive
 ## Community
 
 Join the [Discord server](https://discord.gg/yNVNvQyYXn)
+
+## Special Thanks
+
+* [Guys from Chia](https://www.chia.net/) for everything they've done so far
+* [Chia-Mine](https://github.com/Chia-Mine), especially [ChiaMineJP](https://github.com/ChiaMineJP) for sparing me few weeks of coding with their repos ([clvm.js](https://github.com/Chia-Mine/clvm-js))
+* everyone reading this
+* friends, family, teachers, mentors, role models, [Twitter followers](https://twitter.com/yakuh1t0)

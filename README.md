@@ -2,7 +2,7 @@
 
 ## GreenWeb.js
 
-[![GitHub license](https://badgen.net/github/license/Yakuhito/GreenWeb.js.svg)](https://github.com/Yakuhito/GreenWeb.js/blob/master/LICENSE) [![GitHub commits](https://badgen.net/github/commits/Yakuhito/GreenWeb.js)](https://GitHub.com/Yakuhito/GreenWeb.js/commit/) [![GitHub latest commit](https://badgen.net/github/last-commit/Yakuhito/GreenWeb.js)](https://GitHub.com/Yakuhito/GreenWeb.js/commit/) [![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/yNVNvQyYXn) [![GitHub stars](https://badgen.net/github/stars/Yakuhito/GreenWeb.js)](https://GitHub.com/Yakuhito/GreenWeb.js/stargazers/) [![GitHub watchers](https://badgen.net/github/watchers/Yakuhito/GreenWeb.js)](https://GitHub.com/Yakuhito/GreenWeb.js/watchers/)
+[![GitHub license](https://badgen.net/github/license/Yakuhito/GreenWeb.js)](https://github.com/Yakuhito/GreenWeb.js/blob/master/LICENSE) [![GitHub commits](https://badgen.net/github/commits/Yakuhito/GreenWeb.js)](https://GitHub.com/Yakuhito/GreenWeb.js/commit/) [![GitHub latest commit](https://badgen.net/github/last-commit/Yakuhito/GreenWeb.js)](https://GitHub.com/Yakuhito/GreenWeb.js/commit/) [![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/yNVNvQyYXn) [![GitHub stars](https://badgen.net/github/stars/Yakuhito/GreenWeb.js)](https://GitHub.com/Yakuhito/GreenWeb.js/stargazers/) [![GitHub watchers](https://badgen.net/github/watchers/Yakuhito/GreenWeb.js)](https://GitHub.com/Yakuhito/GreenWeb.js/watchers/)
 
 This library allows developers to connect to a remote [Chia](https://www.chia.net/) node using the official wallet protocol.
 

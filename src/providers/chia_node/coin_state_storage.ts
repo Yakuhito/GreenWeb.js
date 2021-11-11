@@ -1,5 +1,5 @@
 import { Optional } from "../provider";
-import { CoinState, RespondToCoinUpdates, RespondToPhUpdates } from "../../types/wallet_protocol";
+import { CoinState, RespondToCoinUpdates, RespondToPhUpdates } from "./serializer/types/wallet_protocol";
 
 export class CoinStateStorage {
     private callbacks: { [key: string]: Array<(coin_states: CoinState[]) => void> } = {};

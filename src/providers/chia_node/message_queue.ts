@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { uint, bytes } from "../../serializer/basic_types";
+import { uint, bytes } from "./serializer/basic_types";
 import { Queue } from "./queue";
-import { Message } from "../../types/outbound_message";
+import { Message } from "./serializer/types/outbound_message";
 
 export class MessageQueue {
     private readonly _messages: Map<uint, Queue<bytes>> = new Map();

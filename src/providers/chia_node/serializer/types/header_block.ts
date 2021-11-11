@@ -1,7 +1,7 @@
 // https://github.com/Chia-Network/chia-blockchain/blob/6205d954e8ac2ea40ee7386b1ee3124da21f4c4a/chia/types/header_block.py#L13
 
-import { fields, Serializer } from "../serializer";
-import { bytes, Optional } from "../serializer/basic_types";
+import { fields, Serializer } from "..";
+import { bytes, Optional } from "../basic_types";
 import { EndOfSubSlotBundle } from "./end_of_sub_slot_bundle";
 import { RewardChainBlock } from "./reward_chain_block";
 import { VDFProof } from "./vdf";

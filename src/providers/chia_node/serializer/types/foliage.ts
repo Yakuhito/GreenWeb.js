@@ -1,7 +1,7 @@
 // https://github.com/Chia-Network/chia-blockchain/blob/6205d954e8ac2ea40ee7386b1ee3124da21f4c4a/chia/types/blockchain_format/foliage.py#L50
 
-import { fields } from "../serializer";
-import { bytes, Optional, uint } from "../serializer/basic_types";
+import { fields } from "..";
+import { bytes, Optional, uint } from "../basic_types";
 import { Coin } from "./coin";
 import { PoolTarget } from "./pool_target";
 

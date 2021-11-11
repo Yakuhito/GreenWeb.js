@@ -2,10 +2,10 @@
 import { ChiaNodeProvider } from ".";
 import { Optional, Provider } from "../provider";
 import { assert } from "chai";
-import { CoinState, PuzzleSolutionResponse } from "../../types/wallet_protocol";
-import { HeaderBlock } from "../../types/header_block";
-import { bytes } from "../../serializer/basic_types";
-import { Coin } from "../../types/coin";
+import { CoinState, PuzzleSolutionResponse } from "./serializer/types/wallet_protocol";
+import { HeaderBlock } from "./serializer/types/header_block";
+import { bytes } from "./serializer/basic_types";
+import { Coin } from "./serializer/types/coin";
 
 const nodeHost = "chianode.test";
 

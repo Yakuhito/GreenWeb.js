@@ -1,7 +1,7 @@
 // https://github.com/Chia-Network/chia-blockchain/blob/6205d954e8ac2ea40ee7386b1ee3124da21f4c4a/chia/types/blockchain_format/slots.py#L24
 
-import { fields } from "../serializer";
-import { uint, bytes, Optional } from "../serializer/basic_types";
+import { fields } from "..";
+import { uint, bytes, Optional } from "../basic_types";
 import { ProofOfSpace } from "./proof_of_space";
 import { VDFInfo, VDFProof } from "./vdf";
 

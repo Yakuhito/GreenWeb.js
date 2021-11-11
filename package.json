@@ -21,9 +21,9 @@
   "typings": "./index.d.ts",
   "scripts": {
     "build": "webpack",
-    "test": "nyc mocha -r ts-node/register src/**/*.test.ts",
+    "test": "nyc mocha -r ts-node/register src/**/*.test.ts src/**/**/*.test.ts src/**/**/**/*.test.ts",
     "test-chia-thing": "nyc mocha -r ts-node/register src/providers/chia_node/test.ts --timeout 10000",
-    "test-extended": "nyc mocha -r ts-node/register src/**/*.test.ts src/**/test.ts --timeout 10000"
+    "test-extended": "nyc mocha -r ts-node/register src/**/*.test.ts src/**/**/*.test.ts src/**/**/**/*.test.ts src/**/test.ts --timeout 10000"
   },
   "dependencies": {
     "@chiamine/bls-signatures": "^0.2.1-beta.2",

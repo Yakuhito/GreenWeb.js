@@ -14,7 +14,7 @@ module.exports = {
         use: [
           {loader: "ts-loader", options: {transpileOnly: true, configFile: "tsconfig.json"}},
         ],
-        exclude: /node_modules/,
+        exclude: /node_modules|src\/providers\/chia_node/,
       },
     ],
   },

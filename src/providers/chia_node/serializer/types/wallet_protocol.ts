@@ -1,7 +1,7 @@
 // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/protocols/wallet_protocol.py
 
-import { fields } from "../serializer";
-import { uint, bytes, Optional } from "../serializer/basic_types";
+import { fields } from "..";
+import { uint, bytes, Optional } from "../basic_types";
 import { SpendBundle } from "./spend_bundle";
 import { Coin } from "./coin";
 import { HeaderBlock } from "./header_block";

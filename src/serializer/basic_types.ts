@@ -1,5 +1,5 @@
 // boolean = boolean
-export type bytes = Buffer;
+export type bytes = string; // hex, does not incude 0x
 // list = Array<any> / any[]
 export type Optional<T> = T | null;
 // string = string

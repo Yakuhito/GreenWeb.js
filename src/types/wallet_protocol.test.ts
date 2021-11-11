@@ -43,8 +43,8 @@ describe("Serializer", () => {
             // eslint-disable-next-line max-len
             const expectedOutput = "00000001010101010101010101010101010101010101010101010101010101010101010102020202020202020202020202020202020202020202020202020202020202020000013efa5d0400ff10ff01ffff018200af8019c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
             const dummyCoin: Coin = new Coin();
-            dummyCoin.parentCoinInfo = Buffer.from("01".repeat(32), "hex");
-            dummyCoin.puzzleHash = Buffer.from("02".repeat(32), "hex");
+            dummyCoin.parentCoinInfo = "01".repeat(32);
+            dummyCoin.puzzleHash = "02".repeat(32);
             dummyCoin.amount = 1.37  * 1000000000000;
 
             const coinSpend: CoinSpend = new CoinSpend();
@@ -58,7 +58,7 @@ describe("Serializer", () => {
             spendBundle.coinSpends = [coinSpend];
             // empty agg_sig (has to be valid)
             // eslint-disable-next-line max-len
-            spendBundle.aggregatedSignature = Buffer.from("c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "hex");
+            spendBundle.aggregatedSignature = "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
             const obj: SendTransaction = new SendTransaction();
             obj.transaction = spendBundle;
@@ -78,7 +78,7 @@ describe("Serializer", () => {
             assert.isDefined(testObj);
             assert.instanceOf(testObj, SendTransaction);
             // eslint-disable-next-line max-len
-            assert.equal(testObj.transaction.aggregatedSignature.toString("hex"), "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+            assert.equal(testObj.transaction.aggregatedSignature, "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
             assert.equal(testObj.transaction.coinSpends.length, 1);
     
             const coinSpend: CoinSpend = testObj.transaction.coinSpends[0];
@@ -86,8 +86,8 @@ describe("Serializer", () => {
             const q = h(KEYWORD_TO_ATOM["q"]);
             assert.equal(coinSpend.solution.toString(), SExp.to(25).toString());
             assert.equal(coinSpend.puzzleReveal.toString(), SExp.to([plus, 1, t(q, 175)]).toString());
-            assert.equal(coinSpend.coin.parentCoinInfo.toString("hex"), "01".repeat(32));
-            assert.equal(coinSpend.coin.puzzleHash.toString("hex"), "02".repeat(32));
+            assert.equal(coinSpend.coin.parentCoinInfo, "01".repeat(32));
+            assert.equal(coinSpend.coin.puzzleHash, "02".repeat(32));
             assert.equal(coinSpend.coin.amount, 1.37  * 1000000000000);
         })
     });

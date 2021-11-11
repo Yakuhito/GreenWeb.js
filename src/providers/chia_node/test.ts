@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ChiaNodeProvider } from "./chia_node";
-import { Optional, Provider } from "./provider";
+import { ChiaNodeProvider } from ".";
+import { Optional, Provider } from "../provider";
 import { assert } from "chai";
-import { CoinState, PuzzleSolutionResponse } from "../types/wallet_protocol";
-import { HeaderBlock } from "../types/header_block";
-import { bytes } from "../serializer/basic_types";
-import { Coin } from "../types/coin";
+import { CoinState, PuzzleSolutionResponse } from "../../types/wallet_protocol";
+import { HeaderBlock } from "../../types/header_block";
+import { bytes } from "../../serializer/basic_types";
+import { Coin } from "../../types/coin";
 
 const nodeHost = "chianode.test";
 
@@ -56,7 +56,7 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         const coinState: CoinState = cs[0];
         assert.equal(
             coinId,
-            coinState.coin.getId().toString("hex")
+            coinState.coin.getId()
         );
     });
 
@@ -81,7 +81,7 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         const coinState: CoinState = cs[0];
         assert.equal(
             puzzleHash,
-            "0x" + coinState.coin.puzzleHash.toString("hex")
+            "0x" + coinState.coin.puzzleHash
         );
     });
 
@@ -102,7 +102,7 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         assert.instanceOf(resp, PuzzleSolutionResponse);
         assert.equal(
             coinId,
-            "0x" + resp!.coinName.toString("hex")
+            "0x" + resp!.coinName
         );
         assert.equal(resp!.height, height);
         assert.equal(resp!.puzzle.toString(), puzzle);
@@ -122,8 +122,13 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         
         const arr: CoinState[] = resp;
         assert.equal(arr.length, 2);
-        assert.equal(arr[0].coin.getId().toString("hex"), "7200b9a8a799717b2b54809b7ed6bd2bacfa113dcf9564569a8182bd7f588cf8");
-        assert.equal(arr[1].coin.getId().toString("hex"), "6aba6282e60ea52367596c258b5a54b7263dd42d8040c06c94b13d8eca682e45");
+
+        const coinIds: string[] = [
+            arr[0].coin.getId(),
+            arr[1].coin.getId()
+        ];
+        assert.isTrue(coinIds.includes("7200b9a8a799717b2b54809b7ed6bd2bacfa113dcf9564569a8182bd7f588cf8"));
+        assert.isTrue(coinIds.includes("6aba6282e60ea52367596c258b5a54b7263dd42d8040c06c94b13d8eca682e45"));
     });
 
     it("getBlockHeader()", async () => {
@@ -190,7 +195,7 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         const arr: Array<[bytes, Optional<Coin>]> = resp!;
         let ok = false;
         for(let i = 0; i < arr.length; i++) {
-            if(arr[i][0].toString("hex") === coinId && arr[i][1]!.getId().toString("hex") === coinId) {
+            if(arr[i][0] === coinId && arr[i][1]!.getId() === coinId) {
                 ok = true;
                 break;
             }
@@ -217,8 +222,8 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         
         const arr: Array<[bytes, Optional<Coin>]> = resp!;
         assert.equal(arr.length, 1);
-        assert.isTrue(arr[0][0].toString("hex") === coinId);
-        assert.isTrue(arr[0][1]!.getId().toString("hex") === coinId);
+        assert.isTrue(arr[0][0] === coinId);
+        assert.isTrue(arr[0][1]!.getId() === coinId);
     });
 
     it("getCoinAdditions()", async () => {
@@ -239,7 +244,7 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         const arr: Array<[bytes, Coin[]]> = resp!;
         let ok = false;
         for(let i = 0; i < arr.length; i++) {
-            if(arr[i][1][0].puzzleHash.toString("hex") === puzHash && arr[i][0].toString("hex") === puzHash) {
+            if(arr[i][1][0].puzzleHash === puzHash && arr[i][0] === puzHash) {
                 ok = true;
                 break;
             }
@@ -266,10 +271,10 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         
         const arr: Array<[bytes, Coin[]]> = resp!;
         assert.equal(arr.length, 2);
-        assert.equal(arr[0][0].toString("hex"), puzzHash);
+        assert.equal(arr[0][0], puzzHash);
         assert.equal(arr[0][1].length, 1);
-        assert.equal(arr[0][1][0].puzzleHash.toString("hex"), puzzHash);
-        assert.equal(arr[1][0].toString("hex"), nonExistentPuzzHash);
+        assert.equal(arr[0][1][0].puzzleHash, puzzHash);
+        assert.equal(arr[1][0], nonExistentPuzzHash);
         assert.equal(arr[1][1].length, 0);
     });
 

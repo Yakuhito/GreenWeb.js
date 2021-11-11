@@ -1,6 +1,6 @@
 import fields from "./fields";
 import { assert } from "chai";
-import { uint, bytes, Optional } from "./basic_types";
+import { uint, Optional } from "./basic_types";
 import { Serializer } from "./serializer";
 
 /*
@@ -32,7 +32,7 @@ describe("Serializer", () => {
     describe("TestClass", () => {
         class TestClass {
             @fields.Boolean() someBool = true;
-            @fields.Bytes() someBytes: bytes = Buffer.from([0x13, 0x33, 0x33, 0x37]);
+            @fields.Bytes() someBytes: Buffer = Buffer.from([0x13, 0x33, 0x33, 0x37]);
             @fields.Bytes(4) someOtherBytes = Buffer.from([0x24, 0x44, 0x44, 0x48]);
             @fields.List(fields.Uint(32)) uint32Array: uint[] = [1, 2, 3, 4];
             @fields.Optional(fields.String()) totallyOptionalString: Optional<string> = "message";

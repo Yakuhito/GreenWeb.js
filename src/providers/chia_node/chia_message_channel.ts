@@ -1,11 +1,11 @@
 // https://github.com/freddiecoleman/chia-network-scanner/blob/main/MessageChannel.ts
 
-import { bytes } from "../../serializer/basic_types";
 import { makeMsg, NodeType } from "../../types/outbound_message";
 import { ProtocolMessageTypes } from "../../types/protocol_message_types";
 import { Capability, Handshake, PROTOCOL_VERSION } from "../../types/shared_protocol";
 import { getSoftwareVersion } from "../../util/software_version";
-// import { CHIA_CERT, CHIA_KEY } from "./chia_ssl";
+import { CHIA_CERT, CHIA_KEY } from "./chia_ssl";
+import WebSocket from "ws";
 
 export interface ChiaMessageChannelOptions {
     host: string;
@@ -37,19 +37,19 @@ export class ChiaMessageChannel {
         const url: string = "wss://" + this.host + ":" + this.port.toString() + "/ws";
 
         return new Promise(resolve => {
-            this.ws = new WebSocket(url/* , {
+            this.ws = new WebSocket(url , {
                 rejectUnauthorized: false,
                 cert: CHIA_CERT,
                 key: CHIA_KEY
-            }*/);
-            this.ws.onmessage = (ev: MessageEvent<any>): void => this.messageHandler(ev.data);
+            });
+            this.ws.on("message", (data: Buffer): void => this.messageHandler(data));
             // this.ws.on('error', (err: Error): void => this.onClose(err));
             // this.ws.on('close', (_, reason) => this.onClose(new Error(reason.toString())));
-            this.ws.onopen = () => {
+            this.ws.on("open", () => {
                 this.onConnected();
 
                 resolve();
-            };
+            });
         });
     }
 
@@ -94,7 +94,7 @@ export class ChiaMessageChannel {
         handshake.serverPort = this.port;
         handshake.nodeType = NodeType.WALLET;
         handshake.capabilities = [[Capability.BASE, "1"], ];
-        const hanshakeMsg: bytes = makeMsg(
+        const hanshakeMsg: Buffer = makeMsg(
             ProtocolMessageTypes.handshake,
             handshake
         );

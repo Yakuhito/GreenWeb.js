@@ -27,9 +27,9 @@ describe("Serializer", () => {
             a.d = [[1, 2, 3], [3, 4]];
             a.e = 728;
             a.f = null;
-            a.g = [383, "hello", Buffer.from("goodbye")];
+            a.g = [383, "hello", Buffer.from("goodbye").toString("hex")];
         
-            const serialized: bytes = Serializer.serialize(a);
+            const serialized: Buffer = Serializer.serialize(a);
             const d: TestClass = Serializer.deserialize(TestClass, serialized);
         
             assert.isDefined(d);
@@ -56,9 +56,9 @@ describe("Serializer", () => {
             const a = new TestClass2();
             a.a = 1;
             a.b = 2;
-            a.c = Buffer.from("3");
+            a.c = Buffer.from("3").toString("hex");
         
-            const serialized: bytes = Serializer.serialize(a);
+            const serialized: Buffer = Serializer.serialize(a);
             
             assert.equal(serialized.toString("hex").length / 2, 4 + 4 + 4 + 1); // a - 4 bytes, b - 4 bytes, c - 4 (size) + 1 (data) bytes
         });
@@ -68,14 +68,14 @@ describe("Serializer", () => {
         }
         
         it("test_ambiguous_deserialization_optionals", () => {
-            const s1: bytes = Buffer.from("");
+            const s1: Buffer = Buffer.from("");
             assert.throws(() => Serializer.deserialize(TestClassOptional, s1));
         
-            const s2: bytes = Buffer.from("00", "hex");
+            const s2: Buffer = Buffer.from("00", "hex");
             const d2: TestClassOptional = Serializer.deserialize(TestClassOptional, s2);
             assert.isNull(d2.a);
         
-            const s3: bytes = Buffer.from("0102", "hex");
+            const s3: Buffer = Buffer.from("0102", "hex");
             const d3: TestClassOptional = Serializer.deserialize(TestClassOptional, s3);
             assert.equal(d3.a, 0x2);
         });
@@ -85,7 +85,7 @@ describe("Serializer", () => {
         }
         
         it("test_ambiguous_deserialization_int", () => {
-            const s1: bytes = Buffer.from([0, 0]);
+            const s1: Buffer = Buffer.from([0, 0]);
             assert.throws(() => Serializer.deserialize(TestClassUint, s1));
         });
         
@@ -94,7 +94,7 @@ describe("Serializer", () => {
         }
         
         it("test_ambiguous_deserialization_list", () => {
-            const s1: bytes = Buffer.from([0, 0, 100, 24]);
+            const s1: Buffer = Buffer.from([0, 0, 100, 24]);
             assert.throws(() => Serializer.deserialize(TestClassList, s1));
         });
         
@@ -103,7 +103,7 @@ describe("Serializer", () => {
         }
         
         it("test_ambiguous_deserialization_tuple", () => {
-            const s1: bytes = Buffer.from([0, 0, 100, 24]);
+            const s1: Buffer = Buffer.from([0, 0, 100, 24]);
             assert.throws(() => Serializer.deserialize(TestClassTuple, s1));
         });
         
@@ -112,17 +112,17 @@ describe("Serializer", () => {
         }
         
         it("test_ambiguous_deserialization_str", () => {
-            const s1: bytes = Buffer.from([0, 0, 100, 24, 52]);
+            const s1: Buffer = Buffer.from([0, 0, 100, 24, 52]);
             assert.throws(() => Serializer.deserialize(TestClassStr, s1));
         
-            const s2: bytes = Buffer.from([0, 0, 0, 1]);
+            const s2: Buffer = Buffer.from([0, 0, 0, 1]);
             assert.throws(() => Serializer.deserialize(TestClassStr, s2));
         
-            const s3: bytes = Buffer.from([0, 0, 0, 1, 52]);
+            const s3: Buffer = Buffer.from([0, 0, 0, 1, 52]);
             const d3: TestClassStr = Serializer.deserialize(TestClassStr, s3);
             assert.equal(d3.a, "4");
         
-            const s4: bytes = Buffer.from([0, 0, 0, 2, 52, 21]);
+            const s4: Buffer = Buffer.from([0, 0, 0, 2, 52, 21]);
             const d4: TestClassStr = Serializer.deserialize(TestClassStr, s4);
             assert.equal(d4.a, "4\x15");
         });
@@ -132,19 +132,19 @@ describe("Serializer", () => {
         }
         
         it("test_ambiguous_deserialization_bytes", () => {
-            const s1: bytes = Buffer.from([0, 0, 100, 24, 52]);
+            const s1: Buffer = Buffer.from([0, 0, 100, 24, 52]);
             assert.throws(() => Serializer.deserialize(TestClassBytes, s1));
         
-            const s2: bytes = Buffer.from([0, 0, 0, 1]);
+            const s2: Buffer = Buffer.from([0, 0, 0, 1]);
             assert.throws(() => Serializer.deserialize(TestClassBytes, s2));
         
-            const s3: bytes = Buffer.from([0, 0, 0, 1, 52]);
+            const s3: Buffer = Buffer.from([0, 0, 0, 1, 52]);
             const d3: TestClassBytes = Serializer.deserialize(TestClassBytes, s3);
-            assert.equal(d3.a.toString("hex"), Buffer.from([52]).toString("hex"));
+            assert.equal(d3.a, Buffer.from([52]).toString("hex"));
         
-            const s4: bytes = Buffer.from([0, 0, 0, 2, 52, 21]);
+            const s4: Buffer = Buffer.from([0, 0, 0, 2, 52, 21]);
             const d4: TestClassBytes = Serializer.deserialize(TestClassBytes, s4);
-            assert.equal(d4.a.toString("hex"), Buffer.from([52, 21]).toString("hex"));
+            assert.equal(d4.a, Buffer.from([52, 21]).toString("hex"));
         });
         
         class TestClassBool {
@@ -152,14 +152,14 @@ describe("Serializer", () => {
         }
         
         it("test_ambiguous_deserialization_bool", () => {
-            const s1: bytes = Buffer.from([]);
+            const s1: Buffer = Buffer.from([]);
             assert.throws(() => Serializer.deserialize(TestClassBool, s1));
         
-            const s2: bytes = Buffer.from([0]);
+            const s2: Buffer = Buffer.from([0]);
             const d2: TestClassBool = Serializer.deserialize(TestClassBool, s2);
             assert.equal(d2.a, false);
         
-            const s3: bytes = Buffer.from([1]);
+            const s3: Buffer = Buffer.from([1]);
             const d3: TestClassBool = Serializer.deserialize(TestClassBool, s3);
             assert.equal(d3.a, true);
         });
@@ -169,11 +169,11 @@ describe("Serializer", () => {
         }
         
         it("test_ambiguous_deserialization_program", () => {
-            const s1: bytes = Buffer.from(SExp.to([]).toString(), "hex");
+            const s1: Buffer = Buffer.from(SExp.to([]).toString(), "hex");
             const d1: TestClassProgram = Serializer.deserialize(TestClassProgram, s1);
             assert.equal(d1.a.toString(), SExp.to([]).toString());
         
-            const s2: bytes = Buffer.concat([s1, Buffer.from("9")]);
+            const s2: Buffer = Buffer.concat([s1, Buffer.from("9")]);
             // this test case doesn't make any sense...
             // assert.throw(() => Serializer.deserialize(TestClassProgram, s2));
             const d2: TestClassProgram = Serializer.deserialize(TestClassProgram, s2);
@@ -328,12 +328,12 @@ describe("Serializer", () => {
         
         it("test_parse_bytes", () => {
             assert.equal(
-                Serializer.deserialize(TestClassBytes, Buffer.from([0, 0, 0, 0])).a.toString("hex"),
+                Serializer.deserialize(TestClassBytes, Buffer.from([0, 0, 0, 0])).a,
                 ""
             );
         
             assert.equal(
-                Serializer.deserialize(TestClassBytes, Buffer.from([0, 0, 0, 1, 0xff])).a.toString("hex"),
+                Serializer.deserialize(TestClassBytes, Buffer.from([0, 0, 0, 1, 0xff])).a,
                 "ff"
             );
         
@@ -341,7 +341,7 @@ describe("Serializer", () => {
                 Serializer.deserialize(TestClassBytes, Buffer.concat([
                     Buffer.from([0, 0, 2, 0]),
                     Buffer.from("a".repeat(0x200))
-                ])).a.toString("hex"),
+                ])).a,
                 Buffer.from("a".repeat(0x200)).toString("hex")
             );
         
@@ -349,7 +349,7 @@ describe("Serializer", () => {
                 Serializer.deserialize(TestClassBytes, Buffer.concat([
                     Buffer.from([0, 0, 0, 0xff]),
                     Buffer.from("a".repeat(0xff))
-                ])).a.toString("hex"),
+                ])).a,
                 Buffer.from("a".repeat(255)).toString("hex")
             );
         

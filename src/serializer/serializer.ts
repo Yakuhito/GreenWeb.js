@@ -20,7 +20,9 @@ export class Serializer {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static deserialize<T>(classType: new (...args: any[]) => T, buf: Buffer): T {
+    static deserialize<T>(classType: new (...args: any[]) => T, data: string | Buffer): T {
+        let buf: Buffer = data instanceof Buffer ?
+            data : Buffer.from(data, "hex");
         const props: IPropsType = classType.prototype[propertySerializerName];
         const result = new classType();
 

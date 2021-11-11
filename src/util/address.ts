@@ -12,24 +12,22 @@ export class AddressUtil {
         return ph;
     }
 
-    static puzzleHashToAddress(puzzleHash: Buffer | string, prefix = "xch"): string {
-        if(!(puzzleHash instanceof Buffer)) {
-            puzzleHash = Buffer.from(AddressUtil.validateHashString(puzzleHash), "hex");
-        }
+    static puzzleHashToAddress(puzzleHash: string, prefix = "xch"): string {
+        const puzzHash: Buffer = Buffer.from(AddressUtil.validateHashString(puzzleHash), "hex");
 
-        if(puzzleHash.length !== 32)
+        if(puzzHash.length !== 32)
             return "";
 
-        return bech32m.encode(prefix, bech32m.toWords(puzzleHash));
+        return bech32m.encode(prefix, bech32m.toWords(puzzHash));
     }
 
-    static addressToPuzzleHash(address: string): Buffer {
+    static addressToPuzzleHash(address: string): string {
         try {
             return Buffer.from(
                 bech32m.fromWords(bech32m.decode(address).words)
-            );
+            ).toString("hex");
         } catch(_) {
-            return Buffer.from([]);
+            return "";
         }
     }
 }

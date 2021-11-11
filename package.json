@@ -22,20 +22,22 @@
   "scripts": {
     "build": "webpack",
     "test": "nyc mocha -r ts-node/register src/**/*.test.ts",
-    "test-chia-thing": "nyc mocha -r ts-node/register src/providers/test_lib.ts --timeout 10000",
-    "test-extended": "nyc mocha -r ts-node/register src/**/*.test.ts src/providers/test_lib.ts --timeout 10000"
+    "test-chia-thing": "nyc mocha -r ts-node/register src/providers/chia_node/test.ts --timeout 10000",
+    "test-extended": "nyc mocha -r ts-node/register src/**/*.test.ts src/**/test.ts --timeout 10000"
   },
   "dependencies": {
     "@chiamine/bls-signatures": "^0.2.1-beta.2",
     "bech32": "^2.0.0",
     "clvm": "^1.0.8",
-    "crypto-js": "^4.1.1"
+    "crypto-js": "^4.1.1",
+    "ws": "^8.2.3"
   },
   "devDependencies": {
     "@types/chai": "^4.2.22",
     "@types/crypto-js": "^4.0.2",
     "@types/mocha": "^9.0.0",
     "@types/node": "^15.0.2",
+    "@types/ws": "^8.2.0",
     "@typescript-eslint/eslint-plugin": "^4.1.0",
     "@typescript-eslint/parser": "^4.1.0",
     "chai": "^4.3.4",

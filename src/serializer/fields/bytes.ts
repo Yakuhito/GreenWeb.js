@@ -5,12 +5,13 @@ import { bytes, uint } from "../basic_types";
 export const BytesField = (size: number | null = null) => {
     const serializer: FieldSerializer<bytes> = {
         serialize: (value, buf) => {
+            const val: Buffer = Buffer.from(value, "hex");
             if(size == null) {
                 const buf2 : Buffer = Buffer.alloc(4);
-                buf2.writeUInt32BE(value.length);
-                return Buffer.concat([buf, buf2, value]);
+                buf2.writeUInt32BE(val.length);
+                return Buffer.concat([buf, buf2, val]);
             }
-            return Buffer.concat([buf, value]);
+            return Buffer.concat([buf, val]);
         },
         deserialize: (buf) => {
             if(size == null) {
@@ -20,14 +21,14 @@ export const BytesField = (size: number | null = null) => {
 
                 if(buf.length < size) throw new Error();
                 return [
-                    buf.slice(0, size),
+                    buf.slice(0, size).toString("hex"),
                     buf.slice(size),
                 ];
             }
 
             if(buf.length < size) throw new Error();
             return [
-                buf.slice(0, size),
+                buf.slice(0, size).toString("hex"),
                 buf.slice(size),
             ];
         },

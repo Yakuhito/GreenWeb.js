@@ -13,14 +13,10 @@ export class Coin {
 
     public getId(): bytes {
         const toHash: Buffer = Buffer.concat([
-            this.parentCoinInfo,
-            this.puzzleHash,
+            Buffer.from(this.parentCoinInfo + this.puzzleHash, "hex"),
             int_to_bytes(this.amount).data(),
         ]);
         
-        return Buffer.from(
-            CryptoJS.enc.Hex.stringify(CryptoJS.SHA256(CryptoJS.enc.Hex.parse(toHash.toString("hex")))),
-            "hex"
-        );
+        return CryptoJS.enc.Hex.stringify(CryptoJS.SHA256(CryptoJS.enc.Hex.parse(toHash.toString("hex"))));
     }
 }

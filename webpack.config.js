@@ -24,6 +24,7 @@ module.exports = {
       "path": false,
       "fs": false,
       "crypto": false,
+      "ws": false
     }
   },
   target: ["es5"],

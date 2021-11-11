@@ -36,11 +36,11 @@ export class Message {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function makeMsg(msgType: ProtocolMessageTypes, data: any): bytes {
+export function makeMsg(msgType: ProtocolMessageTypes, data: any): Buffer {
     const msg: Message = new Message();
     msg.type = msgType;
     msg.id = null;
-    msg.data = Serializer.serialize(data);
+    msg.data = Serializer.serialize(data).toString("hex");
 
     return Serializer.serialize(msg);
 }

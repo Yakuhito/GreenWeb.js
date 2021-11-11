@@ -4,9 +4,7 @@
 
 [![GitHub license](https://badgen.net/github/license/Yakuhito/GreenWeb.js)](https://github.com/Yakuhito/GreenWeb.js/blob/master/LICENSE) [![GitHub commits](https://badgen.net/github/commits/Yakuhito/GreenWeb.js)](https://GitHub.com/Yakuhito/GreenWeb.js/commit/) [![GitHub latest commit](https://badgen.net/github/last-commit/Yakuhito/GreenWeb.js)](https://GitHub.com/Yakuhito/GreenWeb.js/commit/) [![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/yNVNvQyYXn) [![GitHub stars](https://badgen.net/github/stars/Yakuhito/GreenWeb.js)](https://GitHub.com/Yakuhito/GreenWeb.js/stargazers/) [![GitHub watchers](https://badgen.net/github/watchers/Yakuhito/GreenWeb.js)](https://GitHub.com/Yakuhito/GreenWeb.js/watchers/)
 
-This library allows developers to connect to a remote [Chia](https://www.chia.net/) node using the official wallet protocol.
-
-**No SPV checks are performed when quering data. Only connect to trusted nodes.**
+This library allows developers to connect to read data from the [Chia](https://www.chia.net/) blockchain.
 
 Please read the [documentation](https://greenwebjs.readthedocs.io) for more.
 
@@ -30,7 +28,7 @@ Documentation can be found at [ReadTheDocs](https://greenwebjs.readthedocs.io).
 npm test
 ```
 
-Point `chianode.test` to a running Chia nodet to run more tests:
+Point `chianode.test` to a running Chia node to run more tests:
 
 ```
 npm run test-extensive

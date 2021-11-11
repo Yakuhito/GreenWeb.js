@@ -1,11 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ChiaNodeProvider } from ".";
-import { Optional, Provider } from "../provider";
+import { BlockHeader, Coin, CoinState, Provider, PuzzleSolution } from "../provider";
 import { assert } from "chai";
-import { CoinState, PuzzleSolutionResponse } from "./serializer/types/wallet_protocol";
-import { HeaderBlock } from "./serializer/types/header_block";
-import { bytes } from "./serializer/basic_types";
-import { Coin } from "./serializer/types/coin";
 
 const nodeHost = "chianode.test";
 
@@ -56,7 +52,7 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         const coinState: CoinState = cs[0];
         assert.equal(
             coinId,
-            coinState.coin.getId()
+            coinState.coin.id
         );
     });
 
@@ -99,7 +95,7 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         });
     
         assert.isNotNull(resp);
-        assert.instanceOf(resp, PuzzleSolutionResponse);
+        assert.instanceOf(resp, PuzzleSolution);
         assert.equal(
             coinId,
             "0x" + resp!.coinName
@@ -124,8 +120,8 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         assert.equal(arr.length, 2);
 
         const coinIds: string[] = [
-            arr[0].coin.getId(),
-            arr[1].coin.getId()
+            arr[0].coin.id,
+            arr[1].coin.id
         ];
         assert.isTrue(coinIds.includes("7200b9a8a799717b2b54809b7ed6bd2bacfa113dcf9564569a8182bd7f588cf8"));
         assert.isTrue(coinIds.includes("6aba6282e60ea52367596c258b5a54b7263dd42d8040c06c94b13d8eca682e45"));
@@ -141,10 +137,10 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         });
     
         assert.isNotNull(resp);
-        assert.instanceOf(resp, HeaderBlock);
+        assert.instanceOf(resp, BlockHeader);
         
-        const hb: HeaderBlock = resp!;
-        assert.equal(hb.headerHash(), headerHash);
+        const hb: BlockHeader = resp!;
+        assert.equal(hb.headerHash, headerHash);
     });
 
     it("getBlocksHeaders()", async () => {
@@ -167,11 +163,11 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         assert.isNotNull(resp);
         assert.isArray(resp);
 
-        const hbs: HeaderBlock[] = resp!;
+        const hbs: BlockHeader[] = resp!;
         assert.equal(hbs.length, headerHashes.length);
         for(let i = 0; i < hbs.length; ++i) {
             assert.equal(
-                hbs[i].headerHash(),
+                hbs[i].headerHash,
                 headerHashes[i]
             );
         }
@@ -192,16 +188,10 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         assert.isNotNull(resp);
         assert.isArray(resp);
         
-        const arr: Array<[bytes, Optional<Coin>]> = resp!;
-        let ok = false;
-        for(let i = 0; i < arr.length; i++) {
-            if(arr[i][0] === coinId && arr[i][1]!.getId() === coinId) {
-                ok = true;
-                break;
-            }
-        }
-
-        assert.isTrue(ok);
+        const coins: Coin[] = resp!;
+        assert.isTrue(
+            coins.map((e) => e.id).includes(coinId)
+        );
     });
 
     it("getCoinRemovals() - only one coin", async () => {
@@ -220,10 +210,9 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         assert.isNotNull(resp);
         assert.isArray(resp);
         
-        const arr: Array<[bytes, Optional<Coin>]> = resp!;
-        assert.equal(arr.length, 1);
-        assert.isTrue(arr[0][0] === coinId);
-        assert.isTrue(arr[0][1]!.getId() === coinId);
+        const coins: Coin[] = resp!;
+        assert.equal(coins.length, 1);
+        assert.isTrue(coins[0].id === coinId);
     });
 
     it("getCoinAdditions()", async () => {
@@ -241,16 +230,10 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         assert.isNotNull(resp);
         assert.isArray(resp);
         
-        const arr: Array<[bytes, Coin[]]> = resp!;
-        let ok = false;
-        for(let i = 0; i < arr.length; i++) {
-            if(arr[i][1][0].puzzleHash === puzHash && arr[i][0] === puzHash) {
-                ok = true;
-                break;
-            }
-        }
-
-        assert.isTrue(ok);
+        const coins: Coin[] = resp!;
+        assert.isTrue(
+            coins.map((e) => e.puzzleHash).includes(puzHash)
+        );
     });
 
     it("getCoinAdditions() - two puzzle hashes", async () => {
@@ -269,13 +252,11 @@ describe("ChiaNodeProvider with " + nodeHost, () => {
         assert.isNotNull(resp);
         assert.isArray(resp);
         
-        const arr: Array<[bytes, Coin[]]> = resp!;
-        assert.equal(arr.length, 2);
-        assert.equal(arr[0][0], puzzHash);
-        assert.equal(arr[0][1].length, 1);
-        assert.equal(arr[0][1][0].puzzleHash, puzzHash);
-        assert.equal(arr[1][0], nonExistentPuzzHash);
-        assert.equal(arr[1][1].length, 0);
+        const coins: Coin[] = resp!;
+        assert.equal(coins.length, 1);
+        assert.isTrue(
+            coins.map((e) => e.puzzleHash).includes(puzzHash)
+        );
     });
 
     it("close()", () => {

@@ -1,9 +1,24 @@
-import { Optional } from "../provider_types";
+import * as providerTypes from "../provider_types";
+import { ProviderUtil } from "./provider_util";
 import { CoinState, RespondToCoinUpdates, RespondToPhUpdates } from "./serializer/types/wallet_protocol";
 
 export class CoinStateStorage {
-    private callbacks: { [key: string]: Array<(coin_states: CoinState[]) => void> } = {};
-    private coinStates: { [puzHash: string]: Optional<CoinState[]> } = {};
+    private callbacks: { [key: string]: Array<(coin_states: providerTypes.CoinState[]) => void> } = {};
+    private coinStates: { [puzHash: string]: providerTypes.Optional<CoinState[]> } = {};
+
+    private _execCallbacks(callbacks: Array<(coin_states: providerTypes.CoinState[]) => void>, cs: CoinState[]) {
+        const coinStates: providerTypes.CoinState[] = [];
+
+        for(let i = 0;i < cs.length; ++i) {
+            coinStates.push(
+                ProviderUtil.serializerCoinStateToProviderCoinState(cs[i])
+            );
+        }
+
+        for(let j = 0;j < callbacks.length; ++j) {
+            callbacks[j](coinStates);
+        }
+    }
 
     public processPhPacket(pckt: RespondToPhUpdates) {
         const puzzleHashes: string[] = pckt.puzzleHashes;
@@ -15,9 +30,10 @@ export class CoinStateStorage {
             this.coinStates[puzzleHash] = coinStates;
 
             if(this.callbacks[puzzleHash] !== undefined && this.callbacks[puzzleHash].length > 0) {
-                for(let j = 0; j < this.callbacks[puzzleHash].length; ++j) {
-                    this.callbacks[puzzleHash][j](coinStates);
-                }
+                this._execCallbacks(
+                    this.callbacks[puzzleHash],
+                    coinStates
+                );
             }
         }
     }
@@ -32,18 +48,19 @@ export class CoinStateStorage {
             this.coinStates[coinId] = coinStates;
 
             if(this.callbacks[coinId] !== undefined && this.callbacks[coinId].length > 0) {
-                for(let j = 0; j < this.callbacks[coinId].length; ++j) {
-                    this.callbacks[coinId][j](coinStates);
-                }
+                this._execCallbacks(
+                    this.callbacks[coinId],
+                    coinStates
+                );
             }
         }
     }
 
-    public get(key: string): Optional<CoinState[]> {
+    public get(key: string): providerTypes.Optional<CoinState[]> {
         return this.coinStates[key] ?? null;
     }
 
-    public addCallback(puzzleHashOrCoinId: string, callback: (coin_states: CoinState[]) => void) {
+    public addCallback(puzzleHashOrCoinId: string, callback: (coin_states: providerTypes.CoinState[]) => void) {
         if(this.callbacks[puzzleHashOrCoinId] === undefined)
             this.callbacks[puzzleHashOrCoinId] = [];
         this.callbacks[puzzleHashOrCoinId].push(callback);

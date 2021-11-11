@@ -5,6 +5,7 @@ export type bytes = string;
 export type uint = number;
 
 export class Coin {
+    id: bytes;
     parentCoinInfo: bytes;
     puzzleHash: bytes;
     amount: uint;
@@ -20,6 +21,7 @@ export class BlockHeader {
     height: uint;
     headerHash: bytes;
     prevBlockHash: Optional<bytes>;
+    isTransactionBlock: Optional<boolean>;
     fees: Optional<uint>;
     farmerPuzzleHash: Optional<bytes>;
     poolPuzzleHash: Optional<bytes>;
@@ -27,7 +29,7 @@ export class BlockHeader {
 
 export class PuzzleSolution {
     coinName: bytes;
-    height: bytes;
+    height: uint;
     puzzle: SExp;
     solution: SExp;
 }

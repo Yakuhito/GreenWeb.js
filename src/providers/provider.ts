@@ -2,6 +2,7 @@ import { Optional, Coin, CoinState, BlockHeader, PuzzleSolution } from "./provid
 import { getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs } from "./provider_args";
 
 export * from "./provider_types";
+export * from "./provider_args";
 
 export interface Provider {
     initialize(): Promise<void>;

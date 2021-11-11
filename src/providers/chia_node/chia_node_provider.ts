@@ -1,5 +1,5 @@
 import { Provider, getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs } from "../provider";
-import { Optional } from "../provider_types";
+import * as providerTypes from "../provider_types";
 import { ChiaMessageChannel } from "./chia_message_channel";
 import { MessageQueue } from "./message_queue";
 import { makeMsg, Message } from "./serializer/types/outbound_message";
@@ -10,7 +10,7 @@ import { AddressUtil } from "../../util/address";
 import { CoinStateStorage } from "./coin_state_storage";
 import { HeaderBlock } from "./serializer/types/header_block";
 import { Coin } from "./serializer/types/coin";
-import { bytes } from "./serializer/basic_types";
+import { ProviderUtil } from "./provider_util";
 
 const ADDRESS_PREFIX = "xch";
 const NETWORK_ID = "mainnet";
@@ -18,7 +18,7 @@ const NETWORK_ID = "mainnet";
 export class ChiaNodeProvider implements Provider {
     private messageChannel: ChiaMessageChannel;
     private messageQueue: MessageQueue = new MessageQueue();
-    private blockNumber: Optional<number> = null;
+    private blockNumber: providerTypes.Optional<number> = null;
     private coinStateStorage: CoinStateStorage = new CoinStateStorage();
 
     constructor(host: string, port = 8444) {
@@ -68,7 +68,7 @@ export class ChiaNodeProvider implements Provider {
         return NETWORK_ID;
     }
 
-    public async getBlockNumber(): Promise<Optional<number>> {
+    public async getBlockNumber(): Promise<providerTypes.Optional<number>> {
         return this.blockNumber;
     }
 
@@ -76,7 +76,7 @@ export class ChiaNodeProvider implements Provider {
         address,
         puzzleHash,
         minHeight = 0
-    }: getBalanceArgs): Promise<Optional<number>> {
+    }: getBalanceArgs): Promise<providerTypes.Optional<number>> {
         let puzHash: string;
 
         // get puzHash: Buffer from address / puzzle hash
@@ -168,7 +168,7 @@ export class ChiaNodeProvider implements Provider {
         this.coinStateStorage.addCallback(coinId, callback);
     }
 
-    public async getPuzzleSolution({coinId, height}: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolutionResponse>> {
+    public async getPuzzleSolution({coinId, height}: getPuzzleSolutionArgs): Promise<providerTypes.Optional<providerTypes.PuzzleSolution>> {
         coinId = AddressUtil.validateHashString(coinId);
         if(coinId.length === 0) return null;
 
@@ -196,10 +196,12 @@ export class ChiaNodeProvider implements Provider {
             respMsg.data
         ).response;
 
-        return respPckt;
+        return ProviderUtil.serializerPuzzleSolutionResponseToProviderPuzzleSolution(
+            respPckt
+        );
     }
 
-    public async getCoinChildren({ coinId }: getCoinChildrenArgs): Promise<CoinState[]> {
+    public async getCoinChildren({ coinId }: getCoinChildrenArgs): Promise<providerTypes.CoinState[]> {
         coinId = AddressUtil.validateHashString(coinId);
         if(coinId.length === 0) return [];
 
@@ -218,11 +220,20 @@ export class ChiaNodeProvider implements Provider {
             ProtocolMessageTypes.respond_children
         ]);
         const respPckt = Serializer.deserialize(RespondChildren, respMsg.data);
+        const coinStates: providerTypes.CoinState[] = [];
 
-        return respPckt.coinStates;
+        for(let i = 0;i < respPckt.coinStates.length; ++i) {
+            coinStates.push(
+                ProviderUtil.serializerCoinStateToProviderCoinState(
+                    respPckt.coinStates[i]
+                )
+            )
+        }
+
+        return coinStates;
     }
 
-    public async getBlockHeader({ height }: getBlockHeaderArgs): Promise<Optional<HeaderBlock>> {
+    public async getBlockHeader({ height }: getBlockHeaderArgs): Promise<providerTypes.Optional<providerTypes.BlockHeader>> {
         const pckt: RequestBlockHeader = new RequestBlockHeader();
         pckt.height = height;
 
@@ -243,10 +254,14 @@ export class ChiaNodeProvider implements Provider {
             return null;
 
         const respPckt: RespondBlockHeader = Serializer.deserialize(RespondBlockHeader, respMsg.data);
-        return respPckt.headerBlock;
+        const headerBlock: HeaderBlock = respPckt.headerBlock;
+
+        return ProviderUtil.serializerHeaderBlockToProviderBlockHeader(headerBlock, height);
     }
 
-    public async getBlocksHeaders({ startHeight, endHeight }: getBlocksHeadersArgs): Promise<Optional<HeaderBlock[]>> {
+    public async getBlocksHeaders(
+        { startHeight, endHeight }: getBlocksHeadersArgs
+    ): Promise<providerTypes.Optional<providerTypes.BlockHeader[]>> {
         const pckt: RequestHeaderBlocks = new RequestHeaderBlocks();
         pckt.startHeight = startHeight;
         pckt.endHeight = endHeight;
@@ -268,14 +283,26 @@ export class ChiaNodeProvider implements Provider {
             return null;
 
         const respPckt: RespondHeaderBlocks = Serializer.deserialize(RespondHeaderBlocks, respMsg.data);
-        return respPckt.headerBlocks;
+        const headers: providerTypes.BlockHeader[] = [];
+
+        for(let i = 0; i < respPckt.headerBlocks.length; ++i) {
+            const header: providerTypes.BlockHeader =
+                ProviderUtil.serializerHeaderBlockToProviderBlockHeader(
+                    respPckt.headerBlocks[i],
+                    respPckt.startHeight + i
+                );
+
+            headers.push(header);
+        }
+
+        return headers;
     }
 
     public async getCoinRemovals({
         height,
         headerHash,
         coinIds = undefined
-    }: getCoinRemovalsArgs): Promise<Optional<Array<[bytes, Optional<Coin>]>>> {
+    }: getCoinRemovalsArgs): Promise<providerTypes.Optional<providerTypes.Coin[]>> {
         headerHash = AddressUtil.validateHashString(headerHash);
         if(headerHash.length === 0) return null;
 
@@ -311,14 +338,25 @@ export class ChiaNodeProvider implements Provider {
             return null;
 
         const respPckt: RespondRemovals = Serializer.deserialize(RespondRemovals, respMsg.data);
-        return respPckt.coins;
+        const coins: providerTypes.Coin[] = [];
+
+        for(const key of respPckt.coins.keys()) {
+            const thing: [string, providerTypes.Optional<Coin>] = respPckt.coins[key];
+            if(thing[1] !== null) {
+                coins.push(
+                    ProviderUtil.serializerCoinToProviderCoin(thing[1])
+                );
+            }
+        }
+
+        return coins;
     }
 
     public async getCoinAdditions({
         height,
         headerHash,
         puzzleHashes = undefined
-    }: getCoinAdditionsArgs): Promise<Optional<Array<[bytes, Coin[]]>>> {
+    }: getCoinAdditionsArgs): Promise<providerTypes.Optional<providerTypes.Coin[]>> {
         headerHash = AddressUtil.validateHashString(headerHash);
         if(headerHash.length === 0) return null;
 
@@ -354,6 +392,20 @@ export class ChiaNodeProvider implements Provider {
             return null;
 
         const respPckt: RespondAdditions = Serializer.deserialize(RespondAdditions, respMsg.data);
-        return respPckt.coins;
+        const coins: providerTypes.Coin[] = [];
+
+        for(const key of respPckt.coins.keys()) {
+            const thing: [string, Coin[]] = respPckt.coins[key];
+            const coinArr: Coin[] = thing[1];
+
+            for(let j = 0; j < coinArr.length; ++j) {
+                const coin: Coin = coinArr[j];
+                coins.push(
+                    ProviderUtil.serializerCoinToProviderCoin(coin)
+                );
+            }
+        }
+
+        return coins;
     }
 }

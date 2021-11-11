@@ -1,4 +1,4 @@
-import { Optional } from "../provider";
+import { Optional } from "../provider_types";
 import { CoinState, RespondToCoinUpdates, RespondToPhUpdates } from "./serializer/types/wallet_protocol";
 
 export class CoinStateStorage {

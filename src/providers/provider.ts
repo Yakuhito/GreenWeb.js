@@ -1,57 +1,7 @@
-import { bytes } from "../serializer/basic_types";
-import { Coin } from "../types/coin";
-import { HeaderBlock } from "../types/header_block";
-import { CoinState, PuzzleSolutionResponse } from "../types/wallet_protocol";
+import { Optional, Coin, CoinState, BlockHeader, PuzzleSolution } from "./provider_types";
+import { getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs } from "./provider_args";
 
-export type Optional<T> = T | null;
-
-export type getBalanceArgs = {
-    address?: string,
-    puzzleHash?: string,
-    minHeight?: number
-};
-
-export type subscribeToPuzzleHashUpdatesArgs = {
-    puzzleHash: string,
-    callback: (coin_states: CoinState[]) => void,
-    minHeight?: number
-};
-
-export type subscribeToCoinUpdatesArgs = {
-    coinId: string,
-    callback: (coin_states: CoinState[]) => void,
-    minHeight?: number
-};
-
-export type getPuzzleSolutionArgs = {
-    coinId: string,
-    height: number
-};
-
-export type getCoinChildrenArgs = {
-    coinId: string
-};
-
-export type getBlockHeaderArgs = {
-    height: number
-};
-
-export type getBlocksHeadersArgs = {
-    startHeight: number,
-    endHeight: number
-};
-
-export type getCoinRemovalsArgs = {
-    height: number,
-    headerHash: string,
-    coinIds?: string[]
-};
-
-export type getCoinAdditionsArgs = {
-    height: number,
-    headerHash: string, // apparently not optional...
-    puzzleHashes?: string[]
-};
+export * from "./provider_types";
 
 export interface Provider {
     initialize(): Promise<void>;
@@ -64,12 +14,12 @@ export interface Provider {
     subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void;
     subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void;
 
-    getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolutionResponse>>;
+    getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>>;
     getCoinChildren(args: getCoinChildrenArgs): Promise<CoinState[]>;
 
-    getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<HeaderBlock>>;
-    getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<HeaderBlock[]>>;
+    getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<BlockHeader>>;
+    getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>>;
 
-    getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Array<[bytes, Optional<Coin>]>>>; // appears to be [coin_id, Coin][]
-    getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Array<[bytes, Coin[]]>>>;
+    getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>>;
+    getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>>;
 }

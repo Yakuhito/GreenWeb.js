@@ -1,4 +1,4 @@
-# Note: DOES NOT WORK (YET!)
+# Note: ONLY WORKS WITH NODEJS (FOR NOW)
 
 ## GreenWeb.js
 
@@ -10,7 +10,7 @@ This library allows developers to connect to a remote [Chia](https://www.chia.ne
 
 Please read the [documentation](https://greenwebjs.readthedocs.io) for more.
 
-## Installation
+## Installation - Web
 
 Build using the GreenWeb.js repository:
 

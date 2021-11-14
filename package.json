@@ -22,7 +22,7 @@
   "scripts": {
     "build": "webpack",
     "test": "nyc mocha -r ts-node/register src/**/*.test.ts src/**/**/*.test.ts src/**/**/**/*.test.ts",
-    "test-chia-thing": "nyc mocha -r ts-node/register src/providers/chia_node/test.ts --timeout 10000",
+    "test-chia-thing": "nyc mocha -r ts-node/register src/providers/leaflet/test.ts --timeout 10000",
     "test-extended": "nyc mocha -r ts-node/register src/**/*.test.ts src/**/**/*.test.ts src/**/**/**/*.test.ts src/**/test.ts --timeout 10000"
   },
   "dependencies": {

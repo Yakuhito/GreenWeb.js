@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ChiaNodeProvider } from ".";
+import { LeafletProvider } from ".";
 import { BlockHeader, Coin, CoinState, Provider, PuzzleSolution } from "../provider";
 import { assert } from "chai";
 
 const nodeHost = "chianode.test";
+const nodeAPIKey = "TEST-API-KEY";
 
-describe("ChiaNodeProvider with " + nodeHost, () => {
+describe("LeafletProvider with " + nodeHost, () => {
     let p: Provider;
     
     it("initialize()", async () => {
-        p = new ChiaNodeProvider(nodeHost);
+        p = new LeafletProvider(nodeHost, nodeAPIKey);
         await p.initialize();
     });
 

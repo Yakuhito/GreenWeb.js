@@ -15,16 +15,17 @@ import { ProviderUtil } from "./provider_util";
 const ADDRESS_PREFIX = "xch";
 const NETWORK_ID = "mainnet";
 
-export class ChiaNodeProvider implements Provider {
+export class LeafletProvider implements Provider {
     private messageChannel: ChiaMessageChannel;
     private messageQueue: MessageQueue = new MessageQueue();
     private blockNumber: providerTypes.Optional<number> = null;
     private coinStateStorage: CoinStateStorage = new CoinStateStorage();
 
-    constructor(host: string, port = 8444) {
+    constructor(host: string, apiKey: string, port = 18444) {
         this.messageChannel = new ChiaMessageChannel({
             host: host,
             port: port,
+            apiKey: apiKey,
             onMessage: (message: Buffer) => this._onMessage(message),
             networkId: NETWORK_ID
         });

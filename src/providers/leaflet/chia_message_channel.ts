@@ -4,12 +4,12 @@ import { makeMsg, NodeType } from "./serializer/types/outbound_message";
 import { ProtocolMessageTypes } from "./serializer/types/protocol_message_types";
 import { Capability, Handshake, PROTOCOL_VERSION } from "./serializer/types/shared_protocol";
 import { getSoftwareVersion } from "../../util/software_version";
-import { CHIA_CERT, CHIA_KEY } from "./chia_ssl";
 import WebSocket from "ws";
 
 export interface ChiaMessageChannelOptions {
     host: string;
     port: number;
+    apiKey: string;
     onMessage: (message: Buffer) => void;
     networkId: string;
 }
@@ -18,11 +18,12 @@ export class ChiaMessageChannel {
     private ws: WebSocket | undefined;
     private readonly port: number;
     private readonly host: string;
+    private readonly apiKey: string;
     private readonly onMessage: (message: Buffer) => void;
     private readonly networkId: string;
     private inboundDataBuffer: Buffer = Buffer.from([]);
 
-    constructor({host, port, onMessage, networkId}: ChiaMessageChannelOptions) {
+    constructor({host, port, apiKey, onMessage, networkId}: ChiaMessageChannelOptions) {
         this.port = port;
         this.onMessage = onMessage;
 
@@ -31,20 +32,19 @@ export class ChiaMessageChannel {
         }
         this.host = host;
         this.networkId = networkId;
+        this.apiKey = apiKey;
     }
 
     public async connect(): Promise<void> {
-        const url: string = "wss://" + this.host + ":" + this.port.toString() + "/ws";
+        const url: string = "wss://" + this.host + ":" + this.port.toString() + "/" + this.apiKey + "/ws";
 
         return new Promise(resolve => {
             this.ws = new WebSocket(url , {
-                rejectUnauthorized: false,
-                cert: CHIA_CERT,
-                key: CHIA_KEY
+                rejectUnauthorized: false
             });
             this.ws.on("message", (data: Buffer): void => this.messageHandler(data));
-            // this.ws.on('error', (err: Error): void => this.onClose(err));
-            // this.ws.on('close', (_, reason) => this.onClose(new Error(reason.toString())));
+            // this.ws.on("error", (err: Error): void => console.log(err));
+            // this.ws.on("close", (_, reason) => console.log(reason));
             this.ws.on("open", () => {
                 this.onConnected();
 

@@ -25,9 +25,6 @@
     "test-chia-thing": "NODE_TLS_REJECT_UNAUTHORIZED=0 nyc mocha -r ts-node/register src/providers/leaflet/test.ts --timeout 10000",
     "test-extended": "NODE_TLS_REJECT_UNAUTHORIZED=0 nyc mocha -r ts-node/register src/**/*.test.ts src/**/**/*.test.ts src/**/**/**/*.test.ts src/**/test.ts --timeout 10000"
   },
-  "browser": {
-    "ws": "./shim.js"
-  },
   "dependencies": {
     "@chiamine/bls-signatures": "^0.2.1-beta.2",
     "@types/ws": "^8.2.0",

@@ -1,2 +1,7 @@
-export { GreenWeb } from "./greenweb";
-export { LeafletProvider } from "./providers/leaflet";
+import { GreenWeb } from "./greenweb";
+import { LeafletProvider } from "./providers/leaflet";
+
+export default {
+    GreenWeb: GreenWeb,
+    LeafletProvider: LeafletProvider
+};

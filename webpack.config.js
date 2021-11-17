@@ -49,7 +49,7 @@ module.exports = {
     filename: "greenweb.js",
     library: ["greenweb"],
     libraryTarget: "umd",
-    globalObject: "this",
+    //globalObject: "this",
     chunkFormat: "commonjs"
   },
 };

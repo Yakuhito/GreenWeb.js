@@ -1,7 +1,3 @@
-import { GreenWeb } from "./greenweb";
-import { LeafletProvider } from "./providers/leaflet";
-
-export default {
-    GreenWeb: GreenWeb,
-    LeafletProvider: LeafletProvider
-};
+export { LeafletProvider } from "./providers/leaflet";
+export { Util as util } from "./util/util";
+export * as clvm from "clvm";

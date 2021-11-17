@@ -14,7 +14,7 @@ module.exports = {
         use: [
           {loader: "ts-loader", options: {transpileOnly: true, configFile: "tsconfig.json"}},
         ],
-        exclude: /node_modules|src\/providers\/chia_node/,
+        exclude: /node_modules/,
       },
     ],
   },
@@ -23,8 +23,7 @@ module.exports = {
     fallback: {
       "path": false,
       "fs": false,
-      "crypto": false,
-      "ws": false
+      "crypto": false
     }
   },
   target: ["es5"],

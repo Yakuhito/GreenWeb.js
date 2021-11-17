@@ -4,7 +4,7 @@ import { makeMsg, NodeType } from "./serializer/types/outbound_message";
 import { ProtocolMessageTypes } from "./serializer/types/protocol_message_types";
 import { Capability, Handshake, PROTOCOL_VERSION } from "./serializer/types/shared_protocol";
 import { getSoftwareVersion } from "../../util/software_version";
-import WebSocket from "ws";
+import { IMessageEvent, w3cwebsocket as WebSocket } from "websocket";
 
 export interface ChiaMessageChannelOptions {
     host: string;
@@ -39,17 +39,25 @@ export class ChiaMessageChannel {
         const url: string = "wss://" + this.host + ":" + this.port.toString() + "/" + this.apiKey + "/ws";
 
         return new Promise(resolve => {
-            this.ws = new WebSocket(url , {
-                rejectUnauthorized: false
-            });
-            this.ws.on("message", (data: Buffer): void => this.messageHandler(data));
-            // this.ws.on("error", (err: Error): void => console.log(err));
+            this.ws = new WebSocket(url);
+            
+            // this.ws.on("message", (data: Buffer): void => this.messageHandler(data));
+            this.ws.onmessage = (message: IMessageEvent) => this.messageHandler(
+                message.data instanceof Buffer ? message.data :
+                    message.data instanceof ArrayBuffer ? Buffer.from(message.data) : Buffer.from(message.data)
+            );
+            // // this.ws.on("error", (err: Error): void => console.log(err));
             // this.ws.on("close", (_, reason) => console.log(reason));
-            this.ws.on("open", () => {
+            // this.ws.on("open", () => {
+            //     this.onConnected();
+
+            //     resolve();
+            // });
+            this.ws.onopen = () => {
                 this.onConnected();
 
                 resolve();
-            });
+            }
         });
     }
 

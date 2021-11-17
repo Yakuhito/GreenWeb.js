@@ -14,7 +14,9 @@ module.exports = {
         use: [
           {loader: "ts-loader", options: {transpileOnly: true, configFile: "tsconfig.json"}},
         ],
-        exclude: /node_modules/,
+        exclude: [
+          /node_modules/,
+        ],
       },
     ],
   },
@@ -26,6 +28,7 @@ module.exports = {
       "crypto": false
     }
   },
+  externals: ["ws"],
   target: ["es5"],
   optimization: {
     minimizer: [

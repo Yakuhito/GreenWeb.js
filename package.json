@@ -25,19 +25,22 @@
     "test-chia-thing": "NODE_TLS_REJECT_UNAUTHORIZED=0 nyc mocha -r ts-node/register src/providers/leaflet/test.ts --timeout 10000",
     "test-extended": "NODE_TLS_REJECT_UNAUTHORIZED=0 nyc mocha -r ts-node/register src/**/*.test.ts src/**/**/*.test.ts src/**/**/**/*.test.ts src/**/test.ts --timeout 10000"
   },
+  "browser": {
+    "ws": "./shim.js"
+  },
   "dependencies": {
     "@chiamine/bls-signatures": "^0.2.1-beta.2",
+    "@types/ws": "^8.2.0",
     "bech32": "^2.0.0",
     "clvm": "^1.0.8",
     "crypto-js": "^4.1.1",
-    "websocket": "^1.0.34"
+    "ws": "^8.2.3"
   },
   "devDependencies": {
     "@types/chai": "^4.2.22",
     "@types/crypto-js": "^4.0.2",
     "@types/mocha": "^9.0.0",
     "@types/node": "^15.0.2",
-    "@types/websocket": "^1.0.4",
     "@typescript-eslint/eslint-plugin": "^4.1.0",
     "@typescript-eslint/parser": "^4.1.0",
     "chai": "^4.3.4",

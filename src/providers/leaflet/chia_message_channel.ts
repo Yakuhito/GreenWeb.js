@@ -4,7 +4,7 @@ import { makeMsg, NodeType } from "./serializer/types/outbound_message";
 import { ProtocolMessageTypes } from "./serializer/types/protocol_message_types";
 import { Capability, Handshake, PROTOCOL_VERSION } from "./serializer/types/shared_protocol";
 import { getSoftwareVersion } from "../../util/software_version";
-import { IMessageEvent, w3cwebsocket as WebSocket } from "websocket";
+import { WebSocket } from "ws";
 
 export interface ChiaMessageChannelOptions {
     host: string;
@@ -42,9 +42,10 @@ export class ChiaMessageChannel {
             this.ws = new WebSocket(url);
             
             // this.ws.on("message", (data: Buffer): void => this.messageHandler(data));
-            this.ws.onmessage = (message: IMessageEvent) => this.messageHandler(
+            this.ws.onmessage = (message) => this.messageHandler(
                 message.data instanceof Buffer ? message.data :
-                    message.data instanceof ArrayBuffer ? Buffer.from(message.data) : Buffer.from(message.data)
+                    message.data instanceof ArrayBuffer ? Buffer.from(message.data) :
+                        message.data instanceof Array ? Buffer.concat(message.data) : Buffer.from(message.data)
             );
             // // this.ws.on("error", (err: Error): void => console.log(err));
             // this.ws.on("close", (_, reason) => console.log(reason));

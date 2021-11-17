@@ -42,15 +42,17 @@ export class ChiaMessageChannel {
     public async connect(): Promise<void> {
         const url: string = "wss://" + this.host + ":" + this.port.toString() + "/" + this.apiKey + "/ws";
 
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             this.ws = new WebSocket(url);
             
             // this.ws.on("message", (data: Buffer): void => this.messageHandler(data));
-            this.ws.onmessage = (message) => this.messageHandler(
-                message.data instanceof Buffer ? message.data :
-                    message.data instanceof ArrayBuffer ? Buffer.from(message.data) :
-                        message.data instanceof Array ? Buffer.concat(message.data) : Buffer.from(message.data)
-            );
+            this.ws.onmessage = async (message) => {
+                this.messageHandler(
+                    message.data instanceof Array ? Buffer.concat(message.data) :
+                        message.data instanceof Blob ? Buffer.from(await message.data.arrayBuffer()) :
+                            Buffer.from(message.data)
+                );
+            }
             // // this.ws.on("error", (err: Error): void => console.log(err));
             // this.ws.on("close", (_, reason) => console.log(reason));
             // this.ws.on("open", () => {

@@ -1,11 +1,17 @@
 const fs = require("fs");
 const path = require("path");
+const webpack = require("webpack");
 const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
   mode: "production",
   context: __dirname, // to automatically find tsconfig.json
-  plugins: [],
+  plugins: [
+    // https://stackoverflow.com/questions/68707553/uncaught-referenceerror-buffer-is-not-defined
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    })
+  ],
   devtool: false,
   module: {
     rules: [
@@ -25,7 +31,9 @@ module.exports = {
     fallback: {
       "path": false,
       "fs": false,
-      "crypto": false
+      "crypto": false,
+      "stream": require.resolve("stream-browserify"),
+      "buffer": require.resolve("buffer")
     }
   },
   externals: ["ws"],

@@ -47,11 +47,19 @@ export class ChiaMessageChannel {
             
             // this.ws.on("message", (data: Buffer): void => this.messageHandler(data));
             this.ws.onmessage = async (message) => {
-                this.messageHandler(
-                    message.data instanceof Array ? Buffer.concat(message.data) :
-                        message.data instanceof Blob ? Buffer.from(await message.data.arrayBuffer()) :
-                            Buffer.from(message.data)
-                );
+                let isBlob: boolean;
+                
+                try {
+                    isBlob = message.data instanceof Blob;
+                } catch(_) {
+                    isBlob = false;
+                }
+
+                const msg: Buffer = message.data instanceof Array ? Buffer.concat(message.data) :
+                    isBlob ? Buffer.from(await message.data.arrayBuffer()) :
+                        Buffer.from(message.data);
+
+                this.messageHandler(msg);
             }
             // // this.ws.on("error", (err: Error): void => console.log(err));
             // this.ws.on("close", (_, reason) => console.log(reason));

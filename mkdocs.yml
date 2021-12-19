@@ -1,0 +1,14 @@
+site_name: GreenWeb.js
+
+nav:
+    - 'Docs':
+        - 'Providers':
+            - 'Provider': 'index.md'
+            - 'LeafletProvider': 'index.md'
+        - 'Utils': 'index.md'
+        - 'CLVM': 'index.md'
+    - License: 'license.md'
+
+markdown_extensions:
+    - toc:
+        permalink: "#"

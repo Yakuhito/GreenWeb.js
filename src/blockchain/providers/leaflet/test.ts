@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { LeafletProvider } from ".";
-import { BlockHeader, Coin, CoinState, Provider, PuzzleSolution } from "../provider";
+import { BlockHeader, Coin, CoinState, BlockchainProvider, PuzzleSolution } from "../blockchain_provider";
 import { assert } from "chai";
 
 const nodeHost = "chianode.test";
 const nodeAPIKey = "TEST-API-KEY";
 
 describe("LeafletProvider with " + nodeHost, () => {
-    let p: Provider;
+    let p: BlockchainProvider;
     
     it("initialize()", async () => {
         p = new LeafletProvider(nodeHost, nodeAPIKey);

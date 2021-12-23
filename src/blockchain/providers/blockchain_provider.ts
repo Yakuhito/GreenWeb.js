@@ -1,10 +1,10 @@
-import { Optional, Coin, CoinState, BlockHeader, PuzzleSolution } from "./provider_types";
-import { getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs } from "./provider_args";
+import { Optional, Coin, CoinState, BlockHeader, PuzzleSolution } from "./blockchain_provider_types";
+import { getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs } from "./blockchain_provider_args";
 
-export * from "./provider_types";
-export * from "./provider_args";
+export * from "./blockchain_provider_types";
+export * from "./blockchain_provider_args";
 
-export interface Provider {
+export interface BlockchainProvider {
     initialize(): Promise<void>;
     close(): Promise<void>;
     getNetworkId(): string;

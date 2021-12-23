@@ -1,12 +1,12 @@
-import { Provider, getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs } from "../provider";
-import * as providerTypes from "../provider_types";
+import { BlockchainProvider, getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs } from "../blockchain_provider";
+import * as providerTypes from "../blockchain_provider_types";
 import { ChiaMessageChannel } from "./chia_message_channel";
 import { MessageQueue } from "./message_queue";
 import { makeMsg, Message } from "./serializer/types/outbound_message";
 import { Serializer } from "./serializer";
 import { ProtocolMessageTypes } from "./serializer/types/protocol_message_types";
 import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdates, RegisterForPhUpdates, RequestAdditions, RequestBlockHeader, RequestChildren, RequestHeaderBlocks, RequestPuzzleSolution, RequestRemovals, RespondAdditions, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondPuzzleSolution, RespondRemovals, RespondToCoinUpdates, RespondToPhUpdates } from "./serializer/types/wallet_protocol";
-import { AddressUtil } from "../../util/address";
+import { AddressUtil } from "../../../util/address";
 import { CoinStateStorage } from "./coin_state_storage";
 import { HeaderBlock } from "./serializer/types/header_block";
 import { Coin } from "./serializer/types/coin";
@@ -15,7 +15,7 @@ import { ProviderUtil } from "./provider_util";
 const ADDRESS_PREFIX = "xch";
 const NETWORK_ID = "mainnet";
 
-export class LeafletProvider implements Provider {
+export class LeafletProvider implements BlockchainProvider {
     private messageChannel: ChiaMessageChannel;
     private messageQueue: MessageQueue = new MessageQueue();
     private blockNumber: providerTypes.Optional<number> = null;

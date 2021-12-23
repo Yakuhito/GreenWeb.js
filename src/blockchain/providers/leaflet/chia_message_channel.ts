@@ -3,7 +3,7 @@
 import { makeMsg, NodeType } from "./serializer/types/outbound_message";
 import { ProtocolMessageTypes } from "./serializer/types/protocol_message_types";
 import { Capability, Handshake, PROTOCOL_VERSION } from "./serializer/types/shared_protocol";
-import { getSoftwareVersion } from "../../util/software_version";
+import { getSoftwareVersion } from "../../../util/software_version";
 
 try {
     (global as any).WebSocket = require("ws");

@@ -1,5 +1,5 @@
 import { AddressUtil } from "./address";
 
-export class Util {
+export default class Util {
     public static address: AddressUtil = AddressUtil;
 }

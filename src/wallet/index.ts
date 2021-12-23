@@ -1,6 +1,6 @@
 import { WalletProvider } from "./providers/wallet_provider";
 
-export default class WalletModule {
+export class WalletModule {
     public static providers = {};
 
     public static provider: WalletProvider | null = null;

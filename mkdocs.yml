@@ -2,21 +2,18 @@ site_name: GreenWeb.js
 
 nav:
     - 'Modules':
-        - 'blockchain':
+        - 'blockchain': 'blockchain/index.md'
             - 'Module Overview': 'blockchain/index.md'
             - 'Examples': 'blockchain/examples.md'
-        - 'wallet':
+        - 'wallet': 'wallet/index.md'
             - 'Module Overview': 'wallet/index.md'
-            - 'Examples': 'blockchain/examples.md'
-        - 'clvm':
+            - 'Examples': 'waller/examples.md'
+        - 'clvm': 'clvm/index.md'
             - 'Module Overview': 'clvm/index.md'
-            - 'Examples': 'blockchain/examples.md'
-        - 'clvmTools':
-            - 'Module Overview': 'clvmTools/index.md'
-            - 'Examples': 'blockchain/examples.md'
-        - 'util':
+            - 'Examples': 'clvm/examples.md'
+        - 'util': 'util/index.md'
             - 'Module Overview': 'util/index.md'
-            - 'Examples': 'blockchain/examples.md'
+            - 'Examples': 'util/examples.md'
     - License: 'license.md'
 
 markdown_extensions:

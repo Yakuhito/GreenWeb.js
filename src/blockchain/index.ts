@@ -1,7 +1,7 @@
 import { BlockchainProvider, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, PuzzleSolution, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs } from "./providers/blockchain_provider";
 import { LeafletProvider } from "./providers/leaflet";
 
-export default class Blockchain {
+export default class BlockchainModule {
     public static providers = {
         LeafletProvider,
     };

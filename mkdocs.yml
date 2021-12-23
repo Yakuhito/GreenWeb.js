@@ -1,14 +1,21 @@
 site_name: GreenWeb.js
 
 nav:
-    - 'Docs':
-        - 'Providers':
-            - 'Provider': 'index.md'
-            - 'LeafletProvider': 'index.md'
-        - 'Utils': 'index.md'
-        - 'CLVM': 'index.md'
+    - 'Modules':
+        - 'blockchain':
+            - 'Module Overview': 'blockchain/index.md'
+        - 'wallet':
+            - 'Module Overview': 'wallet/index.md'
+        - 'clvm':
+            - 'Module Overview': 'clvm/index.md'
+        - 'clvmTools':
+            - 'Module Overview': 'clvmTools/index.md'
+        - 'util':
+            - 'Module Overview': 'util/index.md'
     - License: 'license.md'
 
 markdown_extensions:
+    - def_list
+    - tables
     - toc:
         permalink: "#"

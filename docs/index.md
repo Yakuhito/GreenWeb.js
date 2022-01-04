@@ -46,9 +46,4 @@ npm install greenwebjs
 
 ## Examples
 
-Each sub-module has its own examples page:
-
- - [`greenweb.blockchain`](blockchain/examples.md)
- - [`greenweb.wallet`](wallet/examples.md)
- - [`greenweb.clvm`](clvm/examples.md)
- - [`greenweb.util`](util/examples.md)
+Please seeeach module's documentation for usage examples.

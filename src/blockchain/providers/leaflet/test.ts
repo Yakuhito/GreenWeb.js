@@ -3,7 +3,7 @@ import { LeafletProvider } from ".";
 import { BlockHeader, Coin, CoinState, BlockchainProvider, PuzzleSolution } from "../blockchain_provider";
 import { assert } from "chai";
 
-const nodeHost = "chianode.test";
+const nodeHost = "leaflet.fireacademy.io";
 const nodeAPIKey = "TEST-API-KEY";
 
 describe("LeafletProvider with " + nodeHost, () => {
@@ -20,7 +20,7 @@ describe("LeafletProvider with " + nodeHost, () => {
     });
     
     
-    it("getBlockNumber()", async () => {
+    it("getBalance()", async () => {
         const balance = await p.getBalance({
             address: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
         });

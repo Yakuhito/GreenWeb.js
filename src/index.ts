@@ -8,4 +8,4 @@ export { WalletModule as wallet } from "./wallet";
 export * as clvm from "clvm";
 
 // greenweb.util
-export * as util from "./util";
+export { Util as util } from "./util";

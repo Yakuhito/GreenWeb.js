@@ -4,16 +4,14 @@ nav:
     - 'Modules':
         - 'blockchain':
             - 'Module Overview': 'blockchain/index.md'
-            - 'Examples': 'blockchain/examples.md'
+            - 'BlockchainProvider': 'blockchain/blockchain-provider.md'
+            - 'LeafletProvider': 'blockchain/leaflet-provider.md'
         - 'wallet':
             - 'Module Overview': 'wallet/index.md'
-            - 'Examples': 'wallet/examples.md'
         - 'clvm':
             - 'Module Overview': 'clvm/index.md'
-            - 'Examples': 'clvm/examples.md'
         - 'util':
             - 'Module Overview': 'util/index.md'
-            - 'Examples': 'util/examples.md'
     - License: 'license.md'
 
 markdown_extensions:

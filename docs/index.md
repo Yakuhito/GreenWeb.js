@@ -16,10 +16,24 @@ The main javascript files exports a single object, `greenweb`. It has the follow
 
 ## Getting Started
 
-### Browser
+### Browser - FireAcademy CDN
+
+Use the following snippet to include GreenWeb.js on a page:
+
+```html
+<script type="module" src="https://assets.fireacademy.io/greenweb-1.0.1.js"></script>
+```
+
+Or just use the latest version:
+
+```html
+<script type="module" src="https://assets.fireacademy.io/greenweb.js"></script>
+```
+
+### Browser - Build it!
 To generate the latest `greenweb.js` file, clone the repository and use `npm` to build:
 
-```bash
+```sh
 git clone https://github.com/Yakuhito/GreenWeb.js
 cd GreenWeb.js
 npm install
@@ -32,14 +46,14 @@ If you need to use `clvm.initialize()`, make sure to also include `blsjs.wasm` i
 
 Use the following snippet to include GreenWeb.js on a page:
 
-```js
+```html
 <script type="module" src="greenweb.js"></script>
 ```
 
 ### Node.js
 
 The package can be installed via `npm`:
-```bash
+```sh
 npm install greenwebjs
 ```
 

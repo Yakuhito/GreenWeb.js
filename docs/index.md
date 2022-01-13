@@ -12,7 +12,7 @@ The main javascript files exports a single object, `greenweb`. It has the follow
  - [`greenweb.blockchain`](blockchain/index.md): Used for **reading** blockchain data.
  - [`greenweb.wallet`](wallet/index.md): Used for **writing** blockchain data (a.k.a. 'sending transactions')
  - [`greenweb.clvm`](clvm/index.md): Export of [https://github.com/Chia-Mine/clvm-js](https://github.com/Chia-Mine/clvm-js)
- - [`greenweb.util`](util/index.md): Some util functions that might come in handy later
+ - [`greenweb.util`](util/index.md): Some util functions that might come in handy
 
 ## Getting Started
 

@@ -182,9 +182,7 @@ None
 ### Example
 
 ```js
-greenweb.blockchain.getBlockNumber().then((blockNumber) => {
-  console.log(blockNumber);
-});
+greenweb.blockchain.getBlockNumber().then(blockNumber => console.log(blockNumber));
 // 1320204
 ```
 
@@ -213,7 +211,7 @@ export type getBalanceArgs = {
 ```js
 greenweb.blockchain.getBalance({
   address: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3"
-}).then((r) => console.log(r))
+}).then(balance => console.log(balance))
 
 // 1946917
 ```
@@ -243,7 +241,7 @@ None.
 ```js
 greenweb.blockchain.subscribeToPuzzleHashUpdates({
   puzzleHash: "0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664",
-  callback: (r) => console.log(r)
+  callback: arr => console.log(arr)
 })
 
 // Array(26) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
@@ -276,7 +274,7 @@ None.
 ```js
 greenweb.blockchain.subscribeToCoinUpdates({
   coinId: "7200b9a8a799717b2b54809b7ed6bd2bacfa113dcf9564569a8182bd7f588cf8",
-  callback: (r) => console.log(r)
+  callback: arr => console.log(arr)
 })
 
 // Array [ {…} ]
@@ -309,7 +307,7 @@ export type getPuzzleSolutionArgs = {
 greenweb.blockchain.getPuzzleSolution({
   coinId: "0x8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01",
   height: 894633
-}).then((r) => console.log(r));
+}).then(puzzSol => console.log(puzzSol));
 
 // Object { coinName: "8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01", height: 894633, puzzle: {…}, solution: {…} }
 ```
@@ -337,7 +335,7 @@ export type getCoinChildrenArgs = {
 ```js
 greenweb.blockchain.getCoinChildren({
   coinId: "0x8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01"
-}).then((r) => console.log(r));
+}).then(arr => console.log(arr));
 
 // Array [ {…}, {…} ]
 ​
@@ -367,7 +365,7 @@ export type getBlockHeaderArgs = {
 ```js
 greenweb.blockchain.getBlockHeader({
   height: 1000000
-}).then((r) => console.log(r));
+}).then(header => console.log(header));
 
 // Object { height: 1000000, headerHash: "5a3c793a73aa5976eca2b3ee8843b7ed63513aa82fcd8d5e94248855ba7f4410", prevBlockHash: "f5d672dae94768f8cd119331490b2725d505355522bc81bb7ae314a2d0412b1d", isTransactionBlock: false, farmerPuzzleHash: "5b0505e3f90f5ba40a4eb50871b8a3c4f39af795389723286cdebd7706a4bcf5", poolPuzzleHash: "5b0505e3f90f5ba40a4eb50871b8a3c4f39af795389723286cdebd7706a4bcf5", fees: null }
 ```
@@ -397,7 +395,7 @@ export type getBlocksHeadersArgs = {
 greenweb.blockchain.getBlocksHeaders({
   startHeight: 999999,
   endHeight: 1000001
-}).then((r) => console.log(r));
+}).then(headers => console.log(headers));
 
 // Array(3) [ {…}, {…}, {…} ]
 ​
@@ -434,7 +432,7 @@ export type getCoinRemovalsArgs = {
 greenweb.blockchain.getCoinRemovals({
   height: 894633,
   headerHash: "fca56891047b75eab372e59c034ddc250102a64abac588a8f30c53e47bc99702"
-}).then((r) => console.log(r));
+}).then(arr => console.log(arr));
 
 // Array(10) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…} ]
 ​
@@ -467,7 +465,7 @@ export type getCoinAdditionsArgs = {
 greenweb.blockchain.getCoinAdditions({
   height: 894597,
   headerHash: "a1559da62ec56609ca8c1239b7dfc8f8efcdc281be4ef1f968c4c19a034257fb"
-}).then((r) => console.log(r));
+}).then(arr => console.log(arr));
 
 // Array(23) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
 ​
@@ -481,7 +479,7 @@ greenweb.blockchain.getCoinAdditions({
   height: 894597,
   headerHash: "a1559da62ec56609ca8c1239b7dfc8f8efcdc281be4ef1f968c4c19a034257fb",
   puzzleHashes: ["bef81a693292ae286b32700ddf8fc8dda095f274140b358673d9fbef1d1eb0e2"]
-}).then((r) => console.log(r));
+}).then(arr => console.log(arr));
 
 // Array [ {…} ]
 ​

@@ -5,7 +5,7 @@
 
 Here's how to initialize the provider:
 ```js
-let provider = new greenweb.blockchain.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
+const provider = new greenweb.blockchain.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
 ```
 
 Arguments:

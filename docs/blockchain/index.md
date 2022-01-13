@@ -16,21 +16,27 @@ Please see [this page](blockchain-provider.md)
 ## Wrapper
 The sub-module is also provides a wrapper around [`BlockchainProvider`](blockchain-provider.md): simply call its `setProvider` function with the desired provider instance as an argument and you'll be able to call any function on `greenweb.blockchain` instead of the instance:
 
-```
+```js
 // works
-let provider = new greenweb.blockchain.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
-console.log(provider.getBlockNumber());
+const provider = new greenweb.blockchain.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
+provider.initialize().then(() => {
+  provider.getBlockNumber().then(blockNumber => console.log(blockNumber));
+});
 ```
 
-```
+```js
 // also works
-let provider = new greenweb.blockchain.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
+const provider = new greenweb.blockchain.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
 greenweb.blockchain.setProvider(provider);
-console.log(greenweb.blockchain.getBlockNumber());
+greenweb.blockchain.initialize().then(() => {
+  greenweb.blockchain.getBlockNumber().then(blockNumber => console.log(blockNumber));
+});
 ```
 
-```
+```js
 // does not work, unless .setProvider() was called previously
-let provider = new greenweb.blockchain.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
-console.log(greenweb.blockchain.getBlockNumber());
+const provider = new greenweb.blockchain.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
+greenweb.blockchain.initialize().then(() => {
+  greenweb.blockchain.getBlockNumber().then(blockNumber => console.log(blockNumber));
+});
 ```

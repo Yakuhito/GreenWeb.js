@@ -30,11 +30,10 @@ export type uint = number;
 
 ## Coin
 
-Used to represent a coin - `id` is the coin's name.
+Used to represent a coin - to get its id/name, use `greenweb.utils.coin.getId(coin)` or `greenweb.utils.coin.getName(coin)`.
 
 ```js
 export class Coin {
-    id: bytes;
     parentCoinInfo: bytes;
     puzzleHash: bytes;
     amount: uint;

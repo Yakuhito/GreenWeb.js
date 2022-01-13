@@ -2,6 +2,7 @@
 import { LeafletProvider } from ".";
 import { BlockHeader, Coin, CoinState, BlockchainProvider, PuzzleSolution } from "../blockchain_provider";
 import { assert } from "chai";
+import { CoinUtil } from "../../../util/coin";
 
 const nodeHost = "leaflet.fireacademy.io";
 const nodeAPIKey = "TEST-API-KEY";
@@ -53,7 +54,7 @@ describe("LeafletProvider with " + nodeHost, () => {
         const coinState: CoinState = cs[0];
         assert.equal(
             coinId,
-            coinState.coin.id
+            CoinUtil.getId(coinState.coin),
         );
     });
 
@@ -121,8 +122,8 @@ describe("LeafletProvider with " + nodeHost, () => {
         assert.equal(arr.length, 2);
 
         const coinIds: string[] = [
-            arr[0].coin.id,
-            arr[1].coin.id
+            CoinUtil.getId(arr[0].coin),
+            CoinUtil.getId(arr[1].coin)
         ];
         assert.isTrue(coinIds.includes("7200b9a8a799717b2b54809b7ed6bd2bacfa113dcf9564569a8182bd7f588cf8"));
         assert.isTrue(coinIds.includes("6aba6282e60ea52367596c258b5a54b7263dd42d8040c06c94b13d8eca682e45"));
@@ -191,7 +192,7 @@ describe("LeafletProvider with " + nodeHost, () => {
         
         const coins: Coin[] = resp!;
         assert.isTrue(
-            coins.map((e) => e.id).includes(coinId)
+            coins.map(e => CoinUtil.getId(e)).includes(coinId)
         );
     });
 
@@ -213,7 +214,7 @@ describe("LeafletProvider with " + nodeHost, () => {
         
         const coins: Coin[] = resp!;
         assert.equal(coins.length, 1);
-        assert.isTrue(coins[0].id === coinId);
+        assert.isTrue(CoinUtil.getId(coins[0]) === coinId);
     });
 
     it("getCoinAdditions()", async () => {

@@ -10,13 +10,4 @@ export class Coin {
     @fields.Bytes(32) parentCoinInfo: bytes;
     @fields.Bytes(32) puzzleHash: bytes;
     @fields.Uint(64) amount: uint;
-
-    public getId(): bytes {
-        const toHash: Buffer = Buffer.concat([
-            Buffer.from(this.parentCoinInfo + this.puzzleHash, "hex"),
-            int_to_bytes(this.amount).data(),
-        ]);
-        
-        return CryptoJS.enc.Hex.stringify(CryptoJS.SHA256(CryptoJS.enc.Hex.parse(toHash.toString("hex"))));
-    }
 }

@@ -6,7 +6,6 @@ import { HeaderBlock } from "./serializer/types/header_block";
 export class ProviderUtil {
     static serializerCoinToProviderCoin(coin: Coin): providerTypes.Coin {
         const c: providerTypes.Coin = new providerTypes.Coin();
-        c.id = coin.getId();
         c.parentCoinInfo = coin.parentCoinInfo;
         c.puzzleHash = coin.puzzleHash;
         c.amount = coin.amount;

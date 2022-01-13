@@ -5,7 +5,6 @@ export type bytes = string;
 export type uint = number;
 
 export class Coin {
-    id: bytes;
     parentCoinInfo: bytes;
     puzzleHash: bytes;
     amount: uint;

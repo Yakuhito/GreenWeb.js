@@ -1,3 +1,4 @@
+import { CoinUtil } from "../../../util/coin";
 import * as providerTypes from "../blockchain_provider_types";
 import { ProviderUtil } from "./provider_util";
 import { CoinState, RespondToCoinUpdates, RespondToPhUpdates } from "./serializer/types/wallet_protocol";
@@ -44,7 +45,7 @@ export class CoinStateStorage {
         for(let i = 0;i < coinIds.length; ++i) {
             const coinId: string = coinIds[i];
 
-            const coinStates = pckt.coinStates.filter((e) => e.coin.getId() === coinId);
+            const coinStates = pckt.coinStates.filter((e) => CoinUtil.getId(e.coin) === coinId);
             this.coinStates[coinId] = coinStates;
 
             if(this.callbacks[coinId] !== undefined && this.callbacks[coinId].length > 0) {

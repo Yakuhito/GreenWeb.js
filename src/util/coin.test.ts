@@ -2,6 +2,8 @@ import { assert } from "chai";
 import { Coin } from "../blockchain/providers/blockchain_provider_types";
 import { CoinUtil } from "./coin";
 
+const coinUtil = new CoinUtil();
+
 describe("CoinUtil", () => {
   describe("getId()", () => {
     it("Works as expected", () => {
@@ -12,7 +14,7 @@ describe("CoinUtil", () => {
       coin.parentCoinInfo = "8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01";
 
       assert.equal(
-        CoinUtil.getId(coin),
+        coinUtil.getId(coin),
         "7200b9a8a799717b2b54809b7ed6bd2bacfa113dcf9564569a8182bd7f588cf8"
       );
     });
@@ -27,7 +29,7 @@ describe("CoinUtil", () => {
       coin.parentCoinInfo = "8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01";
 
       assert.equal(
-        CoinUtil.getName(coin),
+        coinUtil.getName(coin),
         "7200b9a8a799717b2b54809b7ed6bd2bacfa113dcf9564569a8182bd7f588cf8"
       );
     });

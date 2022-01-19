@@ -1,8 +1,8 @@
 // https://github.com/freddiecoleman/chia-network-scanner/blob/main/MessageChannel.ts
 
-import { makeMsg, NodeType } from "./serializer/types/outbound_message";
-import { ProtocolMessageTypes } from "./serializer/types/protocol_message_types";
-import { Capability, Handshake, PROTOCOL_VERSION } from "./serializer/types/shared_protocol";
+import { makeMsg, NodeType } from "../../../util/serializer/types/outbound_message";
+import { ProtocolMessageTypes } from "../../../util/serializer/types/protocol_message_types";
+import { Capability, Handshake, PROTOCOL_VERSION } from "../../../util/serializer/types/shared_protocol";
 import { getSoftwareVersion } from "../../../util/software_version";
 
 try {

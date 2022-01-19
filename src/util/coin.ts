@@ -4,7 +4,7 @@ import { int_to_bytes } from "clvm";
 import CryptoJS from "crypto-js";
 
 export class CoinUtil {
-  static getId(coin: Coin): bytes {
+  public getId(coin: Coin): bytes {
     const toHash: Buffer = Buffer.concat([
       Buffer.from(coin.parentCoinInfo + coin.puzzleHash, "hex"),
       int_to_bytes(coin.amount).data(),
@@ -13,7 +13,7 @@ export class CoinUtil {
     return CryptoJS.enc.Hex.stringify(CryptoJS.SHA256(CryptoJS.enc.Hex.parse(toHash.toString("hex"))));
   }
 
-  static getName(coin: Coin): bytes {
-    return CoinUtil.getId(coin);
+  public getName(coin: Coin): bytes {
+    return this.getId(coin);
   }
 }

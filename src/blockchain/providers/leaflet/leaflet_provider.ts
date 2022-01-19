@@ -2,18 +2,20 @@ import { BlockchainProvider, getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, s
 import * as providerTypes from "../blockchain_provider_types";
 import { ChiaMessageChannel } from "./chia_message_channel";
 import { MessageQueue } from "./message_queue";
-import { makeMsg, Message } from "./serializer/types/outbound_message";
-import { Serializer } from "./serializer";
-import { ProtocolMessageTypes } from "./serializer/types/protocol_message_types";
-import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdates, RegisterForPhUpdates, RequestAdditions, RequestBlockHeader, RequestChildren, RequestHeaderBlocks, RequestPuzzleSolution, RequestRemovals, RespondAdditions, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondPuzzleSolution, RespondRemovals, RespondToCoinUpdates, RespondToPhUpdates } from "./serializer/types/wallet_protocol";
-import { AddressUtil } from "../../../util/address";
+import { makeMsg, Message } from "../../../util/serializer/types/outbound_message";
+import { Serializer } from "../../../util/serializer/serializer";
+import { ProtocolMessageTypes } from "../../../util/serializer/types/protocol_message_types";
+import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdates, RegisterForPhUpdates, RequestAdditions, RequestBlockHeader, RequestChildren, RequestHeaderBlocks, RequestPuzzleSolution, RequestRemovals, RespondAdditions, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondPuzzleSolution, RespondRemovals, RespondToCoinUpdates, RespondToPhUpdates } from "../../../util/serializer/types/wallet_protocol";
 import { CoinStateStorage } from "./coin_state_storage";
-import { HeaderBlock } from "./serializer/types/header_block";
-import { Coin } from "./serializer/types/coin";
+import { HeaderBlock } from "../../../util/serializer/types/header_block";
+import { Coin } from "../../../util/serializer/types/coin";
 import { ProviderUtil } from "./provider_util";
+import { AddressUtil } from "../../../util/address";
 
 const ADDRESS_PREFIX = "xch";
 const NETWORK_ID = "mainnet";
+
+const addressUtil = new AddressUtil();
 
 export class LeafletProvider implements BlockchainProvider {
     private messageChannel: ChiaMessageChannel;
@@ -82,13 +84,13 @@ export class LeafletProvider implements BlockchainProvider {
 
         // get puzHash: Buffer from address / puzzle hash
         if(address !== undefined && address.startsWith(ADDRESS_PREFIX)) {
-            puzHash = AddressUtil.addressToPuzzleHash(address);
+            puzHash = addressUtil.addressToPuzzleHash(address);
             if(puzHash.length === 0) {
                 return null;
             }
         }
         else if(puzzleHash !== undefined) {
-            puzHash = AddressUtil.validateHashString(puzzleHash);
+            puzHash = addressUtil.validateHashString(puzzleHash);
         }
         else return null;
 
@@ -124,7 +126,7 @@ export class LeafletProvider implements BlockchainProvider {
     }
 
     public subscribeToPuzzleHashUpdates({ puzzleHash, callback, minHeight = 0 }: subscribeToPuzzleHashUpdatesArgs): void {
-        puzzleHash = AddressUtil.validateHashString(puzzleHash);
+        puzzleHash = addressUtil.validateHashString(puzzleHash);
         if(puzzleHash.length === 0) return;
 
         this.coinStateStorage.willExpectUpdate(puzzleHash);
@@ -147,7 +149,7 @@ export class LeafletProvider implements BlockchainProvider {
     }
 
     public subscribeToCoinUpdates({ coinId, callback, minHeight = 0 }: subscribeToCoinUpdatesArgs): void {
-        coinId = AddressUtil.validateHashString(coinId);
+        coinId = addressUtil.validateHashString(coinId);
         if(coinId.length === 0) return;
 
         this.coinStateStorage.willExpectUpdate(coinId);
@@ -170,7 +172,7 @@ export class LeafletProvider implements BlockchainProvider {
     }
 
     public async getPuzzleSolution({coinId, height}: getPuzzleSolutionArgs): Promise<providerTypes.Optional<providerTypes.PuzzleSolution>> {
-        coinId = AddressUtil.validateHashString(coinId);
+        coinId = addressUtil.validateHashString(coinId);
         if(coinId.length === 0) return null;
 
         const pckt: RequestPuzzleSolution = new RequestPuzzleSolution();
@@ -203,7 +205,7 @@ export class LeafletProvider implements BlockchainProvider {
     }
 
     public async getCoinChildren({ coinId }: getCoinChildrenArgs): Promise<providerTypes.CoinState[]> {
-        coinId = AddressUtil.validateHashString(coinId);
+        coinId = addressUtil.validateHashString(coinId);
         if(coinId.length === 0) return [];
 
         const pckt: RequestChildren = new RequestChildren();
@@ -304,13 +306,13 @@ export class LeafletProvider implements BlockchainProvider {
         headerHash,
         coinIds = undefined
     }: getCoinRemovalsArgs): Promise<providerTypes.Optional<providerTypes.Coin[]>> {
-        headerHash = AddressUtil.validateHashString(headerHash);
+        headerHash = addressUtil.validateHashString(headerHash);
         if(headerHash.length === 0) return null;
 
         const parsedCoinIds: string[] = [];
         if(coinIds !== undefined) {
             for(let i = 0;i < coinIds.length; ++i) {
-                const parsed: string = AddressUtil.validateHashString(coinIds[i]);
+                const parsed: string = addressUtil.validateHashString(coinIds[i]);
 
                 if(parsed.length === 0) return null;
                 parsedCoinIds.push(parsed);
@@ -358,13 +360,13 @@ export class LeafletProvider implements BlockchainProvider {
         headerHash,
         puzzleHashes = undefined
     }: getCoinAdditionsArgs): Promise<providerTypes.Optional<providerTypes.Coin[]>> {
-        headerHash = AddressUtil.validateHashString(headerHash);
+        headerHash = addressUtil.validateHashString(headerHash);
         if(headerHash.length === 0) return null;
 
         const parsedpuzzleHashes: string[] = [];
         if(puzzleHashes !== undefined) {
             for(let i = 0;i < puzzleHashes.length; ++i) {
-                const parsed: string = AddressUtil.validateHashString(puzzleHashes[i]);
+                const parsed: string = addressUtil.validateHashString(puzzleHashes[i]);
 
                 if(parsed.length === 0) return null;
                 parsedpuzzleHashes.push(parsed);

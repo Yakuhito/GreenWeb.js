@@ -7,6 +7,8 @@ import { CoinUtil } from "../../../util/coin";
 const nodeHost = "leaflet.fireacademy.io";
 const nodeAPIKey = "TEST-API-KEY";
 
+const coinUtil = new CoinUtil();
+
 describe("LeafletProvider with " + nodeHost, () => {
     let p: BlockchainProvider;
     
@@ -54,7 +56,7 @@ describe("LeafletProvider with " + nodeHost, () => {
         const coinState: CoinState = cs[0];
         assert.equal(
             coinId,
-            CoinUtil.getId(coinState.coin),
+            coinUtil.getId(coinState.coin),
         );
     });
 
@@ -122,8 +124,8 @@ describe("LeafletProvider with " + nodeHost, () => {
         assert.equal(arr.length, 2);
 
         const coinIds: string[] = [
-            CoinUtil.getId(arr[0].coin),
-            CoinUtil.getId(arr[1].coin)
+            coinUtil.getId(arr[0].coin),
+            coinUtil.getId(arr[1].coin)
         ];
         assert.isTrue(coinIds.includes("7200b9a8a799717b2b54809b7ed6bd2bacfa113dcf9564569a8182bd7f588cf8"));
         assert.isTrue(coinIds.includes("6aba6282e60ea52367596c258b5a54b7263dd42d8040c06c94b13d8eca682e45"));
@@ -192,7 +194,7 @@ describe("LeafletProvider with " + nodeHost, () => {
         
         const coins: Coin[] = resp!;
         assert.isTrue(
-            coins.map(e => CoinUtil.getId(e)).includes(coinId)
+            coins.map(e => coinUtil.getId(e)).includes(coinId)
         );
     });
 
@@ -214,7 +216,7 @@ describe("LeafletProvider with " + nodeHost, () => {
         
         const coins: Coin[] = resp!;
         assert.equal(coins.length, 1);
-        assert.isTrue(CoinUtil.getId(coins[0]) === coinId);
+        assert.isTrue(coinUtil.getId(coins[0]) === coinId);
     });
 
     it("getCoinAdditions()", async () => {

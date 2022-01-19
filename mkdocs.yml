@@ -12,6 +12,9 @@ nav:
             - 'Module Overview': 'clvm/index.md'
         - 'util':
             - 'Module Overview': 'util/index.md'
+            - 'address': 'util/address.md'
+            - 'coin': 'util/coin.md'
+            - 'serializer': 'util/serializer.md'
     - License: 'license.md'
 
 markdown_extensions:

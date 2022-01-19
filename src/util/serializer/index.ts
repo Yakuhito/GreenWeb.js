@@ -7,10 +7,10 @@ import { Serializer } from "./serializer";
 export class SerializerUtil {
     public fields = fields;
     public types = types;
-    public serialize<T>(object: T): Buffer {
-        return Serializer.serialize(object);
+    public serialize<T>(object: T): string {
+        return Serializer.serialize(object).toString('hex');
     }
-    public deserialize<T>(classType: new (...args: any[]) => T, data: string | Buffer): T {
+    public deserialize<T>(classType: new (...args: any[]) => T, data: string): T {
         return Serializer.deserialize<T>(classType, data);
     }
 }

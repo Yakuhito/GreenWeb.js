@@ -35,7 +35,7 @@ greenweb.util.address.puzzleHashToAddress("0x1234")
 
 ## addressToPuzzleHash
 
-Converts an address to a puzzle hash.
+Converts an address to a puzzle hash. Second argument is optional and represents the maximum length of the encoded data (default: 90).
 
 ```js
 greenweb.util.address.addressToPuzzleHash("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3")

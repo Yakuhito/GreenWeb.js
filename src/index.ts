@@ -1,8 +1,5 @@
-// greenweb.blockchain
-export { BlockchainModule as blockchain } from "./blockchain";
-
-// greenweb.wallet
-export { WalletModule as wallet } from "./wallet";
+// greenweb.xch
+export { XCHModule as xch } from "./xch";
 
 // greenweb.clvm
 export * as clvm from "clvm";

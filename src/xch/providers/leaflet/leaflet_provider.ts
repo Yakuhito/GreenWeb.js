@@ -1,5 +1,5 @@
-import { BlockchainProvider, getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs } from "../blockchain_provider";
-import * as providerTypes from "../blockchain_provider_types";
+import { Provider, getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs } from "../provider";
+import * as providerTypes from "../provider_types";
 import { ChiaMessageChannel } from "./chia_message_channel";
 import { MessageQueue } from "./message_queue";
 import { makeMsg, Message } from "../../../util/serializer/types/outbound_message";
@@ -17,7 +17,7 @@ const NETWORK_ID = "mainnet";
 
 const addressUtil = new AddressUtil();
 
-export class LeafletProvider implements BlockchainProvider {
+export class LeafletProvider implements Provider {
     private messageChannel: ChiaMessageChannel;
     private messageQueue: MessageQueue = new MessageQueue();
     private blockNumber: providerTypes.Optional<number> = null;

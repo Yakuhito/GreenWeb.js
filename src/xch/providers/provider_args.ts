@@ -1,4 +1,4 @@
-import { CoinState } from "./blockchain_provider_types";
+import { CoinState } from "./provider_types";
 
 export type getBalanceArgs = {
     address?: string,

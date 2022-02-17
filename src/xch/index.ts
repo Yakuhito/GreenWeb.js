@@ -1,14 +1,14 @@
-import { BlockchainProvider, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, PuzzleSolution, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs } from "./providers/blockchain_provider";
+import { Provider, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, PuzzleSolution, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs } from "./providers/provider";
 import { LeafletProvider } from "./providers/leaflet";
 
-export class BlockchainModule {
+export class XCHModule {
     public static providers = {
         LeafletProvider,
     };
 
-    public static provider: BlockchainProvider | null = null;
+    public static provider: Provider | null = null;
 
-    static setProvider(p: BlockchainProvider): void {
+    static setProvider(p: Provider): void {
         this.provider = p;
     }
 

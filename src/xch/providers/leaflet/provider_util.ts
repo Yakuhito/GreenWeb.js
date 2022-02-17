@@ -1,5 +1,5 @@
 import { Coin } from "../../../util/serializer/types/coin";
-import * as providerTypes from "../blockchain_provider_types";
+import * as providerTypes from "../provider_types";
 import { CoinState, PuzzleSolutionResponse } from "../../../util/serializer/types/wallet_protocol";
 import { HeaderBlock } from "../../../util/serializer/types/header_block";
 

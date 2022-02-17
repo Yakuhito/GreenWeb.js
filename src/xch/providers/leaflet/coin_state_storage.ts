@@ -1,5 +1,5 @@
 import { CoinUtil } from "../../../util/coin";
-import * as providerTypes from "../blockchain_provider_types";
+import * as providerTypes from "../provider_types";
 import { ProviderUtil } from "./provider_util";
 import { CoinState, RespondToCoinUpdates, RespondToPhUpdates } from "../../../util/serializer/types/wallet_protocol";
 

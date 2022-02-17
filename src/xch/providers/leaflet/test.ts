@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { LeafletProvider } from ".";
-import { BlockHeader, Coin, CoinState, BlockchainProvider, PuzzleSolution } from "../blockchain_provider";
+import { BlockHeader, Coin, CoinState, Provider, PuzzleSolution } from "../provider";
 import { assert } from "chai";
 import { CoinUtil } from "../../../util/coin";
 
@@ -10,7 +10,7 @@ const nodeAPIKey = "TEST-API-KEY";
 const coinUtil = new CoinUtil();
 
 describe("LeafletProvider with " + nodeHost, () => {
-    let p: BlockchainProvider;
+    let p: Provider;
     
     it("initialize()", async () => {
         p = new LeafletProvider(nodeHost, nodeAPIKey);

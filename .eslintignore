@@ -3,3 +3,4 @@ node_modules
 webpack.*.js
 pre_build.js
 dist/*
+web_test/*

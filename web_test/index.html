@@ -1,0 +1,57 @@
+<html>
+<head>
+    <title>GreenWeb.js - Test Page</title>
+    <script src="greenweb.js"></script>
+</head>
+<body>
+    <h3>
+        Wallet status:
+        <a id="walletStatus">Not connected</a>
+    </h3>
+    <button id="connectBtn" onClick="connect()">Connect wallet</button>
+    <div id="connectedArea" style="display: none">
+        <button onClick="transferXCH()">Transfer 1 mojo</button>
+        <button onClick="transferToken()">Transfer token</button>
+        <button onClick="acceptOffer()">Accept teh offer</button>
+    </div>
+
+    <script>
+        async function connect() {
+            greenweb.xch.setProvider(new greenweb.xch.providers.GobyProvider());
+
+            await greenweb.xch.initialize();
+            document.getElementById('connectBtn').style.display = 'none';
+            document.getElementById('connectedArea').style.display = 'block';
+            document.getElementById('walletStatus').innerHTML = await greenweb.xch.getAddress();
+        }
+
+        async function transferXCH() {
+            let r = await greenweb.xch.transfer({
+                to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+                value: 1
+            });
+
+            console.log(r);
+        }
+
+        async function transferToken() {
+            let r = await greenweb.xch.transfer({
+                to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+                assetId: "6d95dae356e32a71db5ddcb42224754a02524c615c5fc35f568c2af04774e589",
+                value: 1
+            });
+
+            console.log(r);
+        }
+
+        async function acceptOffer() {
+            var offer = "offer1qqp83w76wzru6cmqvpsxygqqz6wmkl7tdje0sxkfedqa6ae4pa0kpyq3zc24a902we30lrynhslk5jnqafsvzwj6e7xavuar7hwxs0fhtt8s6apaquh0v9s5m5aep48ww0jl92sajvtycj8ttzuvu5vmj9ecd8hc7jzs26m0wn0mjq64ymamm70kkwwk0jnt6066amwadafk52ket03v806ha5hlh8uapewqkt9psh5x3hgfalfrzsnyzmktj4356ln02lml352hwlaha2jc24vudl4kvc46z0s6fc9qwpt4slfw2ryjd2wapatjjzm785j8xwmu7ewurkv83aaggnpeygah6ede6lncqwuvnnlehxzlzzssce8puj32pkvmwwlte6fc0t7ud9mfku76vzrgm6k4ww857r724u67pt706v62xfd4c5m5u7hdha9pvhr2mh7x8vpzvwa9uc0dsu6dgjgwndzncg7q7uzae5lx7022w57ec777vzpnwnymykmwe3y3j2e2v00hhu0mj27d4p28n4wsljp025sr7yfjw4talvz29m3lkmgr8yvhlmm7el8jzhx3hrwqtgdjq606l7p9mrcuj00w7r0talw9xewz8e3ejc80q7yhjwcllly2c04h4r4w0l87etl564vep4sft2etj6mlhwt9fcxmuv09tlwg28wn447v7nvulvumdeargz4tdplzv0h0ln0v9fhypffklutke2y5euer50d8yrhgfvlmmedunl0t3m8an30ssqnjk2ups9mc8nqdpxsz47llpvf08l5ynskn77k7l2c8tnn9a9d48egv0eky6ety0g2tzjrgu8fh7k3durq9c0d9hwrn2mj85lgvv8hdv5dutpzm7lm9ecl6wc7h06getv57hnlufv2dyt4ufuukl8rtkfqlkdnn44wzfeutkhdh7kr204ykswew7gl8z4wf7674zyfj8f5e8ta4m4c865mfrmu0538jxyhndxd9rutrma6whkeecxgqnakdn6s3q0vx5";
+            let r = await greenweb.xch.acceptOffer({
+                offer
+            });
+
+            console.log(r);
+        }
+    </script>
+</body>
+</html>

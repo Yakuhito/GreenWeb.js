@@ -36,7 +36,7 @@ export class GobyProvider implements Provider {
             await this.initialize();
         });
 
-        const accounts: string[] = await window.chia.request({ method: "accounts" });
+        const accounts: string[] = await window.chia.request({ method: "requestAccounts" });
         this._address = accounts?.[0] ?? "";
     }
 

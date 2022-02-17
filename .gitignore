@@ -101,3 +101,6 @@ typings/
 
 # TernJS port file
 .tern-port
+
+# web_test bundled file
+web_test/greenweb.js

@@ -24,7 +24,8 @@
     "test": "nyc mocha -r ts-node/register src/**/*.test.ts src/**/**/*.test.ts src/**/**/**/*.test.ts",
     "test-offers": "nyc mocha -r ts-node/register src/util/serializer/offers.test.ts",
     "test-chia-thing": "NODE_TLS_REJECT_UNAUTHORIZED=0 nyc mocha -r ts-node/register src/blockchain/providers/leaflet/test.ts --timeout 10000",
-    "test-extended": "NODE_TLS_REJECT_UNAUTHORIZED=0 nyc mocha -r ts-node/register src/**/*.test.ts src/**/**/*.test.ts src/**/**/**/*.test.ts src/**/**/**/**/*.test.ts src/**/test.ts --timeout 10000"
+    "test-extended": "NODE_TLS_REJECT_UNAUTHORIZED=0 nyc mocha -r ts-node/register src/**/*.test.ts src/**/**/*.test.ts src/**/**/**/*.test.ts src/**/**/**/**/*.test.ts src/**/test.ts --timeout 10000",
+    "test-web": "cd web_test; python3 -m http.server 1337"
   },
   "dependencies": {
     "@chiamine/bls-signatures": "^0.2.1-beta.2",

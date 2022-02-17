@@ -47,3 +47,21 @@ export type getCoinAdditionsArgs = {
     headerHash: string, // apparently not optional...
     puzzleHashes?: string[]
 };
+
+export type transferArgs = {
+    to: string,
+    value: number,
+    fee?: number
+};
+
+export type transferCATArgs = {
+    to: string,
+    assetId: string,
+    value: number,
+    fee?: number
+};
+
+export type acceptOfferArgs = {
+    offer: string,
+    fee?: number
+};

@@ -71,6 +71,10 @@ export class LeafletProvider implements Provider {
         return NETWORK_ID;
     }
 
+    public isConnected(): boolean {
+        return this.messageChannel.isConnected();
+    }
+
     public async getBlockNumber(): Promise<providerTypes.Optional<number>> {
         return this.blockNumber;
     }

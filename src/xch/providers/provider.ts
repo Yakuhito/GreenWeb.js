@@ -8,6 +8,7 @@ export interface Provider {
     initialize(): Promise<void>;
     close(): Promise<void>;
     getNetworkId(): string;
+    isConnected(): boolean;
 
     getBlockNumber(): Promise<Optional<number>>;
     getBalance(args: getBalanceArgs): Promise<Optional<number>>;

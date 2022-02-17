@@ -84,6 +84,10 @@ export class ChiaMessageChannel {
         this.ws?.close();
     }
 
+    public isConnected(): boolean {
+        return this.ws !== undefined && this.ws.readyState === WebSocket.OPEN;
+    }
+
     private messageHandler(data: Buffer): void {
         this.inboundDataBuffer = Buffer.concat([this.inboundDataBuffer, data]);
 

@@ -4,7 +4,7 @@ This page includes example usage for a provider. Note that methods that are not 
 
 # Available Providers
 
-| Function\Provider                                             | [LeafletProvider](leaflet-provider.md) | [GobyProvider](goby-provider.md) | [MultiProvider](multi-provider.md) |
+| Function\Provider                                             |        [LeafletProvider](leaflet-provider.md)        |        [GobyProvider](goby-provider.md)        |        [MultiProvider](multi-provider.md)        |
 |---------------------------------------------------------------|:---------------:|:------------:|:-------------:|
 | [conenct](#connect)                                           |        ✅        |       ✅      |       ✅       |
 | [close](#close)                                               |        ✅        |       ✅      |       ✅       |

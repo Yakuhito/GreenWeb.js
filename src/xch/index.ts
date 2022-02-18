@@ -1,11 +1,13 @@
 import { Provider, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, PuzzleSolution, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, acceptOfferArgs, transferCATArgs, transferArgs } from "./providers/provider";
 import { LeafletProvider } from "./providers/leaflet";
 import { GobyProvider } from "./providers/goby";
+import { MultiProvider } from "./providers/multi";
 
 export class XCHModule {
     public static providers = {
         LeafletProvider,
         GobyProvider,
+        MultiProvider
     };
 
     public static provider: Provider | null = null;

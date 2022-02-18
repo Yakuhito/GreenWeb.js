@@ -9,10 +9,10 @@ export class MultiProvider implements Provider {
         this.providers = providers;
     }
 
-    public async initialize(): Promise<void> {
+    public async connect(): Promise<void> {
         for(let i = 0; i < this.providers.length; ++i) {
             try {
-                await this.providers[i].initialize();
+                await this.providers[i].connect();
             } catch(_) {
                 continue;
             }

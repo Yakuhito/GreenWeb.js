@@ -59,7 +59,7 @@ export class LeafletProvider implements Provider {
         }
     }
 
-    public async initialize() {
+    public async connect() {
         await this.messageChannel.connect();
         await this.messageQueue.waitFor([ProtocolMessageTypes.handshake]);
     }

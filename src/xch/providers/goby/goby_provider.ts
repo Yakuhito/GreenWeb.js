@@ -32,7 +32,7 @@ export class GobyProvider implements Provider {
         }
     }
 
-    public async initialize(): Promise<void> {
+    public async connect(): Promise<void> {
         if(!this._isGobyInstalled()) {
             return;
         }
@@ -42,7 +42,7 @@ export class GobyProvider implements Provider {
         })
         window.chia.on("chainChanged", async () => {
             await this.close();
-            await this.initialize();
+            await this.connect();
         });
 
         const accounts: string[] = await window.chia.request({ method: "requestAccounts" });

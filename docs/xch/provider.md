@@ -1,11 +1,30 @@
-# Examples
+# Provider
 
 This page includes example usage for a provider. Note that methods that are not available throw errors, while those that are implemented signal failures via return values.
 
 # Available Providers
 
-`LeafletProvider` and `GobyProvider` and `MultiProvider`
-TODO
+| Function\Provider                                             | [LeafletProvider](leaflet-provider.md) | [GobyProvider](goby-provider.md) | [MultiProvider](multi-provider.md) |
+|---------------------------------------------------------------|:---------------:|:------------:|:-------------:|
+| [conenct](#connect)                                           |        ✅        |       ✅      |       ✅       |
+| [close](#close)                                               |        ✅        |       ✅      |       ✅       |
+| [getNetworkId](#getnetworkid)                                 |        ✅        |       ✅      |       ✅       |
+| [isConnected](#isconnected)                                   |        ✅        |       ✅      |       ✅       |
+| [getBlockNumber](#getblocknumber)                             |        ✅        |       ❎      |       ❔       |
+| [getBalance](#getbalance)                                     |        ✅        |       ❎      |       ❔       |
+| [subscribeToPuzzleHashUpdates](#subscribetopuzzlehashupdates) |        ✅        |       ❎      |       ❔       |
+| [subscribeToCoinUpdates](#subscribetocoinupdates)             |        ✅        |       ❎      |       ❔       |
+| [getPuzzleSolution](#getpuzzlesolution)                       |        ✅        |       ❎      |       ❔       |
+| [getCoinChildren](#getcoinchildren)                           |        ✅        |       ❎      |       ❔       |
+| [getBlockHeader](#getblockheader)                             |        ✅        |       ❎      |       ❔       |
+| [getBlocksHeaders](#getblocksheaders)                         |        ✅        |       ❎      |       ❔       |
+| [getCoinRemovals](#getcoinremovals)                           |        ✅        |       ❎      |       ❔       |
+| [getCoinAdditions](#getcoinadditions)                         |        ✅        |       ❎      |       ❔       |
+| [getAddress](#getaddress)                                     |        ✅        |       ❎      |       ❔       |
+| [transfer](#transfer)                                         |        ❎        |       ✅      |       ❔       |
+| [transferCAT](#transfercat)                                   |        ❎        |       ✅      |       ❔       |
+| [acceptOffer](#acceptoffer)                                   |        ❎        |       ✅      |       ❔       |
+| [subscribeToAddressChanges](#subscribetoaddresschanges)       |        ❎        |       ✅      |       ❔       |
 
 # Custom Data Types
 
@@ -106,7 +125,7 @@ greenweb.xch.setProvider(provider)
 
 ---
 
-## initialize
+## connect
 
 Initializes a provider.
 
@@ -121,7 +140,7 @@ None
 ### Example
 
 ```js
-provider.initialize().then(() => {
+provider.connect().then(() => {
   // ...
 });
 ```
@@ -509,7 +528,144 @@ greenweb.xch.getCoinAdditions({
 // Array [ {…} ]
 ​
 // 0: Object { id: "8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01", parentCoinInfo: "d5d0c5f27f8ad7c98f9baa9c3bbcc8825751b67c04e67b6752d54142524050b6", puzzleHash: "bef81a693292ae286b32700ddf8fc8dda095f274140b358673d9fbef1d1eb0e2", … }
-
 ```
 
-// todo: document new functions
+---
+
+## getAddress
+
+Returns the address that the user is connected with. The value `""` means that the wallet is not currently connected.
+
+### Arguments
+
+None
+
+### Returns
+
+`Promise<string>`
+
+### Example
+
+```js
+greenweb.xch.getAddress().then(console.log);
+
+// xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3
+```
+
+---
+
+## transfer
+
+Send XCH to an address. Note that the user might be asked for confirmation.
+
+### Arguments
+
+```js
+export type transferArgs = {
+    to: string,
+    value: number,
+    fee?: number
+};
+```
+
+### Returns
+
+`Promise<boolean>` - `true` if the transaction was submitted to the network, `false` otherwise.
+
+### Example
+
+```js
+greenweb.xch.transfer({
+    to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+    value: greenweb.util.parseChia("1")
+}).then(console.log);
+
+// true
+```
+---
+
+## transferCAT
+
+Send CATs (tokens) to an address. Note that the user might be asked for confirmation.
+
+### Arguments
+
+```js
+export type transferCATArgs = {
+    to: string,
+    assetId: string,
+    value: number,
+    fee?: number
+};
+```
+
+### Returns
+
+`Promise<boolean>` - `true` if the transaction was submitted to the network, `false` otherwise.
+
+### Example
+
+```js
+greenweb.xch.transferCAT({
+    to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+    assetId: "6d95dae356e32a71db5ddcb42224754a02524c615c5fc35f568c2af04774e589",
+    value: greenweb.util.parseToken("1")
+}).then(console.log);
+
+// true
+```
+
+---
+
+## acceptOffer
+
+Accept an offer. Note that the user might be asked for confirmation.
+
+### Arguments
+
+```js
+export type acceptOfferArgs = {
+    offer: string,
+    fee?: number
+};
+```
+
+### Returns
+
+`Promise<boolean>` - `true` if the transaction was submitted to the network, `false` otherwise.
+
+### Example
+
+```js
+greenweb.xch.acceptOffer({
+    offer: "offer1[...]"
+}).then(console.log);
+
+// true
+```
+
+---
+
+## subscribeToAddressChanges
+
+Calls the `callback` argument each time the address of the user is changed.
+
+### Arguments
+
+```js
+export type subscribeToAddressChangesArgs = {
+    callback: (address: string) => void,
+};
+```
+
+### Returns
+
+None.
+
+### Example
+
+```js
+greenweb.xch.subscribeToAddressChanges({
+    callback: (address) => console.log(address);
+});
+```

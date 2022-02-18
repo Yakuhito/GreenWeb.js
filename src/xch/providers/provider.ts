@@ -6,7 +6,7 @@ export * from "./provider_args";
 
 export interface Provider {
     /* basics */
-    initialize(): Promise<void>;
+    connect(): Promise<void>;
     close(): Promise<void>;
     getNetworkId(): string;
     isConnected(): boolean;

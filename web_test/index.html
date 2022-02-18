@@ -11,7 +11,9 @@
     <button id="connectBtn" onClick="connect()">Connect wallet</button>
     <div id="connectedArea" style="display: none">
         <button onClick="transferXCH()">Transfer 1 mojo</button>
-        <button onClick="transferToken()">Transfer token</button>
+        <button onClick="transferXCH2()">Transfer 1 XCH</button>
+        <button onClick="transferToken()">Transfer token unit</button>
+        <button onClick="transferToken2()">Transfer token</button>
         <button onClick="acceptOffer()">Accept teh offer</button>
     </div>
 
@@ -34,11 +36,30 @@
             console.log(r);
         }
 
+        async function transferXCH2() {
+            let r = await greenweb.xch.transfer({
+                to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+                value: greenweb.util.parseChia("1")
+            });
+
+            console.log(r);
+        }
+
         async function transferToken() {
             let r = await greenweb.xch.transfer({
                 to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
                 assetId: "6d95dae356e32a71db5ddcb42224754a02524c615c5fc35f568c2af04774e589",
                 value: 1
+            });
+
+            console.log(r);
+        }
+
+        async function transferToken2() {
+            let r = await greenweb.xch.transfer({
+                to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+                assetId: "6d95dae356e32a71db5ddcb42224754a02524c615c5fc35f568c2af04774e589",
+                value: greenweb.util.parseToken("1")
             });
 
             console.log(r);

@@ -10,6 +10,10 @@ export class Util {
     public static mojoPerXCH: uint = 1000000000000;
 
     public static formatToken(amount: uint, amountPerUnit: uint = 1000): string {
+        if(isNaN(amount)) {
+            return "0.0";
+        }
+
         const wholeUnits: uint = Math.floor(amount / amountPerUnit);
 
         let decimalThing: string = Number(amount % amountPerUnit).toString();

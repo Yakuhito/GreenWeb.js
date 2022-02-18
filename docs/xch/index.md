@@ -10,10 +10,12 @@ The `greenweb.xch` sub-module allows interacting with the Chia blockchain. This 
  - sending Chia to an address
  - accepting an offer
 
-[`Provider`](provider.md) is the interface that exposes the methods. [`LeafletProvider`](leaflet-provider.md) implements [`Provider`](blockchain-provider.md) and can be used to connect to [`leaflet`](https://github.com/FireAcademy/leaflet-docker) nodes. [`GobyProvider`](goby-provider.md) tries to connect to a user's [Goby Wallet extension](https://www.goby.app/).
+[`Provider`](provider.md) is the interface that exposes the methods. [`LeafletProvider`](leaflet-provider.md) implements [`Provider`](provider.md) and can be used to connect to [`leaflet`](https://github.com/FireAcademy/leaflet-docker) nodes. [`GobyProvider`](goby-provider.md) tries to connect to a user's [Goby Wallet](https://www.goby.app/) extension.
+
+To use multiple providers, one can use [`MultiProvider`](multi-provider.md).
 
 ## Available functions
-Please see [this page](provider.md)
+Please see [this page](provider.md).
 
 ## Wrapper
 The sub-module is also provides a wrapper around [`Provider`](provider.md): simply call its `setProvider` function with the desired provider instance as an argument and you'll be able to call any function on `greenweb.xch` instead of the instance:

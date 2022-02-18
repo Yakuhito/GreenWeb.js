@@ -4,7 +4,7 @@ This page includes example usage for a provider. Note that methods that are not 
 
 # Available Providers
 
-`LeafletProvider` and `GobyProvider`
+`LeafletProvider` and `GobyProvider` and `MultiProvider`
 TODO
 
 # Custom Data Types

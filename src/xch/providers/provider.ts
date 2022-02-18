@@ -1,5 +1,5 @@
 import { Optional, Coin, CoinState, BlockHeader, PuzzleSolution } from "./provider_types";
-import { acceptOfferArgs, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "./provider_args";
+import { acceptOfferArgs, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "./provider_args";
 
 export * from "./provider_types";
 export * from "./provider_args";
@@ -36,4 +36,5 @@ export interface Provider {
     transfer(args: transferArgs): Promise<boolean>;
     transferCAT(args: transferCATArgs): Promise<boolean>;
     acceptOffer(args: acceptOfferArgs): Promise<boolean>;
+    subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void;
 }

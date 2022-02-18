@@ -65,3 +65,7 @@ export type acceptOfferArgs = {
     offer: string,
     fee?: number
 };
+
+export type subscribeToAddressChangesArgs = {
+    callback: (address: string) => void,
+};

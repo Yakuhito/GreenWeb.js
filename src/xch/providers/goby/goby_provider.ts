@@ -3,7 +3,7 @@ Special thanks to donate.goby.app and offerpool.io
 */
 
 import { Provider } from "../provider";
-import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, acceptOfferArgs, transferArgs, transferCATArgs } from "../provider_args";
+import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, acceptOfferArgs, transferArgs, transferCATArgs, subscribeToAddressChangesArgs } from "../provider_args";
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin } from "../provider_types";
 
 // https://stackoverflow.com/questions/56457935/typescript-error-property-x-does-not-exist-on-type-window
@@ -16,11 +16,20 @@ declare global {
 export class GobyProvider implements Provider {
     private _address: string = "";
     private _networkId: string = "mainnet";
+    private _callbacks: Array<(address: string) => void> = [];
 
     // https://github.com/offerpool/offerpool/commit/06178554cb35d985def1f77ebf56fa110bafed37#diff-ebb1516e535afb1a750fde696b67201f7e1afb997d33d8462f41cca6c670d36d
     private _isGobyInstalled(): boolean {
         const { chia } = window;
         return Boolean(chia && chia.isGoby)
+    }
+
+    private _changeAddress(newAddress: string): void {
+        this._address = newAddress;
+
+        for(let i = 0; i < this._callbacks.length; ++i) {
+            this._callbacks[i](newAddress);
+        }
     }
 
     public async initialize(): Promise<void> {
@@ -29,7 +38,7 @@ export class GobyProvider implements Provider {
         }
 
         window.chia.on("accountsChanged", (accounts: string[]) => {
-            this._address = accounts?.[0] ?? "";
+            this._changeAddress(accounts?.[0] ?? "");
         })
         window.chia.on("chainChanged", async () => {
             await this.close();
@@ -37,11 +46,11 @@ export class GobyProvider implements Provider {
         });
 
         const accounts: string[] = await window.chia.request({ method: "requestAccounts" });
-        this._address = accounts?.[0] ?? "";
+        this._changeAddress(accounts?.[0] ?? "");
     }
 
     public async close(): Promise<void> {
-        this._address = "";
+        this._changeAddress("");
     }
 
     public getNetworkId(): string {
@@ -144,5 +153,9 @@ export class GobyProvider implements Provider {
         }
 
         return true;
+    }
+
+    public subscribeToAddressChanges({ callback }: subscribeToAddressChangesArgs): void {
+        this._callbacks.push(callback);
     }
 }

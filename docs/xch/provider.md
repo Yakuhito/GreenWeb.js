@@ -1,6 +1,11 @@
 # Examples
 
-This page includes example usage for a provider.
+This page includes example usage for a provider. Note that methods that are not available throw errors, while those that are implemented signal failures via return values.
+
+# Available Providers
+
+`LeafletProvider` and `GobyProvider`
+TODO
 
 # Custom Data Types
 
@@ -89,14 +94,14 @@ Depend on the type of the provider.
 
 ### Returns
 
-A `BlockchainProvider` instance - do not forget to also call `initialize()`!
+A `Provider` instance - do not forget to also call `initialize()`!
 
 ### Example
 
 ```js
-let provider = new greenweb.blockchain.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
+let provider = new greenweb.xch.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
 
-greenweb.blockchain.setProvider(provider)
+greenweb.xch.setProvider(provider)
 ```
 
 ---
@@ -160,8 +165,29 @@ None
 ### Example
 
 ```js
-greenweb.blockchain.getNetworkId()
+greenweb.xch.getNetworkId()
 // "mainnet"
+```
+
+---
+
+## isConnected
+
+Returns true if the provider is connected, either to a node or a wallet.
+
+### Arguments
+
+None
+
+### Returns
+
+`boolean`
+
+### Example
+
+```js
+greenweb.xch.isConnected()
+// trues
 ```
 
 ---
@@ -181,7 +207,7 @@ None
 ### Example
 
 ```js
-greenweb.blockchain.getBlockNumber().then(blockNumber => console.log(blockNumber));
+greenweb.xch.getBlockNumber().then(blockNumber => console.log(blockNumber));
 // 1320204
 ```
 
@@ -208,7 +234,7 @@ export type getBalanceArgs = {
 ### Example
 
 ```js
-greenweb.blockchain.getBalance({
+greenweb.xch.getBalance({
   address: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3"
 }).then(balance => console.log(balance))
 
@@ -238,7 +264,7 @@ None.
 ### Example
 
 ```js
-greenweb.blockchain.subscribeToPuzzleHashUpdates({
+greenweb.xch.subscribeToPuzzleHashUpdates({
   puzzleHash: "0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664",
   callback: arr => console.log(arr)
 })
@@ -271,7 +297,7 @@ None.
 ### Example
 
 ```js
-greenweb.blockchain.subscribeToCoinUpdates({
+greenweb.xch.subscribeToCoinUpdates({
   coinId: "7200b9a8a799717b2b54809b7ed6bd2bacfa113dcf9564569a8182bd7f588cf8",
   callback: arr => console.log(arr)
 })
@@ -303,7 +329,7 @@ export type getPuzzleSolutionArgs = {
 ### Example
 
 ```js
-greenweb.blockchain.getPuzzleSolution({
+greenweb.xch.getPuzzleSolution({
   coinId: "0x8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01",
   height: 894633
 }).then(puzzSol => console.log(puzzSol));
@@ -332,7 +358,7 @@ export type getCoinChildrenArgs = {
 ### Example
 
 ```js
-greenweb.blockchain.getCoinChildren({
+greenweb.xch.getCoinChildren({
   coinId: "0x8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01"
 }).then(arr => console.log(arr));
 
@@ -362,7 +388,7 @@ export type getBlockHeaderArgs = {
 ### Example
 
 ```js
-greenweb.blockchain.getBlockHeader({
+greenweb.xch.getBlockHeader({
   height: 1000000
 }).then(header => console.log(header));
 
@@ -391,7 +417,7 @@ export type getBlocksHeadersArgs = {
 ### Example
 
 ```js
-greenweb.blockchain.getBlocksHeaders({
+greenweb.xch.getBlocksHeaders({
   startHeight: 999999,
   endHeight: 1000001
 }).then(headers => console.log(headers));
@@ -428,7 +454,7 @@ export type getCoinRemovalsArgs = {
 ### Example
 
 ```js
-greenweb.blockchain.getCoinRemovals({
+greenweb.xch.getCoinRemovals({
   height: 894633,
   headerHash: "fca56891047b75eab372e59c034ddc250102a64abac588a8f30c53e47bc99702"
 }).then(arr => console.log(arr));
@@ -461,7 +487,7 @@ export type getCoinAdditionsArgs = {
 ### Example
 
 ```js
-greenweb.blockchain.getCoinAdditions({
+greenweb.xch.getCoinAdditions({
   height: 894597,
   headerHash: "a1559da62ec56609ca8c1239b7dfc8f8efcdc281be4ef1f968c4c19a034257fb"
 }).then(arr => console.log(arr));
@@ -474,7 +500,7 @@ greenweb.blockchain.getCoinAdditions({
 // or
 
 
-greenweb.blockchain.getCoinAdditions({
+greenweb.xch.getCoinAdditions({
   height: 894597,
   headerHash: "a1559da62ec56609ca8c1239b7dfc8f8efcdc281be4ef1f968c4c19a034257fb",
   puzzleHashes: ["bef81a693292ae286b32700ddf8fc8dda095f274140b358673d9fbef1d1eb0e2"]
@@ -485,3 +511,5 @@ greenweb.blockchain.getCoinAdditions({
 // 0: Object { id: "8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01", parentCoinInfo: "d5d0c5f27f8ad7c98f9baa9c3bbcc8825751b67c04e67b6752d54142524050b6", puzzleHash: "bef81a693292ae286b32700ddf8fc8dda095f274140b358673d9fbef1d1eb0e2", … }
 
 ```
+
+// todo: document new functions

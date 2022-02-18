@@ -11,7 +11,7 @@ import { HeaderBlock } from "../../../util/serializer/types/header_block";
 import { Coin } from "../../../util/serializer/types/coin";
 import { ProviderUtil } from "./provider_util";
 import { AddressUtil } from "../../../util/address";
-import { transferArgs, transferCATArgs, acceptOfferArgs } from "../provider_args";
+import { transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs } from "../provider_args";
 
 const ADDRESS_PREFIX = "xch";
 const NETWORK_ID = "mainnet";
@@ -430,6 +430,10 @@ export class LeafletProvider implements Provider {
     }
 
     public acceptOffer(args: acceptOfferArgs): Promise<boolean> {
+        throw new Error("LeafletProvider does not implement this method.");
+    }
+
+    public subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
         throw new Error("LeafletProvider does not implement this method.");
     }
 }

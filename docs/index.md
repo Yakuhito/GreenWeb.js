@@ -9,8 +9,7 @@ GreenWeb.js is a JavaScript library that allows writing web-based apps that inte
 
 The main javascript files exports a single object, `greenweb`. It has the following sub-modules:
 
- - [`greenweb.blockchain`](blockchain/index.md): Used for **reading** blockchain data.
- - [`greenweb.wallet`](wallet/index.md): Used for **writing** blockchain data (a.k.a. 'sending transactions')
+ - [`greenweb.xch`](xch/index.md): Used to interact with the Chia blockchain.
  - [`greenweb.clvm`](clvm/index.md): Export of [https://github.com/Chia-Mine/clvm-js](https://github.com/Chia-Mine/clvm-js)
  - [`greenweb.util`](util/index.md): Some util functions that might come in handy
 
@@ -21,14 +20,16 @@ The main javascript files exports a single object, `greenweb`. It has the follow
 Use the following snippet to include GreenWeb.js on a page:
 
 ```html
-<script src="https://assets.fireacademy.io/greenweb-1.0.3.js"></script>
+<script src="https://assets.fireacademy.io/greenweb-1.0.4.js"></script>
 ```
 
-Or just use the latest version:
+Or just use the latest version (not recommended):
 
 ```html
 <script src="https://assets.fireacademy.io/greenweb.js"></script>
 ```
+
+**WARNING**: GreenWeb.js is still a very young project. Expect breaking changes with every release.
 
 ### Browser - Build it!
 To generate the latest `greenweb.js` file, clone the repository and use `npm` to build:
@@ -60,4 +61,4 @@ npm install greenwebjs
 
 ## Examples
 
-Please seeeach module's documentation for usage examples.
+Please see each module's documentation for usage examples.

@@ -19,20 +19,20 @@ export class GobyProvider implements Provider {
     private _networkId: string = "mainnet";
     private _callbacks: Array<(address: string) => void> = [];
 
-    // https://github.com/offerpool/offerpool/commit/06178554cb35d985def1f77ebf56fa110bafed37#diff-ebb1516e535afb1a750fde696b67201f7e1afb997d33d8462f41cca6c670d36d
-    private _isGobyInstalled(): boolean {
-        const { chia } = window;
-        return Boolean(chia && chia.isGoby)
-    }
-
     constructor(tryNonInteractiveConnect: boolean = true) {
-        if(!tryNonInteractiveConnect || !this._isGobyInstalled()) {
+        if (!tryNonInteractiveConnect || !this._isGobyInstalled()) {
             return;
         }
 
         window.chia.request({ method: "accounts" }).then(
             (accounts: string[]) => this._changeAddress(accounts?.[0] ?? "")
         );
+    }
+
+    // https://github.com/offerpool/offerpool/commit/06178554cb35d985def1f77ebf56fa110bafed37#diff-ebb1516e535afb1a750fde696b67201f7e1afb997d33d8462f41cca6c670d36d
+    private _isGobyInstalled(): boolean {
+        const { chia } = window;
+        return Boolean(chia && chia.isGoby)
     }
 
     private _changeAddress(newAddress: string): void {
@@ -129,6 +129,11 @@ export class GobyProvider implements Provider {
         }
 
         try {
+            value = BigNumber.from(value);
+            fee = BigNumber.from(fee);
+
+            value = value.toNumber();
+            fee = fee.toNumber();
             await window.chia.request({
                 method: "transfer",
                 params: {
@@ -152,6 +157,9 @@ export class GobyProvider implements Provider {
         }
 
         try {
+            fee = BigNumber.from(fee);
+
+            fee = fee.toNumber();
             await window.chia.request({
                 method: "takeOffer",
                 params: {

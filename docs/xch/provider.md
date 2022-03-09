@@ -248,14 +248,14 @@ export type getBalanceArgs = {
 
 ### Returns
 
-`Promise<Optional<number>>`
+`Promise<Optional<BigNumber>>`
 
 ### Example
 
 ```js
 greenweb.xch.getBalance({
   address: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3"
-}).then(balance => console.log(balance))
+}).then(balance => console.log(balance.toNumber()))
 
 // 1946917
 ```
@@ -563,8 +563,8 @@ Send XCH to an address. Note that the user might be asked for confirmation.
 ```js
 export type transferArgs = {
     to: string,
-    value: number,
-    fee?: number
+    value: BigNumberish,
+    fee?: BigNumberish
 };
 ```
 
@@ -594,8 +594,8 @@ Send CATs (tokens) to an address. Note that the user might be asked for confirma
 export type transferCATArgs = {
     to: string,
     assetId: string,
-    value: number,
-    fee?: number
+    value: BigNumberish,
+    fee?: BigNumberish
 };
 ```
 
@@ -626,7 +626,7 @@ Accept an offer. Note that the user might be asked for confirmation.
 ```js
 export type acceptOfferArgs = {
     offer: string,
-    fee?: number
+    fee?: BigNumberish
 };
 ```
 

@@ -1,9 +1,9 @@
-import { Serializer } from "../serializer";
+import { Serializer } from "../../../../util/serializer/serializer";
 import { assert } from "chai";
-import { SendTransaction } from "./wallet_protocol";
-import { SpendBundle } from "./spend_bundle";
-import { Coin } from "./coin";
-import { CoinSpend } from "./coin_spend";
+import { SendTransaction } from "../../../../util/serializer/types/wallet_protocol";
+import { SpendBundle } from "../../../../util/serializer/types/spend_bundle";
+import { Coin } from "../../../../util/serializer/types/coin";
+import { CoinSpend } from "../../../../util/serializer/types/coin_spend";
 import { SExp, KEYWORD_TO_ATOM, h, t } from "clvm";
 
 /*

@@ -1,10 +1,10 @@
 // Chia test code:
 // https://github.com/Chia-Network/chia-blockchain/blob/main/tests/core/util/test_streamable.py
 
-import fields from "./types/fields";
+import fields from "../../../util/serializer/types/fields";
 import { assert } from "chai";
-import { uint, bytes, Optional } from "./basic_types";
-import { Serializer } from "./serializer";
+import { uint, bytes, Optional } from "../../../util/serializer/basic_types";
+import { Serializer } from "../../../util/serializer/serializer";
 import { SExp } from "clvm";
 import { BigNumber } from "@ethersproject/bignumber";
 

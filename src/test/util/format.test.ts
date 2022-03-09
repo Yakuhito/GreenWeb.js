@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { Util as util } from ".";
+import { Util as util } from "../../util";
 
 describe("Util", function() {
     describe("parseToken", () => {

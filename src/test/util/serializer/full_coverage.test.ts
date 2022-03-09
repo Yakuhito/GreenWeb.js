@@ -1,7 +1,7 @@
-import fields from "./types/fields";
+import fields from "../../../util/serializer/types/fields";
 import { assert } from "chai";
-import { uint, bytes } from "./basic_types";
-import { Serializer } from "./serializer";
+import { uint, bytes } from "../../../util/serializer/basic_types";
+import { Serializer } from "../../../util/serializer/serializer";
 
 // chia.test.ts does not cover a few lines of code
 // they were bugging me in the test coverage table

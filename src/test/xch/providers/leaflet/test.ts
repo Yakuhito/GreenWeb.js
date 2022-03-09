@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { LeafletProvider } from ".";
-import { BlockHeader, Coin, CoinState, Provider, PuzzleSolution } from "../provider";
+import { LeafletProvider } from "../../../../xch/providers/leaflet";
+import { BlockHeader, Coin, CoinState, Provider, PuzzleSolution } from "../../../../xch/providers/provider";
 import { assert } from "chai";
-import { CoinUtil } from "../../../util/coin";
+import { CoinUtil } from "../../../../util/coin";
 
 const nodeHost = "leaflet.fireacademy.io";
 const nodeAPIKey = "TEST-API-KEY";
@@ -14,7 +14,7 @@ describe("LeafletProvider with " + nodeHost, () => {
     
     it("initialize()", async () => {
         p = new LeafletProvider(nodeHost, nodeAPIKey);
-        await p.initialize();
+        await p.connect();
     });
 
     it("getBlockNumber()", async () => {
@@ -27,7 +27,7 @@ describe("LeafletProvider with " + nodeHost, () => {
         const balance = await p.getBalance({
             address: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
         });
-        assert.isTrue(balance != null && balance >= 1946917);
+        assert.isTrue(balance != null && balance.gte(1946917));
     });
 
     it("getNetworkId()", () => {

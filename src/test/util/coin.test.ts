@@ -1,6 +1,6 @@
 import { assert } from "chai";
-import { Coin } from "../xch/providers/provider_types";
-import { CoinUtil } from "./coin";
+import { Coin } from "../../xch/providers/provider_types";
+import { CoinUtil } from "../../util/coin";
 
 const coinUtil = new CoinUtil();
 

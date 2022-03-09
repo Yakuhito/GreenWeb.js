@@ -1,7 +1,7 @@
-import fields from "./types/fields";
+import fields from "../../../util/serializer/types/fields";
 import { assert } from "chai";
-import { uint, Optional } from "./basic_types";
-import { Serializer } from "./serializer";
+import { uint, Optional } from "../../../util/serializer/basic_types";
+import { Serializer } from "../../../util/serializer/serializer";
 
 /*
 from chia.util.streamable import Streamable, streamable

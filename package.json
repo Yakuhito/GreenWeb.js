@@ -21,9 +21,8 @@
   "typings": "./index.d.ts",
   "scripts": {
     "build": "webpack",
-    "test": "nyc mocha -r ts-node/register src/**/*.test.ts src/**/**/*.test.ts src/**/**/**/*.test.ts",
-    "test-chia-thing": "NODE_TLS_REJECT_UNAUTHORIZED=0 nyc mocha -r ts-node/register src/blockchain/providers/leaflet/test.ts --timeout 10000",
-    "test-extended": "NODE_TLS_REJECT_UNAUTHORIZED=0 nyc mocha -r ts-node/register src/**/*.test.ts src/**/**/*.test.ts src/**/**/**/*.test.ts src/**/**/**/**/*.test.ts src/**/test.ts --timeout 10000",
+    "test": "nyc mocha -r ts-node/register src/test/**/*.test.ts src/test/**/**/*.test.ts src/test/**/**/**/*.test.ts src/test/**/**/**/**/*.test.ts",
+    "test-leaflet": "NODE_TLS_REJECT_UNAUTHORIZED=0 nyc mocha -r ts-node/register src/test/xch/providers/leaflet/test.ts --timeout 10000",
     "test-web": "cd web_test; python3 -m http.server 1337",
     "test-docs": "mkdocs serve"
   },

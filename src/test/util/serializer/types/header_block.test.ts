@@ -1,6 +1,6 @@
 import { assert } from "chai";
-import { Serializer } from "../serializer";
-import { HeaderBlock } from "./header_block";
+import { Serializer } from "../../../../util/serializer/serializer";
+import { HeaderBlock } from "../../../../util/serializer/types/header_block";
 
 describe("Serializer", () => {
     describe("get_hash()", () => {

@@ -1,6 +1,6 @@
 import { assert } from "chai";
-import * as greenweb from "../..";
-import { SpendBundle } from "./types/spend_bundle";
+import * as greenweb from "../../..";
+import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 
 // 1 Marmot Ticket (https://marvelousmarmots.com/) for 313337 mojos
 // eslint-disable-next-line max-len

@@ -1,6 +1,6 @@
 import { assert } from "chai";
-import { AddressUtil } from "./address";
-import * as greenweb from "..";
+import { AddressUtil } from "../../util/address";
+import * as greenweb from "../..";
 
 /*
 These tests use the original yakuSwap fee wallet address:

@@ -1,11 +1,14 @@
 import { buildField } from "../../register";
 import { FieldSerializer } from "../../interfaces";
 import { uint } from "../../basic_types";
+import { BigNumber } from "@ethersproject/bignumber";
 
 export const UintField = (size: number, byteorder: "big" | "little" = "big") => {
     const serializer: FieldSerializer<uint> = {
         serialize: (value, buf) => {
-            let s: string = value.toString(16);
+            value = BigNumber.from(value);
+
+            let s: string = value.toHexString().slice(2);
             if(s.length < size / 4) {
                 const diff: number = size / 4 - s.length;
                 s = "0".repeat(diff) + s;
@@ -24,12 +27,12 @@ export const UintField = (size: number, byteorder: "big" | "little" = "big") => 
             const buf2 = buf.slice(0, numOfBytes);
             buf = buf.slice(numOfBytes);
 
-            let num: number;
+            let num: BigNumber;
             if(byteorder === "little") {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                num = parseInt(buf2.toString("hex").match(/../g)!.reverse().join(""), 16);
+                num = BigNumber.from("0x" + Buffer.from(buf2.toString("hex").match(/../g)!.reverse().join("")));
             } else {
-                num = parseInt(buf2.toString("hex"), 16);
+                num = BigNumber.from("0x" + buf2.toString("hex"));
             }
             return [num, buf];
         },

@@ -8,6 +8,8 @@ See page for:
 
 # Functions
 
+Note: All integer inputs are [`BigNumberish`](https://docs.ethers.io/v5/api/utils/bignumber/).
+
 ## formatChia
 
 Converts the given amount of mojos to Chia. Returns a `string` that can be displayed to end-users.

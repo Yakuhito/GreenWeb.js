@@ -49,7 +49,7 @@ export type bytes = string;
 An unsigned integer.
 
 ```js
-export type uint = number;
+export type uint = BigNumberish;
 ```
 
 ## Coin

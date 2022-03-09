@@ -1,8 +1,9 @@
+import { BigNumberish } from "@ethersproject/bignumber";
 import { SExp } from "clvm";
 
 export type Optional<T> = T | null;
 export type bytes = string;
-export type uint = number;
+export type uint = BigNumberish;
 
 export class Coin {
     parentCoinInfo: bytes;

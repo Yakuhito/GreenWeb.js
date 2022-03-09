@@ -1,3 +1,4 @@
+import { BigNumberish } from "@ethersproject/bignumber";
 import { CoinState } from "./provider_types";
 
 export type getBalanceArgs = {
@@ -50,20 +51,20 @@ export type getCoinAdditionsArgs = {
 
 export type transferArgs = {
     to: string,
-    value: number,
-    fee?: number
+    value: BigNumberish,
+    fee?: BigNumberish
 };
 
 export type transferCATArgs = {
     to: string,
     assetId: string,
-    value: number,
-    fee?: number
+    value: BigNumberish,
+    fee?: BigNumberish
 };
 
 export type acceptOfferArgs = {
     offer: string,
-    fee?: number
+    fee?: BigNumberish
 };
 
 export type subscribeToAddressChangesArgs = {

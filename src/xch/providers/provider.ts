@@ -1,5 +1,6 @@
 import { Optional, Coin, CoinState, BlockHeader, PuzzleSolution } from "./provider_types";
 import { acceptOfferArgs, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "./provider_args";
+import { BigNumber } from "@ethersproject/bignumber";
 
 export * from "./provider_types";
 export * from "./provider_args";
@@ -13,7 +14,7 @@ export interface Provider {
 
     /* blockchain-related */
     getBlockNumber(): Promise<Optional<number>>;
-    getBalance(args: getBalanceArgs): Promise<Optional<number>>;
+    getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>>;
 
     /* callbacks */
     subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void;

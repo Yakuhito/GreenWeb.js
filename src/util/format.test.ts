@@ -29,6 +29,21 @@ describe("Util", function() {
             expect(util.parseToken("1", 10).toString()).to.equal("10");
             expect(util.parseToken("1.5", 10).toString()).to.equal("15");
         });
+
+        it("Works for very big numbers", () => {
+            expect(
+                util.parseToken("1000000000000000000000000000000000000000000", 1).toString()
+            ).to.equal("1000000000000000000000000000000000000000000");
+            expect(
+                util.parseToken("1", "1000000000000000000000000000000000000000000").toString()
+            ).to.equal("1000000000000000000000000000000000000000000");
+            expect(
+                util.parseToken("1000000000000000000000000000000000000000000.5", 10).toString()
+            ).to.equal("10000000000000000000000000000000000000000005");
+            expect(
+                util.parseToken("1000000000000000000.123456789123456789", "1000000000000000000").toString()
+            ).to.equal("1000000000000000000123456789123456789");
+        });
     });
 
     describe("parseChia", () => {
@@ -58,6 +73,21 @@ describe("Util", function() {
         it("Works correctly with NaN", () => {
             expect(util.formatToken(NaN)).to.equal("0.0");
             expect(util.formatToken(NaN, 10)).to.equal("0.0");
+        });
+
+        it("Works for very big numbers", () => {
+            expect(
+                util.formatToken("1000000000000000000000000000000000000000000", 1).toString()
+            ).to.equal("1000000000000000000000000000000000000000000.0");
+            expect(
+                util.formatToken("1000000000000000000000000000000000000000000", "1000000000000000000000000000000000000000000").toString()
+            ).to.equal("1.0");
+            expect(
+                util.formatToken("10000000000000000000000000000000000000000005", 10).toString()
+            ).to.equal("1000000000000000000000000000000000000000000.5");
+            expect(
+                util.formatToken("1000000000000000000123456789123456789", "1000000000000000000").toString()
+            ).to.equal("1000000000000000000.123456789123456789");
         });
     });
 

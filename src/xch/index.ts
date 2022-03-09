@@ -2,6 +2,7 @@ import { Provider, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderA
 import { LeafletProvider } from "./providers/leaflet";
 import { GobyProvider } from "./providers/goby";
 import { MultiProvider } from "./providers/multi";
+import { BigNumber } from "@ethersproject/bignumber";
 
 export class XCHModule {
     public static providers = {
@@ -47,7 +48,7 @@ export class XCHModule {
 
         return this.provider?.getBlockNumber();
     }
-    static getBalance(args: getBalanceArgs): Promise<Optional<number>> {
+    static getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>> {
         if(this.provider == null)
             throw new Error("Provider not set!");
 

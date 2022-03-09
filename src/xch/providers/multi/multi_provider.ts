@@ -1,3 +1,4 @@
+import { BigNumber } from "@ethersproject/bignumber";
 import { Provider } from "../provider";
 import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs } from "../provider_args";
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin } from "../provider_types";
@@ -74,7 +75,7 @@ export class MultiProvider implements Provider {
         throw new Error("MultiProvider could not find an active Provider that implements this method.");
     }
     
-    public async getBalance(args: getBalanceArgs): Promise<Optional<number>> {
+    public async getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>> {
         for(let i = 0; i < this.providers.length; ++i) {
             try {
                 if(!this.providers[i].isConnected()) {

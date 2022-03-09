@@ -12,6 +12,7 @@ import { Coin } from "../../../util/serializer/types/coin";
 import { ProviderUtil } from "./provider_util";
 import { AddressUtil } from "../../../util/address";
 import { transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs } from "../provider_args";
+import { BigNumber } from "@ethersproject/bignumber";
 
 const ADDRESS_PREFIX = "xch";
 const NETWORK_ID = "mainnet";
@@ -41,7 +42,7 @@ export class LeafletProvider implements Provider {
                 NewPeakWallet,
                 Buffer.from(msg.data, "hex")
             );
-            this.blockNumber = pckt.height;
+            this.blockNumber = BigNumber.from(pckt.height).toNumber();
         } else if(msg.type === ProtocolMessageTypes.respond_to_ph_update) {
             const pckt: RespondToPhUpdates = Serializer.deserialize(
                 RespondToPhUpdates,
@@ -84,7 +85,7 @@ export class LeafletProvider implements Provider {
         address,
         puzzleHash,
         minHeight = 0
-    }: getBalanceArgs): Promise<providerTypes.Optional<number>> {
+    }: getBalanceArgs): Promise<providerTypes.Optional<BigNumber>> {
         let puzHash: string;
 
         // get puzHash: Buffer from address / puzzle hash
@@ -122,9 +123,9 @@ export class LeafletProvider implements Provider {
             (coinState) => coinState.spentHeight == null
         );
 
-        let balance = 0;
+        let balance = BigNumber.from(0);
         for(let i = 0; i < unspentCoins.length; ++i) {
-            balance += unspentCoins[i].coin.amount;
+            balance = balance.add(unspentCoins[i].coin.amount);
         }
 
         return balance;
@@ -297,7 +298,7 @@ export class LeafletProvider implements Provider {
             const header: providerTypes.BlockHeader =
                 ProviderUtil.serializerHeaderBlockToProviderBlockHeader(
                     respPckt.headerBlocks[i],
-                    respPckt.startHeight + i
+                    BigNumber.from(respPckt.startHeight).add(i)
                 );
 
             headers.push(header);

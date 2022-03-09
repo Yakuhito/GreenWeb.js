@@ -6,6 +6,7 @@ import { assert } from "chai";
 import { uint, bytes, Optional } from "./basic_types";
 import { Serializer } from "./serializer";
 import { SExp } from "clvm";
+import { BigNumber } from "@ethersproject/bignumber";
 
 describe("Serializer", () => {
     describe("Chia TestStreamable", () => {
@@ -207,34 +208,40 @@ describe("Serializer", () => {
         }
         
         it("test_uint32", () => {
-            assert.equal(
-                Serializer.deserialize(TestClassUint, Buffer.from([0, 0, 0, 0])).a,
-                0
+            assert.isTrue(
+                BigNumber.from(
+                    Serializer.deserialize(TestClassUint, Buffer.from([0, 0, 0, 0])).a
+                ).eq(0)
             );
         
-            assert.equal(
-                Serializer.deserialize(TestClassUint, Buffer.from([0, 0, 0, 1])).a,
-                1
+            assert.isTrue(
+                BigNumber.from(
+                    Serializer.deserialize(TestClassUint, Buffer.from([0, 0, 0, 1])).a
+                ).eq(1)
             );
         
-            assert.equal(
-                Serializer.deserialize(TestClassUintLittle, Buffer.from([0, 0, 0, 1])).a,
-                16777216
+            assert.isTrue(
+                BigNumber.from(
+                    Serializer.deserialize(TestClassUintLittle, Buffer.from([0, 0, 0, 1])).a
+                ).eq(16777216)
             );
         
-            assert.equal(
-                Serializer.deserialize(TestClassUint, Buffer.from([1, 0, 0, 0])).a,
-                16777216
+            assert.isTrue(
+                BigNumber.from(
+                    Serializer.deserialize(TestClassUint, Buffer.from([1, 0, 0, 0])).a
+                ).eq(16777216)
+            );
+
+            assert.isTrue(
+                BigNumber.from(
+                    Serializer.deserialize(TestClassUintLittle, Buffer.from([1, 0, 0, 0])).a
+                ).eq(1)
             );
         
-            assert.equal(
-                Serializer.deserialize(TestClassUintLittle, Buffer.from([1, 0, 0, 0])).a,
-                1
-            );
-        
-            assert.equal(
-                Serializer.deserialize(TestClassUintLittle, Buffer.from([0xff, 0xff, 0xff, 0xff])).a,
-                4294967295
+            assert.isTrue(
+                BigNumber.from(
+                    Serializer.deserialize(TestClassUintLittle, Buffer.from([0xff, 0xff, 0xff, 0xff])).a
+                ).eq(4294967295)
             );
         
             
@@ -242,39 +249,39 @@ describe("Serializer", () => {
             const dLittle: TestClassUintLittle = new TestClassUintLittle();
         
             dBig.a = 1;
-            assert.equal(
-                Serializer.deserialize(
-                    TestClassUint,
-                    Serializer.serialize(dBig)
-                ).a,
-                1
+            assert.isTrue(
+                BigNumber.from(
+                    Serializer.deserialize(
+                        TestClassUint, Serializer.serialize(dBig)
+                    ).a,
+                ).eq(1)
             );
         
             dLittle.a = 1;
-            assert.equal(
-                Serializer.deserialize(
-                    TestClassUintLittle,
-                    Serializer.serialize(dLittle)
-                ).a,
-                1
+            assert.isTrue(
+                BigNumber.from(
+                    Serializer.deserialize(
+                        TestClassUintLittle, Serializer.serialize(dLittle)
+                    ).a,
+                ).eq(1)
             );
         
             dBig.a = 4294967295;
-            assert.equal(
-                Serializer.deserialize(
-                    TestClassUint,
-                    Serializer.serialize(dBig)
-                ).a,
-                4294967295
+            assert.isTrue(
+                BigNumber.from(
+                    Serializer.deserialize(
+                        TestClassUint, Serializer.serialize(dBig)
+                    ).a,
+                ).eq(4294967295)
             );
         
             dLittle.a = 4294967295;
-            assert.equal(
-                Serializer.deserialize(
-                    TestClassUintLittle,
-                    Serializer.serialize(dLittle)
-                ).a,
-                4294967295
+            assert.isTrue(
+                BigNumber.from(
+                    Serializer.deserialize(
+                        TestClassUintLittle, Serializer.serialize(dLittle)
+                    ).a,
+                ).eq(4294967295)
             );
         
         

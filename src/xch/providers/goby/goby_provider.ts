@@ -2,6 +2,7 @@
 Special thanks to donate.goby.app and offerpool.io
 */
 
+import { BigNumber } from "@ethersproject/bignumber";
 import { Provider } from "../provider";
 import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, acceptOfferArgs, transferArgs, transferCATArgs, subscribeToAddressChangesArgs } from "../provider_args";
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin } from "../provider_types";
@@ -65,7 +66,7 @@ export class GobyProvider implements Provider {
         throw new Error("GobyProvider does not implement this method.");
     }
 
-    public async getBalance(args: getBalanceArgs): Promise<Optional<number>> {
+    public async getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>> {
         throw new Error("GobyProvider does not implement this method.");
     }
 

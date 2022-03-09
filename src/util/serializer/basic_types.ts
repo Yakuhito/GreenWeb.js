@@ -1,10 +1,12 @@
+import { BigNumberish } from "@ethersproject/bignumber";
+
 // boolean = boolean
 export type bytes = string; // hex, does not incude 0x
 // list = Array<any> / any[]
 export type Optional<T> = T | null;
 // string = string
 // touple = [...types: any]
-export type uint = number;
+export type uint = BigNumberish;
 // PrivateKey = bytes32
 // G1Element = bytes48
 // G2Element = bytes96

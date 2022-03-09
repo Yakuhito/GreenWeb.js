@@ -1,4 +1,4 @@
-import { uint } from "../xch/providers/provider_types";
+import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { AddressUtil } from "./address";
 import { CoinUtil } from "./coin";
 import { SerializerUtil } from "./serializer";
@@ -7,16 +7,24 @@ export class Util {
     public static address: AddressUtil = new AddressUtil();
     public static coin: CoinUtil = new CoinUtil();
     public static serializer: SerializerUtil = new SerializerUtil();
-    public static mojoPerXCH: uint = 1000000000000;
+    public static mojoPerXCH: BigNumber = BigNumber.from(1000000000000);
 
-    public static formatToken(amount: uint, amountPerUnit: uint = 1000): string {
-        if(isNaN(amount)) {
-            return "0.0";
+    public static formatToken(amount: BigNumberish, amountPerUnit: BigNumberish = 1000): string {
+        try {
+            amount = BigNumber.from(amount);
+        } catch(_) {
+            amount = BigNumber.from(0); // amount was NaN
+        }
+        
+        try {
+            amountPerUnit = BigNumber.from(amountPerUnit);
+        } catch (_) {
+            amountPerUnit = BigNumber.from(0); // amountPerUnit was NaN
         }
 
-        const wholeUnits: uint = Math.floor(amount / amountPerUnit);
+        const wholeUnits: BigNumber = amount.div(amountPerUnit);
 
-        let decimalThing: string = Number(amount % amountPerUnit).toString();
+        let decimalThing: string = amount.mod(amountPerUnit).toString();
         const targetLen = amountPerUnit.toString().length - 1;
         if(decimalThing.length < targetLen) {
             decimalThing = "0".repeat(targetLen - decimalThing.length) + decimalThing;
@@ -26,10 +34,12 @@ export class Util {
             decimalThing = decimalThing.slice(0, -1);
         }
 
-        return `${wholeUnits}.${decimalThing}`;
+        return `${wholeUnits.toString()}.${decimalThing}`;
     }
 
-    public static parseToken(s: string, amountPerUnit: uint = 1000): uint {
+    public static parseToken(s: string, amountPerUnit: BigNumberish = 1000): BigNumber {
+        amountPerUnit = BigNumber.from(amountPerUnit);
+
         let dots = 0;
         let valid = true;
         for(let i = 0; i < s.length && valid; ++i) {
@@ -39,23 +49,23 @@ export class Util {
                 valid = false;
             }
         }
-        let wholeUnits = 0;
-        let amountAfterDot = 0;
+        let wholeUnits: BigNumber = BigNumber.from(0);
+        let amountAfterDot: BigNumber = BigNumber.from(0);
 
-        if(dots === 0) {
-            wholeUnits = +s;
-        } else if(dots === 1) {
+        if(dots === 0 && valid) {
+            wholeUnits = BigNumber.from(s);
+        } else if(dots === 1 && valid) {
             const arr = s.split(".");
-            wholeUnits = +arr[0];
+            wholeUnits = BigNumber.from(arr[0]);
             
-            let amountAfterDotS = arr[1];
+            let amountAfterDotS: string = arr[1];
             const missingZeros = amountPerUnit.toString().length - amountAfterDotS.length - 1;
             if(missingZeros > 0) {
                 amountAfterDotS = amountAfterDotS + "0".repeat(missingZeros);
             }
-            amountAfterDot = +amountAfterDotS;
+            amountAfterDot = BigNumber.from(amountAfterDotS);
 
-            if(amountAfterDot > amountPerUnit) {
+            if(amountAfterDot.gt(amountPerUnit)) {
                 valid = false;
             }
         } else {
@@ -63,16 +73,17 @@ export class Util {
         }
 
         if(valid) {
-            return wholeUnits * amountPerUnit + amountAfterDot;
+            return wholeUnits.mul(amountPerUnit).add(amountAfterDot);
+        } else {
+            throw new Error("The given string is not a valid number.");
         }
-        return 0;
     }
 
-    public static formatChia(mojos: uint): string {
+    public static formatChia(mojos: BigNumberish): string {
         return Util.formatToken(mojos, Util.mojoPerXCH);
     }
 
-    public static parseChia(s: string): uint {
+    public static parseChia(s: string): BigNumberish {
         return Util.parseToken(s, Util.mojoPerXCH);
     }
 }

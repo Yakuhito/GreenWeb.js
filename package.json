@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@chiamine/bls-signatures": "^0.2.1-beta.2",
+    "@ethersproject/bignumber": "^5.5.0",
     "@types/ws": "^8.2.0",
     "bech32": "^2.0.0",
     "buffer": "^6.0.3",

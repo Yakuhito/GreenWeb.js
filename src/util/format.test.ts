@@ -4,37 +4,37 @@ import { Util as util } from ".";
 describe("Util", function() {
     describe("parseToken", () => {
         it("Works", () => {
-            expect(util.parseToken("1.3")).to.equal(1300);
-            expect(util.parseToken("123456.789")).to.equal(123456789);
-            expect(util.parseToken("12345.")).to.equal(12345000);
+            expect(util.parseToken("1.3").toString()).to.equal("1300");
+            expect(util.parseToken("123456.789").toString()).to.equal("123456789");
+            expect(util.parseToken("12345.").toString()).to.equal("12345000");
         });
 
         it("Works for values with no dot", () => {
-            expect(util.parseToken("1")).to.equal(1000);
-            expect(util.parseToken("12345")).to.equal(12345000);
+            expect(util.parseToken("1").toString()).to.equal("1000");
+            expect(util.parseToken("12345").toString()).to.equal("12345000");
         });
 
         it("Does not work if there are too many dots", () => {
-            expect(util.parseToken("1..3")).to.equal(0);
-            expect(util.parseToken("12.345.")).to.equal(0);
+            expect(() => util.parseToken("1..3")).to.throw("The given string is not a valid number.");
+            expect(() => util.parseToken("12.345.")).to.throw("The given string is not a valid number.");
         });
 
         it("Does not work with invalid values", () => {
-            expect(util.parseToken("13a")).to.equal(0);
-            expect(util.parseToken("12345.f")).to.equal(0);
-            expect(util.parseToken("0x8")).to.equal(0);
+            expect(() => util.parseToken("13a")).to.throw("The given string is not a valid number.");
+            expect(() => util.parseToken("12345.f")).to.throw("The given string is not a valid number.");
+            expect(() => util.parseToken("0x8")).to.throw("The given string is not a valid number.");
         });
 
         it("Works for custom 'amountPerUnit'", () => {
-            expect(util.parseToken("1", 10)).to.equal(10);
-            expect(util.parseToken("1.5", 10)).to.equal(15);
+            expect(util.parseToken("1", 10).toString()).to.equal("10");
+            expect(util.parseToken("1.5", 10).toString()).to.equal("15");
         });
     });
 
     describe("parseChia", () => {
         it("Works as expected", () => {
-            expect(util.parseChia("1")).to.equal(util.mojoPerXCH);
-            expect(util.parseChia("1234.000000000001")).to.equal(1234000000000001);
+            expect(util.parseChia("1").toString()).to.equal(util.mojoPerXCH.toString());
+            expect(util.parseChia("1234.000000000001").toString()).to.equal("1234000000000001");
         });
     });
 

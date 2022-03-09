@@ -25,6 +25,16 @@ export class GobyProvider implements Provider {
         return Boolean(chia && chia.isGoby)
     }
 
+    constructor(tryNonInteractiveConnect: boolean = true) {
+        if(!tryNonInteractiveConnect || !this._isGobyInstalled()) {
+            return;
+        }
+
+        window.chia.request({ method: "accounts" }).then(
+            (accounts: string[]) => this._changeAddress(accounts?.[0] ?? "")
+        );
+    }
+
     private _changeAddress(newAddress: string): void {
         this._address = newAddress;
 

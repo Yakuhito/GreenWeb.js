@@ -18,7 +18,14 @@ export interface ChiaMessageChannelOptions {
     networkId: string;
 }
 
-export class ChiaMessageChannel {
+export interface IChiaMessageChannel {
+    connect: () => Promise<void>;
+    sendMessage: (message: Buffer) => void;
+    close: () => void;
+    isConnected: () => boolean;
+}
+
+export class ChiaMessageChannel implements IChiaMessageChannel {
     private ws: WebSocket | undefined;
     private readonly port: number;
     private readonly host: string;

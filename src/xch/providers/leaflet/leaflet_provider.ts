@@ -1,80 +1,70 @@
 import { Provider, getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs } from "../provider";
 import * as providerTypes from "../provider_types";
-import { ChiaMessageChannel } from "./chia_message_channel";
-import { MessageQueue } from "./message_queue";
 import { makeMsg, Message } from "../../../util/serializer/types/outbound_message";
 import { Serializer } from "../../../util/serializer/serializer";
 import { ProtocolMessageTypes } from "../../../util/serializer/types/protocol_message_types";
-import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdates, RegisterForPhUpdates, RequestAdditions, RequestBlockHeader, RequestChildren, RequestHeaderBlocks, RequestPuzzleSolution, RequestRemovals, RespondAdditions, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondPuzzleSolution, RespondRemovals, RespondToCoinUpdates, RespondToPhUpdates } from "../../../util/serializer/types/wallet_protocol";
-import { CoinStateStorage } from "./coin_state_storage";
+import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdates, RegisterForPhUpdates, RejectAdditionsRequest, RejectHeaderBlocks, RejectHeaderRequest, RejectPuzzleSolution, RejectRemovalsRequest, RequestAdditions, RequestBlockHeader, RequestChildren, RequestHeaderBlocks, RequestPuzzleSolution, RequestRemovals, RespondAdditions, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondPuzzleSolution, RespondRemovals, RespondToCoinUpdates, RespondToPhUpdates } from "../../../util/serializer/types/wallet_protocol";
 import { HeaderBlock } from "../../../util/serializer/types/header_block";
 import { Coin } from "../../../util/serializer/types/coin";
 import { ProviderUtil } from "./provider_util";
 import { AddressUtil } from "../../../util/address";
 import { transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs } from "../provider_args";
 import { BigNumber } from "@ethersproject/bignumber";
+import { MessageManager } from "./message_manager";
+import { ChiaMessageChannel } from "./chia_message_channel";
+import { Util } from "../../../util";
 
 const ADDRESS_PREFIX = "xch";
-const NETWORK_ID = "mainnet";
 
 const addressUtil = new AddressUtil();
 
 export class LeafletProvider implements Provider {
-    private messageChannel: ChiaMessageChannel;
-    private messageQueue: MessageQueue = new MessageQueue();
+    public messageManager: MessageManager;
+
     private blockNumber: providerTypes.Optional<number> = null;
-    private coinStateStorage: CoinStateStorage = new CoinStateStorage();
+    private networkId;
 
-    constructor(host: string, apiKey: string, port = 18444) {
-        this.messageChannel = new ChiaMessageChannel({
-            host: host,
-            port: port,
-            apiKey: apiKey,
-            onMessage: (message: Buffer) => this._onMessage(message),
-            networkId: NETWORK_ID
-        });
-    }
+    constructor(host: string, apiKey: string, port = 18444, networkId = "mainnet") {
+        this.messageManager = new MessageManager(
+            async (onMessage) => new ChiaMessageChannel({
+                host, port, apiKey, onMessage, networkId
+            })
+        );
 
-    private _onMessage(rawMsg: Buffer) {
-        const msg: Message = Serializer.deserialize(Message, rawMsg);
-        if(msg.type === ProtocolMessageTypes.new_peak_wallet) {
-            const pckt: NewPeakWallet = Serializer.deserialize(
-                NewPeakWallet,
-                Buffer.from(msg.data, "hex")
-            );
-            this.blockNumber = BigNumber.from(pckt.height).toNumber();
-        } else if(msg.type === ProtocolMessageTypes.respond_to_ph_update) {
-            const pckt: RespondToPhUpdates = Serializer.deserialize(
-                RespondToPhUpdates,
-                Buffer.from(msg.data, "hex")
-            );
-            this.coinStateStorage.processPhPacket(pckt);
-        } else if(msg.type === ProtocolMessageTypes.respond_to_coin_update) {
-            const pckt: RespondToCoinUpdates = Serializer.deserialize(
-                RespondToCoinUpdates,
-                Buffer.from(msg.data, "hex")
-            );
-            this.coinStateStorage.processCoinPacket(pckt);
-        } else {
-            this.messageQueue.push(msg);
-        }
+        this.networkId = networkId;
     }
 
     public async connect() {
-        await this.messageChannel.connect();
-        await this.messageQueue.waitFor([ProtocolMessageTypes.handshake]);
+        await this.messageManager.initialize();
+        this.messageManager.registerFilter({
+            messageToSend: null,
+            consumeMessage: (msg: Message) => {
+                if(msg.type !== ProtocolMessageTypes.new_peak_wallet) {
+                    return false;
+                }
+
+                const pckt: NewPeakWallet = Serializer.deserialize(
+                    NewPeakWallet,
+                    Buffer.from(msg.data, "hex")
+                );
+                this.blockNumber = BigNumber.from(pckt.height).toNumber();
+                return true;
+            },
+            deleteAfterFirstMessageConsumed: false,
+            expectedMaxRensponseWait: 120 * 1000
+        });
     }
 
     public async close(): Promise<void> {
-        await this.messageChannel.close();
+        await this.messageManager.close();
     }
 
     public getNetworkId(): string {
-        return NETWORK_ID;
+        return this.networkId;
     }
 
     public isConnected(): boolean {
-        return this.messageChannel.isConnected();
+        return this.messageManager.open;
     }
 
     public async getBlockNumber(): Promise<providerTypes.Optional<number>> {
@@ -100,23 +90,31 @@ export class LeafletProvider implements Provider {
         }
         else return null;
 
-        // accept packets containing that puzzle hash
-        this.coinStateStorage.willExpectUpdate(puzHash);
-
         // Register for updates
         const pckt: RegisterForPhUpdates = new RegisterForPhUpdates();
         pckt.minHeight = minHeight;
         pckt.puzzleHashes = [puzHash];
 
-        this.messageChannel.sendMessage(
-            makeMsg(
-                ProtocolMessageTypes.register_interest_in_puzzle_hash,
-                pckt,
-            )
+        let coinStates: CoinState[] = [];
+        const msgToSend: Buffer = makeMsg(
+            ProtocolMessageTypes.register_interest_in_puzzle_hash,
+            pckt,
         );
+        await this.messageManager.registerFilter({
+            messageToSend: msgToSend,
+            consumeMessage: (msg: Message) => {
+                if(msg.type !== ProtocolMessageTypes.respond_to_ph_update) {
+                    return false;
+                }
+                const rPckt: RespondToPhUpdates = Serializer.deserialize(RespondToPhUpdates, msg.data);
+                if(!rPckt.puzzleHashes.includes(puzHash)) {
+                    return false;
+                }
 
-        // wait for coin states
-        const coinStates: CoinState[] = await this.coinStateStorage.waitFor(puzHash);
+                coinStates = rPckt.coinStates.filter((cs) => cs.coin.puzzleHash === puzHash);
+                return true;
+            },
+        });
 
         // filter received list of puzzle hashes and compute balance
         const unspentCoins: CoinState[] = coinStates.filter(
@@ -135,8 +133,6 @@ export class LeafletProvider implements Provider {
         puzzleHash = addressUtil.validateHashString(puzzleHash);
         if(puzzleHash.length === 0) return;
 
-        this.coinStateStorage.willExpectUpdate(puzzleHash);
-
         // Register for updates
         const pckt: RegisterForPhUpdates = new RegisterForPhUpdates();
         pckt.minHeight = minHeight;
@@ -144,21 +140,34 @@ export class LeafletProvider implements Provider {
             puzzleHash,
         ];
 
-        this.messageChannel.sendMessage(
-            makeMsg(
-                ProtocolMessageTypes.register_interest_in_puzzle_hash,
-                pckt,
-            )
+        const msgToSend: Buffer = makeMsg(
+            ProtocolMessageTypes.register_interest_in_puzzle_hash,
+            pckt,
         );
+        this.messageManager.registerFilter({
+            messageToSend: msgToSend,
+            consumeMessage: (msg: Message) => {
+                if(msg.type !== ProtocolMessageTypes.respond_to_ph_update) {
+                    return false;
+                }
+                const rPckt: RespondToPhUpdates = Serializer.deserialize(RespondToPhUpdates, msg.data);
+                if(!rPckt.puzzleHashes.includes(puzzleHash)) {
+                    return false;
+                }
 
-        this.coinStateStorage.addCallback(puzzleHash, callback);
+                const coins: providerTypes.CoinState[] = rPckt.coinStates.filter((cs) => cs.coin.puzzleHash === puzzleHash);
+                callback(coins);
+
+                return true;
+            },
+            deleteAfterFirstMessageConsumed: false,
+            expectedMaxRensponseWait: 0
+        });
     }
 
     public subscribeToCoinUpdates({ coinId, callback, minHeight = 0 }: subscribeToCoinUpdatesArgs): void {
         coinId = addressUtil.validateHashString(coinId);
         if(coinId.length === 0) return;
-
-        this.coinStateStorage.willExpectUpdate(coinId);
 
         // Register for updates
         const pckt: RegisterForCoinUpdates = new RegisterForCoinUpdates();
@@ -167,14 +176,29 @@ export class LeafletProvider implements Provider {
             coinId,
         ];
 
-        this.messageChannel.sendMessage(
-            makeMsg(
-                ProtocolMessageTypes.register_interest_in_coin,
-                pckt,
-            )
+        const msgToSend: Buffer = makeMsg(
+            ProtocolMessageTypes.register_interest_in_coin,
+            pckt,
         );
+        this.messageManager.registerFilter({
+            messageToSend: msgToSend,
+            consumeMessage: (msg: Message) => {
+                if(msg.type !== ProtocolMessageTypes.respond_to_coin_update) {
+                    return false;
+                }
+                const rPckt: RespondToCoinUpdates = Serializer.deserialize(RespondToCoinUpdates, msg.data);
+                if(!rPckt.coinIds.includes(coinId)) {
+                    return false;
+                }
 
-        this.coinStateStorage.addCallback(coinId, callback);
+                const coins: providerTypes.CoinState[] = rPckt.coinStates.filter((cs) => Util.coin.getId(cs.coin) === coinId);
+                callback(coins);
+
+                return true;
+            },
+            deleteAfterFirstMessageConsumed: false,
+            expectedMaxRensponseWait: 0
+        });
     }
 
     public async getPuzzleSolution({coinId, height}: getPuzzleSolutionArgs): Promise<providerTypes.Optional<providerTypes.PuzzleSolution>> {
@@ -185,29 +209,49 @@ export class LeafletProvider implements Provider {
         pckt.coinName = coinId;
         pckt.height = height;
 
-        this.messageQueue.clear(ProtocolMessageTypes.respond_puzzle_solution);
-        this.messageQueue.clear(ProtocolMessageTypes.reject_puzzle_solution);
-        this.messageChannel.sendMessage(
-            makeMsg(
-                ProtocolMessageTypes.request_puzzle_solution,
-                pckt,
-            )
+        const msgToSend: Buffer = makeMsg(
+            ProtocolMessageTypes.request_puzzle_solution,
+            pckt,
         );
 
-        const respMsg: Message = await this.messageQueue.waitFor([
-            ProtocolMessageTypes.respond_puzzle_solution,
-            ProtocolMessageTypes.reject_puzzle_solution
-        ]);
-        if(respMsg.type === ProtocolMessageTypes.reject_puzzle_solution) return null;
+        let respPckt: PuzzleSolutionResponse = new PuzzleSolutionResponse();
+        let returnNull: boolean = false;
+        await this.messageManager.registerFilter({
+            messageToSend: msgToSend,
+            consumeMessage: (msg: Message) => {
+                if(msg.type === ProtocolMessageTypes.reject_puzzle_solution) {
+                    const rPckt: RejectPuzzleSolution = Serializer.deserialize(
+                        RejectPuzzleSolution,
+                        msg.data
+                    );
+                    
+                    if(rPckt.coinName === coinId && rPckt.height === height) {
+                        returnNull = true;
+                        return true;
+                    }
+                }
 
-        const respPckt: PuzzleSolutionResponse = Serializer.deserialize(
-            RespondPuzzleSolution,
-            respMsg.data
-        ).response;
+                if(msg.type === ProtocolMessageTypes.respond_puzzle_solution) {
+                    const rPckt: RespondPuzzleSolution = Serializer.deserialize(
+                        RespondPuzzleSolution,
+                        msg.data
+                    );
 
-        return ProviderUtil.serializerPuzzleSolutionResponseToProviderPuzzleSolution(
-            respPckt
-        );
+                    if(rPckt.response.coinName === coinId && rPckt.response.height === height) {
+                        respPckt = rPckt.response;
+                        return true;
+                    }
+                }
+
+                return false;
+            },
+        });
+
+        if(returnNull) {
+            return null;
+        }
+
+        return ProviderUtil.serializerPuzzleSolutionResponseToProviderPuzzleSolution(respPckt);
     }
 
     public async getCoinChildren({ coinId }: getCoinChildrenArgs): Promise<providerTypes.CoinState[]> {
@@ -217,18 +261,29 @@ export class LeafletProvider implements Provider {
         const pckt: RequestChildren = new RequestChildren();
         pckt.coinName = coinId;
 
-        this.messageQueue.clear(ProtocolMessageTypes.respond_children);
-        this.messageChannel.sendMessage(
-            makeMsg(
-                ProtocolMessageTypes.request_children,
-                pckt,
-            )
+        const msgToSend: Buffer = makeMsg(
+            ProtocolMessageTypes.request_children,
+            pckt,
         );
+        let respPckt: RespondChildren = new RespondChildren();
 
-        const respMsg: Message = await this.messageQueue.waitFor([
-            ProtocolMessageTypes.respond_children
-        ]);
-        const respPckt = Serializer.deserialize(RespondChildren, respMsg.data);
+        await this.messageManager.registerFilter({
+            messageToSend: msgToSend,
+            consumeMessage: (msg: Message) => {
+                if(msg.type !== ProtocolMessageTypes.respond_children) {
+                    return false;
+                }
+
+                const rPckt: RespondChildren = Serializer.deserialize(RespondChildren, msg.data);
+                if(rPckt.coinStates.length === 0 || rPckt.coinStates[0].coin.parentCoinInfo === coinId) {
+                    respPckt = rPckt;
+                    return true;
+                }
+
+                return false;
+            },
+        });
+
         const coinStates: providerTypes.CoinState[] = [];
 
         for(let i = 0;i < respPckt.coinStates.length; ++i) {
@@ -246,25 +301,50 @@ export class LeafletProvider implements Provider {
         const pckt: RequestBlockHeader = new RequestBlockHeader();
         pckt.height = height;
 
-        this.messageQueue.clear(ProtocolMessageTypes.respond_block_header);
-        this.messageQueue.clear(ProtocolMessageTypes.reject_header_request);
-        this.messageChannel.sendMessage(
-            makeMsg(
-                ProtocolMessageTypes.request_block_header,
-                pckt,
-            )
+        const msgToSend: Buffer = makeMsg(
+            ProtocolMessageTypes.request_block_header,
+            pckt,
         );
 
-        const respMsg: Message = await this.messageQueue.waitFor([
-            ProtocolMessageTypes.respond_block_header,
-            ProtocolMessageTypes.reject_header_request
-        ]);
-        if(respMsg.type === ProtocolMessageTypes.reject_header_request)
+        let returnNull: boolean = false;
+        let respPckt: RespondBlockHeader = new RespondBlockHeader();
+        await this.messageManager.registerFilter({
+            messageToSend: msgToSend,
+            consumeMessage: (msg: Message) => {
+                if(msg.type === ProtocolMessageTypes.reject_header_request) {
+                    const rPckt: RejectHeaderRequest = Serializer.deserialize(
+                        RejectHeaderRequest,
+                        msg.data
+                    );
+
+                    if(rPckt.height === height) {
+                        returnNull = true;
+                        return true;
+                    }
+                }
+
+                if(msg.type === ProtocolMessageTypes.respond_block_header) {
+                    const rPckt: RespondBlockHeader = Serializer.deserialize(
+                        RespondBlockHeader,
+                        msg.data
+                    );
+
+                    if(rPckt.headerBlock.rewardChainBlock.height === height) {
+                        respPckt = rPckt;
+                        return true;
+                    }
+                }
+
+                return false;
+            },
+        });
+
+        
+        if(returnNull) {
             return null;
+        }
 
-        const respPckt: RespondBlockHeader = Serializer.deserialize(RespondBlockHeader, respMsg.data);
         const headerBlock: HeaderBlock = respPckt.headerBlock;
-
         return ProviderUtil.serializerHeaderBlockToProviderBlockHeader(headerBlock, height);
     }
 
@@ -275,25 +355,49 @@ export class LeafletProvider implements Provider {
         pckt.startHeight = startHeight;
         pckt.endHeight = endHeight;
 
-        this.messageQueue.clear(ProtocolMessageTypes.respond_header_blocks);
-        this.messageQueue.clear(ProtocolMessageTypes.reject_header_blocks);
-        this.messageChannel.sendMessage(
-            makeMsg(
-                ProtocolMessageTypes.request_header_blocks,
-                pckt,
-            )
+        const msgToSend: Buffer = makeMsg(
+            ProtocolMessageTypes.request_header_blocks,
+            pckt,
         );
 
-        const respMsg: Message = await this.messageQueue.waitFor([
-            ProtocolMessageTypes.respond_header_blocks,
-            ProtocolMessageTypes.reject_header_blocks
-        ]);
-        if(respMsg.type === ProtocolMessageTypes.reject_header_blocks)
+        let returnNull: boolean = false;
+        let respPckt: RespondHeaderBlocks = new RespondHeaderBlocks();
+        await this.messageManager.registerFilter({
+            messageToSend: msgToSend,
+            consumeMessage: (msg: Message) => {
+                if(msg.type === ProtocolMessageTypes.reject_header_blocks) {
+                    const rPckt: RejectHeaderBlocks = Serializer.deserialize(
+                        RejectHeaderBlocks,
+                        msg.data
+                    );
+
+                    if(rPckt.startHeight === startHeight && rPckt.endHeight === endHeight) {
+                        returnNull = true;
+                        return true;
+                    }
+                }
+
+                if(msg.type === ProtocolMessageTypes.respond_header_blocks) {
+                    const rPckt: RespondHeaderBlocks = Serializer.deserialize(
+                        RespondHeaderBlocks,
+                        msg.data
+                    );
+
+                    if(rPckt.startHeight === startHeight && rPckt.endHeight === endHeight) {
+                        respPckt = rPckt;
+                        return true;
+                    }
+                }
+
+                return false;
+            },
+        });
+        
+        if(returnNull) {
             return null;
+        }
 
-        const respPckt: RespondHeaderBlocks = Serializer.deserialize(RespondHeaderBlocks, respMsg.data);
         const headers: providerTypes.BlockHeader[] = [];
-
         for(let i = 0; i < respPckt.headerBlocks.length; ++i) {
             const header: providerTypes.BlockHeader =
                 ProviderUtil.serializerHeaderBlockToProviderBlockHeader(
@@ -330,25 +434,49 @@ export class LeafletProvider implements Provider {
         pckt.headerHash = headerHash;
         pckt.coinNames = coinIds !== undefined ? parsedCoinIds : null;
 
-        this.messageQueue.clear(ProtocolMessageTypes.respond_removals);
-        this.messageQueue.clear(ProtocolMessageTypes.reject_removals_request);
-        this.messageChannel.sendMessage(
-            makeMsg(
-                ProtocolMessageTypes.request_removals,
-                pckt,
-            )
+        const msgToSend: Buffer = makeMsg(
+            ProtocolMessageTypes.request_removals,
+            pckt
         );
 
-        const respMsg: Message = await this.messageQueue.waitFor([
-            ProtocolMessageTypes.respond_removals,
-            ProtocolMessageTypes.reject_removals_request
-        ]);
-        if(respMsg.type === ProtocolMessageTypes.reject_removals_request)
+        let returnNull: boolean = false;
+        let respPckt: RespondRemovals = new RespondRemovals();
+        await this.messageManager.registerFilter({
+            messageToSend: msgToSend,
+            consumeMessage: (msg: Message) => {
+                if(msg.type === ProtocolMessageTypes.reject_removals_request) {
+                    const rPckt: RejectRemovalsRequest = Serializer.deserialize(
+                        RejectRemovalsRequest,
+                        msg.data
+                    );
+
+                    if(rPckt.height === height && rPckt.headerHash === headerHash) {
+                        returnNull = true;
+                        return true;
+                    }
+                }
+
+                if(msg.type === ProtocolMessageTypes.respond_removals) {
+                    const rPckt: RespondRemovals = Serializer.deserialize(
+                        RespondRemovals,
+                        msg.data
+                    );
+
+                    if(rPckt.headerHash === headerHash && rPckt.height === height) {
+                        respPckt = rPckt;
+                        return true;
+                    }
+                }
+
+                return false;
+            },
+        });
+
+        if(returnNull) {
             return null;
+        }
 
-        const respPckt: RespondRemovals = Serializer.deserialize(RespondRemovals, respMsg.data);
         const coins: providerTypes.Coin[] = [];
-
         for(const key of respPckt.coins.keys()) {
             const thing: [string, providerTypes.Optional<Coin>] = respPckt.coins[key];
             if(thing[1] !== null) {
@@ -369,40 +497,63 @@ export class LeafletProvider implements Provider {
         headerHash = addressUtil.validateHashString(headerHash);
         if(headerHash.length === 0) return null;
 
-        const parsedpuzzleHashes: string[] = [];
+        const parsedPuzzleHashes: string[] = [];
         if(puzzleHashes !== undefined) {
             for(let i = 0;i < puzzleHashes.length; ++i) {
                 const parsed: string = addressUtil.validateHashString(puzzleHashes[i]);
 
                 if(parsed.length === 0) return null;
-                parsedpuzzleHashes.push(parsed);
+                parsedPuzzleHashes.push(parsed);
             }
         }
 
         const pckt: RequestAdditions = new RequestAdditions();
         pckt.height = height;
         pckt.headerHash = headerHash;
-        pckt.puzzleHashes = puzzleHashes !== undefined ? parsedpuzzleHashes : null;
+        pckt.puzzleHashes = puzzleHashes !== undefined ? parsedPuzzleHashes : null;
 
-        this.messageQueue.clear(ProtocolMessageTypes.respond_additions);
-        this.messageQueue.clear(ProtocolMessageTypes.reject_additions_request);
-        this.messageChannel.sendMessage(
-            makeMsg(
-                ProtocolMessageTypes.request_additions,
-                pckt,
-            )
+        const msgToSend: Buffer = makeMsg(
+            ProtocolMessageTypes.request_additions,
+            pckt,
         );
-        
-        const respMsg: Message = await this.messageQueue.waitFor([
-            ProtocolMessageTypes.respond_additions,
-            ProtocolMessageTypes.reject_additions_request
-        ]);
-        if(respMsg.type === ProtocolMessageTypes.reject_additions_request)
+
+        let returnNull: boolean = false;
+        let respPckt: RespondAdditions = new RespondAdditions();
+        await this.messageManager.registerFilter({
+            messageToSend: msgToSend,
+            consumeMessage: (msg: Message) => {
+                if(msg.type === ProtocolMessageTypes.reject_additions_request) {
+                    const rPckt: RejectAdditionsRequest = Serializer.deserialize(
+                        RejectAdditionsRequest,
+                        msg.data
+                    );
+
+                    if(rPckt.height === height && rPckt.headerHash === headerHash) {
+                        returnNull = true;
+                        return true;
+                    }
+                }
+
+                if(msg.type === ProtocolMessageTypes.respond_additions) {
+                    const rPckt: RespondAdditions = Serializer.deserialize(
+                        RespondAdditions,
+                        msg.data
+                    );
+
+                    if(rPckt.headerHash === headerHash && rPckt.height === height) {
+                        respPckt = rPckt;
+                        return true;
+                    }
+                }
+
+                return false;
+            },
+        });
+
+        if(returnNull)
             return null;
 
-        const respPckt: RespondAdditions = Serializer.deserialize(RespondAdditions, respMsg.data);
         const coins: providerTypes.Coin[] = [];
-
         for(const key of respPckt.coins.keys()) {
             const thing: [string, Coin[]] = respPckt.coins[key];
             const coinArr: Coin[] = thing[1];

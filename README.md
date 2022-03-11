@@ -14,12 +14,6 @@ Documentation can be found at [ReadTheDocs](https://greenwebjs.readthedocs.io).
 npm test
 ```
 
-Point `chianode.test` to a running Leaflet node to run more tests (needs certs!):
-
-```
-npm run test-extensive
-```
-
 ## Community
 
 Join the [Discord server](https://discord.gg/yNVNvQyYXn)

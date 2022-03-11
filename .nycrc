@@ -11,7 +11,7 @@
     "coverage/**",
     "node_modules/**",
     "src/**/*.d.ts",
-    "src/**/*.spec.ts"
+    "src/**/*.test.ts"
   ],
   "sourceMap": true,
   "reporter": [

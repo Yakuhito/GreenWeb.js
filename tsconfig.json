@@ -25,5 +25,5 @@
   ],
   "include": [
     "src/**/*"
-, "shim.js"  ],
+, "shim.js"],
 }

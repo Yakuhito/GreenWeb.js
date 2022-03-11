@@ -1,4 +1,5 @@
-import { Provider, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, PuzzleSolution, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, acceptOfferArgs, transferCATArgs, transferArgs } from "./providers/provider";
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { Provider, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, PuzzleSolution, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, acceptOfferArgs, transferCATArgs, transferArgs, subscribeToAddressChangesArgs } from "./providers/provider";
 import { LeafletProvider } from "./providers/leaflet";
 import { GobyProvider } from "./providers/goby";
 import { MultiProvider } from "./providers/multi";
@@ -17,113 +18,124 @@ export class XCHModule {
         this.provider = p;
     }
 
+    static clearProvider(): void {
+        this.provider = null;
+    }
+
     // Provider method wrappers
     static connect(): Promise<void> {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
         
-        return this.provider?.connect();
+        return XCHModule.provider!.connect();
     }
     static close(): Promise<void> {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.close();
+        return XCHModule.provider!.close();
     }
     static getNetworkId(): string {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.getNetworkId();
+        return XCHModule.provider!.getNetworkId();
     }
     static isConnected(): boolean {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.isConnected();
+        return XCHModule.provider!.isConnected();
     }
     static getBlockNumber(): Promise<Optional<number>> {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.getBlockNumber();
+        return XCHModule.provider!.getBlockNumber();
     }
     static getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>> {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.getBalance(args);
+        return XCHModule.provider!.getBalance(args);
     }
     static subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.subscribeToPuzzleHashUpdates(args);
+        return XCHModule.provider!.subscribeToPuzzleHashUpdates(args);
     }
     static subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.subscribeToCoinUpdates(args);
+        return XCHModule.provider!.subscribeToCoinUpdates(args);
     }
     static getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>> {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.getPuzzleSolution(args);
+        return XCHModule.provider!.getPuzzleSolution(args);
     }
     static getCoinChildren(args: getCoinChildrenArgs): Promise<CoinState[]> {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.getCoinChildren(args);
+        return XCHModule.provider!.getCoinChildren(args);
     }
     static getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<BlockHeader>> {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.getBlockHeader(args);
+        return XCHModule.provider!.getBlockHeader(args);
     }
     static getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>> {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.getBlocksHeaders(args);
+        return XCHModule.provider!.getBlocksHeaders(args);
     }
     static getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>> {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.getCoinRemovals(args);
+        return XCHModule.provider!.getCoinRemovals(args);
     }
     static getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.getCoinAdditions(args);
+        return XCHModule.provider!.getCoinAdditions(args);
     }
     static getAddress(): Promise<string> {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.getAddress();
+        return XCHModule.provider!.getAddress();
     }
     static transfer(args: transferArgs): Promise<boolean> {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.transfer(args);
+        return XCHModule.provider!.transfer(args);
     }
     static transferCAT(args: transferCATArgs): Promise<boolean> {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.transferCAT(args);
+        return XCHModule.provider!.transferCAT(args);
     }
     static acceptOffer(args: acceptOfferArgs): Promise<boolean> {
-        if(this.provider == null)
+        if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
-        return this.provider?.acceptOffer(args);
+        return XCHModule.provider!.acceptOffer(args);
+    }
+    
+    static subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
+        if(XCHModule.provider === null)
+            throw new Error("Provider not set!");
+
+        return XCHModule.provider!.subscribeToAddressChanges(args);
     }
 }

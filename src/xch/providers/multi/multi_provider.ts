@@ -13,7 +13,9 @@ export class MultiProvider implements Provider {
     public async connect(): Promise<void> {
         for(let i = 0; i < this.providers.length; ++i) {
             try {
-                await this.providers[i].connect();
+                if(!this.providers[i].isConnected()) {
+                    await this.providers[i].connect();
+                }
             } catch(_) {
                 continue;
             }
@@ -52,8 +54,12 @@ export class MultiProvider implements Provider {
 
     public isConnected(): boolean {
         for (let i = 0; i < this.providers.length; ++i) {
-            if(this.providers[i].isConnected())
-                return true;
+            try {
+                if(this.providers[i].isConnected())
+                    return true;
+            } catch(_) {
+                continue;
+            }
         }
 
         return false;

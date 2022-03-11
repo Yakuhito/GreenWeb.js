@@ -1159,21 +1159,21 @@ describe("GobyProvider", () => {
             callback: (addr: string) => address = addr
         });
 
-        expect(address).to.be.equal("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
+        expect(address).to.equal("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
 
         await accountsChangedCallback(null);
-        expect(address).to.be.equal("");
+        expect(address).to.equal("");
 
         await accountsChangedCallback(["xch1234"]);
-        expect(address).to.be.equal("xch1234");
+        expect(address).to.equal("xch1234");
 
         await accountsChangedCallback([]);
-        expect(address).to.be.equal("");
+        expect(address).to.equal("");
 
         await accountsChangedCallback(["xch1", "xch2", "xch3"]);
-        expect(address).to.be.equal("xch1");
+        expect(address).to.equal("xch1");
 
         await p.close();
-        expect(address).to.be.equal("");
+        expect(address).to.equal("");
     });
 });

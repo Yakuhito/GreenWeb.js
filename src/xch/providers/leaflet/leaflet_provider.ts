@@ -6,7 +6,6 @@ import { ProtocolMessageTypes } from "../../../util/serializer/types/protocol_me
 import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdates, RegisterForPhUpdates, RejectAdditionsRequest, RejectHeaderBlocks, RejectHeaderRequest, RejectPuzzleSolution, RejectRemovalsRequest, RequestAdditions, RequestBlockHeader, RequestChildren, RequestHeaderBlocks, RequestPuzzleSolution, RequestRemovals, RespondAdditions, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondPuzzleSolution, RespondRemovals, RespondToCoinUpdates, RespondToPhUpdates } from "../../../util/serializer/types/wallet_protocol";
 import { HeaderBlock } from "../../../util/serializer/types/header_block";
 import { Coin } from "../../../util/serializer/types/coin";
-import { ProviderUtil } from "./provider_util";
 import { AddressUtil } from "../../../util/address";
 import { transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs } from "../provider_args";
 import { BigNumber } from "@ethersproject/bignumber";
@@ -251,7 +250,7 @@ export class LeafletProvider implements Provider {
             return null;
         }
 
-        return ProviderUtil.serializerPuzzleSolutionResponseToProviderPuzzleSolution(respPckt);
+        return respPckt;
     }
 
     public async getCoinChildren({ coinId }: getCoinChildrenArgs): Promise<providerTypes.CoinState[]> {
@@ -288,14 +287,26 @@ export class LeafletProvider implements Provider {
 
         for(let i = 0;i < respPckt.coinStates.length; ++i) {
             coinStates.push(
-                ProviderUtil.serializerCoinStateToProviderCoinState(
-                    respPckt.coinStates[i]
-                )
+                respPckt.coinStates[i]
             )
         }
 
         return coinStates;
     }
+
+    private  _headerBlockToProviderBlockHeader(headerBlock: HeaderBlock, height: providerTypes.uint): providerTypes.BlockHeader {
+        const header = new providerTypes.BlockHeader();
+        header.height = height;
+        header.headerHash = headerBlock.headerHash();
+        header.prevBlockHash = headerBlock.foliage.prevBlockHash;
+        header.isTransactionBlock = headerBlock.rewardChainBlock.isTransactionBlock;
+        header.farmerPuzzleHash = headerBlock.foliage.foliageBlockData.farmerRewardPuzzleHash;
+        header.poolPuzzleHash = headerBlock.foliage.foliageBlockData.poolTarget.puzzleHash;
+        header.fees = headerBlock.transactionsInfo?.fees ?? null;
+
+        return header;
+    }
+
 
     public async getBlockHeader({ height }: getBlockHeaderArgs): Promise<providerTypes.Optional<providerTypes.BlockHeader>> {
         const pckt: RequestBlockHeader = new RequestBlockHeader();
@@ -345,7 +356,7 @@ export class LeafletProvider implements Provider {
         }
 
         const headerBlock: HeaderBlock = respPckt.headerBlock;
-        return ProviderUtil.serializerHeaderBlockToProviderBlockHeader(headerBlock, height);
+        return this._headerBlockToProviderBlockHeader(headerBlock, height);
     }
 
     public async getBlocksHeaders(
@@ -400,7 +411,7 @@ export class LeafletProvider implements Provider {
         const headers: providerTypes.BlockHeader[] = [];
         for(let i = 0; i < respPckt.headerBlocks.length; ++i) {
             const header: providerTypes.BlockHeader =
-                ProviderUtil.serializerHeaderBlockToProviderBlockHeader(
+                this._headerBlockToProviderBlockHeader(
                     respPckt.headerBlocks[i],
                     BigNumber.from(respPckt.startHeight).add(i)
                 );
@@ -481,7 +492,7 @@ export class LeafletProvider implements Provider {
             const thing: [string, providerTypes.Optional<Coin>] = respPckt.coins[key];
             if(thing[1] !== null) {
                 coins.push(
-                    ProviderUtil.serializerCoinToProviderCoin(thing[1])
+                    thing[1]
                 );
             }
         }
@@ -560,9 +571,7 @@ export class LeafletProvider implements Provider {
 
             for(let j = 0; j < coinArr.length; ++j) {
                 const coin: Coin = coinArr[j];
-                coins.push(
-                    ProviderUtil.serializerCoinToProviderCoin(coin)
-                );
+                coins.push(coin);
             }
         }
 

@@ -19,7 +19,10 @@ export class Util {
         try {
             amountPerUnit = BigNumber.from(amountPerUnit);
         } catch (_) {
-            amountPerUnit = BigNumber.from(0); // amountPerUnit was NaN
+            amountPerUnit = BigNumber.from(1); // amountPerUnit was NaN
+        }
+        if(amountPerUnit.eq(0)) {
+            amountPerUnit = BigNumber.from(1);
         }
 
         const wholeUnits: BigNumber = amount.div(amountPerUnit);
@@ -75,7 +78,7 @@ export class Util {
         if(valid) {
             return wholeUnits.mul(amountPerUnit).add(amountAfterDot);
         } else {
-            throw new Error("The given string is not a valid number.");
+            throw new Error("The given string is not valid.");
         }
     }
 

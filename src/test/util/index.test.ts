@@ -15,14 +15,15 @@ describe("Util", function() {
         });
 
         it("Does not work if there are too many dots", () => {
-            expect(() => util.parseToken("1..3")).to.throw("The given string is not a valid number.");
-            expect(() => util.parseToken("12.345.")).to.throw("The given string is not a valid number.");
+            expect(() => util.parseToken("1..3")).to.throw("The given string is not valid.");
+            expect(() => util.parseToken("12.345.")).to.throw("The given string is not valid.");
         });
 
         it("Does not work with invalid values", () => {
-            expect(() => util.parseToken("13a")).to.throw("The given string is not a valid number.");
-            expect(() => util.parseToken("12345.f")).to.throw("The given string is not a valid number.");
-            expect(() => util.parseToken("0x8")).to.throw("The given string is not a valid number.");
+            expect(() => util.parseToken("13a")).to.throw("The given string is not valid.");
+            expect(() => util.parseToken("12345.f")).to.throw("The given string is not valid.");
+            expect(() => util.parseToken("0x8")).to.throw("The given string is not valid.");
+            expect(() => util.parseToken("8.1234", 100)).to.throw("The given string is not valid.");
         });
 
         it("Works for custom 'amountPerUnit'", () => {
@@ -73,6 +74,11 @@ describe("Util", function() {
         it("Works correctly with NaN", () => {
             expect(util.formatToken(NaN)).to.equal("0.0");
             expect(util.formatToken(NaN, 10)).to.equal("0.0");
+            expect(util.formatToken(10, NaN)).to.equal("10.0");
+        });
+
+        it("Works correctly with amountPerUnit = 0", () => {
+            expect(util.formatToken(10, 0)).to.equal("10.0");
         });
 
         it("Works for very big numbers", () => {

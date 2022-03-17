@@ -17,11 +17,11 @@ describe("makeMsg()", () => {
         handshake.nodeType = NodeType.WALLET;
         handshake.capabilities = [[Capability.BASE, "1"],];
         
-        const hanshakeMsg: Buffer = makeMsg(
+        const handshakeMsg: Buffer = makeMsg(
             ProtocolMessageTypes.handshake,
             handshake
         );
 
-        expect(hanshakeMsg.toString("hex")).to.equal(expectedOutput);
+        expect(handshakeMsg.toString("hex")).to.equal(expectedOutput);
     });
 });

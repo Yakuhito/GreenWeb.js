@@ -33,8 +33,9 @@ export class ChiaMessageChannel implements IChiaMessageChannel {
     private readonly onMessage: (message: Buffer) => void;
     private readonly networkId: string;
     private inboundDataBuffer: Buffer = Buffer.from([]);
+    private _webSocketOverrideCreateFunc?: any;
 
-    constructor({host, port, apiKey, onMessage, networkId}: ChiaMessageChannelOptions) {
+    constructor({ host, port, apiKey, onMessage, networkId }: ChiaMessageChannelOptions, webSocketOverrideCreateFunc: any = null) {
         this.port = port;
         this.onMessage = onMessage;
 
@@ -44,16 +45,21 @@ export class ChiaMessageChannel implements IChiaMessageChannel {
         this.host = host;
         this.networkId = networkId;
         this.apiKey = apiKey;
+        this._webSocketOverrideCreateFunc = webSocketOverrideCreateFunc;
     }
 
     public async connect(): Promise<void> {
         const url: string = "wss://" + this.host + ":" + this.port.toString() + "/" + this.apiKey + "/ws";
 
+        if(this.isConnected()) {
+            return;
+        }
+
+        this.ws = this._webSocketOverrideCreateFunc === null ? new WebSocket(url) : this._webSocketOverrideCreateFunc(url);
+
         return new Promise((resolve) => {
-            this.ws = new WebSocket(url);
-            
-            // this.ws.on("message", (data: Buffer): void => this.messageHandler(data));
-            this.ws.onmessage = async (message) => {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.ws!.onmessage = async (message) => {
                 let isBlob: boolean;
                 
                 try {
@@ -68,14 +74,9 @@ export class ChiaMessageChannel implements IChiaMessageChannel {
 
                 this.messageHandler(msg);
             }
-            // // this.ws.on("error", (err: Error): void => console.log(err));
-            // this.ws.on("close", (_, reason) => console.log(reason));
-            // this.ws.on("open", () => {
-            //     this.onConnected();
 
-            //     resolve();
-            // });
-            this.ws.onopen = () => {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.ws!.onopen = () => {
                 this.onConnected();
 
                 resolve();
@@ -92,7 +93,7 @@ export class ChiaMessageChannel implements IChiaMessageChannel {
     }
 
     public isConnected(): boolean {
-        return this.ws !== undefined && this.ws.readyState === WebSocket.OPEN;
+        return this.ws !== undefined && this.ws?.readyState === WebSocket.OPEN;
     }
 
     private messageHandler(data: Buffer): void {
@@ -135,6 +136,4 @@ export class ChiaMessageChannel implements IChiaMessageChannel {
 
         this.sendMessage(hanshakeMsg);
     }
-
-    // private onClose(err?: Error): void {}
 }

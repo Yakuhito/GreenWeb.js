@@ -16,6 +16,7 @@ export interface ChiaMessageChannelOptions {
     apiKey: string;
     onMessage: (message: Buffer) => void;
     networkId: string;
+    webSocketCreateFunc: (url: string) => IWebSocket;
 }
 
 export interface IChiaMessageChannel {
@@ -25,17 +26,27 @@ export interface IChiaMessageChannel {
     isConnected: () => boolean;
 }
 
+export interface IWebSocket {
+    onmessage: ((this: any, ev: any) => any) | null;
+    onopen: ((this: any, ev: any) => any) | null;
+    onerror: ((this: any, ev: any) => any) | null;
+    send: (message: Buffer) => void;
+    close: () => void;
+
+    readyState: typeof WebSocket.OPEN;
+}
+
 export class ChiaMessageChannel implements IChiaMessageChannel {
-    private ws: WebSocket | undefined;
+    private ws: IWebSocket | undefined;
     private readonly port: number;
     private readonly host: string;
     private readonly apiKey: string;
     private readonly onMessage: (message: Buffer) => void;
     private readonly networkId: string;
     private inboundDataBuffer: Buffer = Buffer.from([]);
-    private _webSocketOverrideCreateFunc?: any;
+    private webSocketCreateFunc: (url: string) => IWebSocket;
 
-    constructor({ host, port, apiKey, onMessage, networkId }: ChiaMessageChannelOptions, webSocketOverrideCreateFunc: any = null) {
+    constructor({ host, port, apiKey, onMessage, networkId, webSocketCreateFunc }: ChiaMessageChannelOptions) {
         this.port = port;
         this.onMessage = onMessage;
 
@@ -45,7 +56,7 @@ export class ChiaMessageChannel implements IChiaMessageChannel {
         this.host = host;
         this.networkId = networkId;
         this.apiKey = apiKey;
-        this._webSocketOverrideCreateFunc = webSocketOverrideCreateFunc;
+        this.webSocketCreateFunc = webSocketCreateFunc;
     }
 
     public async connect(): Promise<void> {
@@ -54,23 +65,14 @@ export class ChiaMessageChannel implements IChiaMessageChannel {
         if(this.isConnected()) {
             return;
         }
-
-        this.ws = this._webSocketOverrideCreateFunc === null ? new WebSocket(url) : this._webSocketOverrideCreateFunc(url);
+    
+        this.ws = this.webSocketCreateFunc(url);
 
         return new Promise((resolve) => {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            this.ws!.onmessage = async (message) => {
-                let isBlob: boolean;
-                
-                try {
-                    isBlob = message.data instanceof Blob;
-                } catch(_) {
-                    isBlob = false;
-                }
-
+            this.ws!.onmessage = (message) => {
                 const msg: Buffer = message.data instanceof Array ? Buffer.concat(message.data) :
-                    isBlob ? Buffer.from(await message.data.arrayBuffer()) :
-                        Buffer.from(message.data);
+                    message.data instanceof ArrayBuffer ? Buffer.from(message.data) : message.data;
 
                 this.messageHandler(msg);
             }
@@ -78,6 +80,13 @@ export class ChiaMessageChannel implements IChiaMessageChannel {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             this.ws!.onopen = () => {
                 this.onConnected();
+
+                resolve();
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.ws!.onerror = () => {
+                this.close();
 
                 resolve();
             }
@@ -90,35 +99,43 @@ export class ChiaMessageChannel implements IChiaMessageChannel {
 
     public close(): void {
         this.ws?.close();
+        this.ws = undefined;
     }
 
     public isConnected(): boolean {
-        return this.ws !== undefined && this.ws?.readyState === WebSocket.OPEN;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return this.ws !== undefined && this.ws!.readyState === WebSocket.OPEN;
     }
 
     private messageHandler(data: Buffer): void {
         this.inboundDataBuffer = Buffer.concat([this.inboundDataBuffer, data]);
 
         // Buffer is big enough to contain the length
-        if (this.inboundDataBuffer.byteLength >= 5) {
-            const haveMessageId = data.readUInt8(1);
-            const messageLength = haveMessageId > 0 ?
-                data.readUInt32BE(4) :
-                data.readUInt32BE(2);
-
-            const messageReady = data.byteLength === messageLength + 6;
-            const bufferOverflow = data.byteLength > messageLength + 6;
-
-            if (messageReady) {
-                this.onMessage(this.inboundDataBuffer);
-
-                this.inboundDataBuffer = Buffer.from([]);
-            } else if (bufferOverflow) {
-                // Very basic protection against badly developed or malicious peers
-                // Depending on what they are doing this could happen many times in a row but should eventually recover
-                this.inboundDataBuffer = Buffer.from([]);
-            }
+        if(this.inboundDataBuffer.byteLength < 5) {
+            return;
         }
+
+        do {
+            const haveMessageId: number = this.inboundDataBuffer.readUInt8(1);
+            const messageLength: number = haveMessageId !== 0 ?
+                this.inboundDataBuffer.readUInt32BE(4) :
+                this.inboundDataBuffer.readUInt32BE(2);
+
+            const realMessageLength: number = messageLength + (haveMessageId ? 8 : 6);
+            const canConsumeMessage: boolean = this.inboundDataBuffer.byteLength >= realMessageLength;
+
+            if(canConsumeMessage) {
+                const message = this.inboundDataBuffer.slice(0, realMessageLength);
+                this.inboundDataBuffer = this.inboundDataBuffer.slice(realMessageLength);
+
+                this.onMessage(message);
+            } else {
+                break;
+            }
+        } while(this.inboundDataBuffer.byteLength >= 5);
+        // note: The original file had a 'buffer overflow protection' thingy here
+        // I don't think I understood it
+        // If you do and think it's needed, please do reach out
     }
 
     private onConnected(): void {

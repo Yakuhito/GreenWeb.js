@@ -26,7 +26,8 @@ export class LeafletProvider implements Provider {
     constructor(host: string, apiKey: string, port = 18444, networkId = "mainnet") {
         this.messageManager = new MessageManager(
             async (onMessage) => new ChiaMessageChannel({
-                host, port, apiKey, onMessage, networkId
+                host, port, apiKey, onMessage, networkId,
+                webSocketCreateFunc: (url: string) => new WebSocket(url),
             })
         );
 

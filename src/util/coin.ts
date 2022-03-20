@@ -1,16 +1,44 @@
 import { bytes, Coin } from "../xch/providers/provider_types";
-// eslint-disable-next-line camelcase
-import { int_to_bytes } from "clvm";
 import CryptoJS from "crypto-js";
-import { BigNumber } from "@ethersproject/bignumber";
+import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 
 export class CoinUtil {
+    public amountToBytes(amount: BigNumberish): bytes {
+        amount = BigNumber.from(amount);
+        const initialHexLength = amount.toHexString().length;
+
+        if(amount.eq(0)) {
+            return "";
+        }
+
+        const isNegative: boolean = amount.lt(0);
+        if(isNegative) {
+            amount = BigNumber.from(
+                "0x" + "f".repeat(amount.toHexString().length - 3) // prefix is -0x
+            ).add(1).add(amount);
+        }
+        let hexStr = amount.toHexString().slice(2);
+
+        while(isNegative && initialHexLength - 3 > hexStr.length) {
+            hexStr = "00" + hexStr;
+        }
+        
+        const firstByte: number = BigNumber.from("0x" + hexStr.slice(0, 2)).toNumber();
+        if(isNegative && (firstByte & 0x80) === 0) {
+            hexStr = "ff" + hexStr;
+        }
+        if(!isNegative && (firstByte & 0x80) !== 0) {
+            hexStr = "00" + hexStr;
+        }
+
+        return hexStr;
+    }
+
     public getId(coin: Coin): bytes {
-        const toHash: Buffer = Buffer.concat([
-            Buffer.from(coin.parentCoinInfo + coin.puzzleHash, "hex"),
-            // todo
-            int_to_bytes(BigNumber.from(coin.amount).toNumber()).data(),
-        ]);
+        const toHash: Buffer = Buffer.from(
+            coin.parentCoinInfo + coin.puzzleHash + this.amountToBytes(coin.amount),
+            "hex"
+        );
 
         return CryptoJS.enc.Hex.stringify(
             CryptoJS.SHA256(

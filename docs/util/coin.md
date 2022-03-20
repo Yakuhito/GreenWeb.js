@@ -1,5 +1,17 @@
 # greenweb.util.coin
 
+## amountToBytes
+
+A port for `clvm`'s `int_to_bytes`.
+
+```js
+console.log(greenweb.util.coin.amountToBytes(128));
+// "0080"
+
+console.log(greenweb.util.coin.amountToBytes(127));
+// "7f"
+```
+
 ## getId
 
 Returns the id/name of a given `Coin`.

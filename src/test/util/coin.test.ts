@@ -3,7 +3,6 @@ import { assert, expect } from "chai";
 import { Coin } from "../../xch/providers/provider_types";
 import { CoinUtil } from "../../util/coin";
 import { Util } from "../../util";
-import { BigNumber } from "@ethersproject/bignumber";
 
 const coinUtil = new CoinUtil();
 

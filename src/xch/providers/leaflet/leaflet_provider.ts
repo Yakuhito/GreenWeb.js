@@ -37,7 +37,6 @@ export class LeafletProvider implements Provider {
     public async connect() {
         await this.messageManager.initialize();
         this.messageManager.registerFilter({
-            messageToSend: null,
             consumeMessage: (msg: Message) => {
                 if(msg.type !== ProtocolMessageTypes.new_peak_wallet) {
                     return false;

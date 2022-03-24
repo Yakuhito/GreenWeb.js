@@ -3,6 +3,7 @@
 
 import { propertySerializerName } from "./register";
 import { IPropsType } from "./interfaces";
+import { RespondBlockHeader } from "./types/wallet_protocol";
 
 // This class is a port of the 'Streamable' class from
 // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/util/streamable.py#L260

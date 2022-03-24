@@ -6,12 +6,27 @@ export const BytesField = (size: number | null = null) => {
     const serializer: FieldSerializer<bytes> = {
         serialize: (value, buf) => {
             const val: Buffer = Buffer.from(value, "hex");
+
             if(size == null) {
                 const buf2 : Buffer = Buffer.alloc(4);
                 buf2.writeUInt32BE(val.length);
                 return Buffer.concat([buf, buf2, val]);
             }
-            return Buffer.concat([buf, val]);
+
+            const _matchSize = (input: Buffer, size: number) => {
+                if(input.byteLength == size) {
+                    return input;
+                } else if(input.byteLength > size) {
+                    return input.slice(0, size);
+                } else {
+                    return Buffer.concat([
+                        input,
+                        Buffer.from("00".repeat(size - input.byteLength), "hex")
+                    ]);
+                }
+            }
+
+            return Buffer.concat([buf, _matchSize(val, size)]);
         },
         deserialize: (buf) => {
             if(size == null) {

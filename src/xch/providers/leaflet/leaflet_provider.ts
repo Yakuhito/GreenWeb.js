@@ -10,10 +10,8 @@ import { AddressUtil } from "../../../util/address";
 import { transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs } from "../provider_args";
 import { BigNumber } from "@ethersproject/bignumber";
 import { MessageManager } from "./message_manager";
-import { ChiaMessageChannel } from "./chia_message_channel";
+import { ChiaMessageChannel, IWebSocket } from "./chia_message_channel";
 import { Util } from "../../../util";
-
-const ADDRESS_PREFIX = "xch";
 
 const addressUtil = new AddressUtil();
 
@@ -23,11 +21,16 @@ export class LeafletProvider implements Provider {
     private blockNumber: providerTypes.Optional<number> = null;
     private networkId;
 
-    constructor(host: string, apiKey: string, port = 18444, networkId = "mainnet") {
+    constructor(
+        host: string,
+        apiKey: string,
+        port = 18444,
+        networkId = "mainnet",
+        webSocketCreateFunc: (url: string) => IWebSocket = (url: string) => new WebSocket(url),
+    ) {
         this.messageManager = new MessageManager(
             async (onMessage) => new ChiaMessageChannel({
-                host, port, apiKey, onMessage, networkId,
-                webSocketCreateFunc: (url: string) => new WebSocket(url),
+                host, port, apiKey, onMessage, networkId, webSocketCreateFunc
             })
         );
 
@@ -38,7 +41,7 @@ export class LeafletProvider implements Provider {
         await this.messageManager.initialize();
         this.messageManager.registerFilter({
             consumeMessage: (msg: Message) => {
-                if(msg.type !== ProtocolMessageTypes.new_peak_wallet) {
+                if(BigNumber.from(msg.type).toNumber() !== ProtocolMessageTypes.new_peak_wallet) {
                     return false;
                 }
 
@@ -73,12 +76,12 @@ export class LeafletProvider implements Provider {
     public async getBalance({
         address,
         puzzleHash,
-        minHeight = 0
+        minHeight = 1
     }: getBalanceArgs): Promise<providerTypes.Optional<BigNumber>> {
         let puzHash: string;
 
         // get puzHash: Buffer from address / puzzle hash
-        if(address !== undefined && address.startsWith(ADDRESS_PREFIX)) {
+        if(address !== undefined) {
             puzHash = addressUtil.addressToPuzzleHash(address);
             if(puzHash.length === 0) {
                 return null;
@@ -102,11 +105,14 @@ export class LeafletProvider implements Provider {
         await this.messageManager.registerFilter({
             messageToSend: msgToSend,
             consumeMessage: (msg: Message) => {
-                if(msg.type !== ProtocolMessageTypes.respond_to_ph_update) {
+                if(BigNumber.from(msg.type).toNumber() !== ProtocolMessageTypes.respond_to_ph_update) {
                     return false;
                 }
                 const rPckt: RespondToPhUpdates = Serializer.deserialize(RespondToPhUpdates, msg.data);
-                if(!rPckt.puzzleHashes.includes(puzHash)) {
+                if(
+                    !rPckt.puzzleHashes.includes(puzHash) ||
+                    !BigNumber.from(rPckt.minHeight).eq(minHeight)
+                ) {
                     return false;
                 }
 
@@ -128,7 +134,7 @@ export class LeafletProvider implements Provider {
         return balance;
     }
 
-    public subscribeToPuzzleHashUpdates({ puzzleHash, callback, minHeight = 0 }: subscribeToPuzzleHashUpdatesArgs): void {
+    public subscribeToPuzzleHashUpdates({ puzzleHash, callback, minHeight = 1 }: subscribeToPuzzleHashUpdatesArgs): void {
         puzzleHash = addressUtil.validateHashString(puzzleHash);
         if(puzzleHash.length === 0) return;
 
@@ -146,11 +152,14 @@ export class LeafletProvider implements Provider {
         this.messageManager.registerFilter({
             messageToSend: msgToSend,
             consumeMessage: (msg: Message) => {
-                if(msg.type !== ProtocolMessageTypes.respond_to_ph_update) {
+                if(BigNumber.from(msg.type).toNumber() !== ProtocolMessageTypes.respond_to_ph_update) {
                     return false;
                 }
                 const rPckt: RespondToPhUpdates = Serializer.deserialize(RespondToPhUpdates, msg.data);
-                if(!rPckt.puzzleHashes.includes(puzzleHash)) {
+                if(
+                    !rPckt.puzzleHashes.includes(puzzleHash) ||
+                    !BigNumber.from(rPckt.minHeight).eq(minHeight)
+                ) {
                     return false;
                 }
 
@@ -164,7 +173,7 @@ export class LeafletProvider implements Provider {
         });
     }
 
-    public subscribeToCoinUpdates({ coinId, callback, minHeight = 0 }: subscribeToCoinUpdatesArgs): void {
+    public subscribeToCoinUpdates({ coinId, callback, minHeight = 1 }: subscribeToCoinUpdatesArgs): void {
         coinId = addressUtil.validateHashString(coinId);
         if(coinId.length === 0) return;
 
@@ -182,11 +191,14 @@ export class LeafletProvider implements Provider {
         this.messageManager.registerFilter({
             messageToSend: msgToSend,
             consumeMessage: (msg: Message) => {
-                if(msg.type !== ProtocolMessageTypes.respond_to_coin_update) {
+                if(BigNumber.from(msg.type).toNumber() !== ProtocolMessageTypes.respond_to_coin_update) {
                     return false;
                 }
                 const rPckt: RespondToCoinUpdates = Serializer.deserialize(RespondToCoinUpdates, msg.data);
-                if(!rPckt.coinIds.includes(coinId)) {
+                if(
+                    !rPckt.coinIds.includes(coinId) ||
+                    !BigNumber.from(rPckt.minHeight).eq(minHeight)
+                ) {
                     return false;
                 }
 
@@ -218,25 +230,31 @@ export class LeafletProvider implements Provider {
         await this.messageManager.registerFilter({
             messageToSend: msgToSend,
             consumeMessage: (msg: Message) => {
-                if(msg.type === ProtocolMessageTypes.reject_puzzle_solution) {
+                if(BigNumber.from(msg.type).toNumber() === ProtocolMessageTypes.reject_puzzle_solution) {
                     const rPckt: RejectPuzzleSolution = Serializer.deserialize(
                         RejectPuzzleSolution,
                         msg.data
                     );
                     
-                    if(rPckt.coinName === coinId && rPckt.height === height) {
+                    if(
+                        rPckt.coinName === coinId &&
+                        BigNumber.from(rPckt.height).toNumber() === height
+                    ) {
                         returnNull = true;
                         return true;
                     }
                 }
 
-                if(msg.type === ProtocolMessageTypes.respond_puzzle_solution) {
+                if(BigNumber.from(msg.type).toNumber() === ProtocolMessageTypes.respond_puzzle_solution) {
                     const rPckt: RespondPuzzleSolution = Serializer.deserialize(
                         RespondPuzzleSolution,
                         msg.data
                     );
 
-                    if(rPckt.response.coinName === coinId && rPckt.response.height === height) {
+                    if(
+                        rPckt.response.coinName === coinId &&
+                        BigNumber.from(rPckt.response.height).toNumber() === height
+                    ) {
                         respPckt = rPckt.response;
                         return true;
                     }
@@ -269,7 +287,7 @@ export class LeafletProvider implements Provider {
         await this.messageManager.registerFilter({
             messageToSend: msgToSend,
             consumeMessage: (msg: Message) => {
-                if(msg.type !== ProtocolMessageTypes.respond_children) {
+                if(BigNumber.from(msg.type).toNumber() !== ProtocolMessageTypes.respond_children) {
                     return false;
                 }
 
@@ -283,13 +301,7 @@ export class LeafletProvider implements Provider {
             },
         });
 
-        const coinStates: providerTypes.CoinState[] = [];
-
-        for(let i = 0;i < respPckt.coinStates.length; ++i) {
-            coinStates.push(
-                respPckt.coinStates[i]
-            )
-        }
+        const coinStates: providerTypes.CoinState[] = respPckt.coinStates;
 
         return coinStates;
     }
@@ -322,25 +334,29 @@ export class LeafletProvider implements Provider {
         await this.messageManager.registerFilter({
             messageToSend: msgToSend,
             consumeMessage: (msg: Message) => {
-                if(msg.type === ProtocolMessageTypes.reject_header_request) {
+                if(BigNumber.from(msg.type).toNumber() === ProtocolMessageTypes.reject_header_request) {
                     const rPckt: RejectHeaderRequest = Serializer.deserialize(
                         RejectHeaderRequest,
                         msg.data
                     );
 
-                    if(rPckt.height === height) {
+                    if(
+                        BigNumber.from(rPckt.height).toNumber() === height
+                    ) {
                         returnNull = true;
                         return true;
                     }
                 }
 
-                if(msg.type === ProtocolMessageTypes.respond_block_header) {
+                if(BigNumber.from(msg.type).toNumber() === ProtocolMessageTypes.respond_block_header) {
                     const rPckt: RespondBlockHeader = Serializer.deserialize(
                         RespondBlockHeader,
                         msg.data
                     );
-
-                    if(rPckt.headerBlock.rewardChainBlock.height === height) {
+                    
+                    if(
+                        BigNumber.from(rPckt.headerBlock.rewardChainBlock.height).toNumber() === height
+                    ) {
                         respPckt = rPckt;
                         return true;
                     }
@@ -376,25 +392,31 @@ export class LeafletProvider implements Provider {
         await this.messageManager.registerFilter({
             messageToSend: msgToSend,
             consumeMessage: (msg: Message) => {
-                if(msg.type === ProtocolMessageTypes.reject_header_blocks) {
+                if(BigNumber.from(msg.type).toNumber() === ProtocolMessageTypes.reject_header_blocks) {
                     const rPckt: RejectHeaderBlocks = Serializer.deserialize(
                         RejectHeaderBlocks,
                         msg.data
                     );
 
-                    if(rPckt.startHeight === startHeight && rPckt.endHeight === endHeight) {
+                    if(
+                        BigNumber.from(rPckt.startHeight).toNumber() === startHeight &&
+                        BigNumber.from(rPckt.endHeight).toNumber() === endHeight
+                    ) {
                         returnNull = true;
                         return true;
                     }
                 }
 
-                if(msg.type === ProtocolMessageTypes.respond_header_blocks) {
+                if(BigNumber.from(msg.type).toNumber() === ProtocolMessageTypes.respond_header_blocks) {
                     const rPckt: RespondHeaderBlocks = Serializer.deserialize(
                         RespondHeaderBlocks,
                         msg.data
                     );
 
-                    if(rPckt.startHeight === startHeight && rPckt.endHeight === endHeight) {
+                    if(
+                        BigNumber.from(rPckt.startHeight).toNumber() === startHeight &&
+                        BigNumber.from(rPckt.endHeight).toNumber() === endHeight
+                    ) {
                         respPckt = rPckt;
                         return true;
                     }
@@ -455,25 +477,31 @@ export class LeafletProvider implements Provider {
         await this.messageManager.registerFilter({
             messageToSend: msgToSend,
             consumeMessage: (msg: Message) => {
-                if(msg.type === ProtocolMessageTypes.reject_removals_request) {
+                if(BigNumber.from(msg.type).toNumber() === ProtocolMessageTypes.reject_removals_request) {
                     const rPckt: RejectRemovalsRequest = Serializer.deserialize(
                         RejectRemovalsRequest,
                         msg.data
                     );
 
-                    if(rPckt.height === height && rPckt.headerHash === headerHash) {
+                    if(
+                        BigNumber.from(rPckt.height).toNumber() === height &&
+                        rPckt.headerHash === headerHash
+                    ) {
                         returnNull = true;
                         return true;
                     }
                 }
 
-                if(msg.type === ProtocolMessageTypes.respond_removals) {
+                if(BigNumber.from(msg.type).toNumber() === ProtocolMessageTypes.respond_removals) {
                     const rPckt: RespondRemovals = Serializer.deserialize(
                         RespondRemovals,
                         msg.data
                     );
 
-                    if(rPckt.headerHash === headerHash && rPckt.height === height) {
+                    if(
+                        BigNumber.from(rPckt.height).toNumber() === height &&
+                        rPckt.headerHash === headerHash
+                    ) {
                         respPckt = rPckt;
                         return true;
                     }
@@ -487,15 +515,9 @@ export class LeafletProvider implements Provider {
             return null;
         }
 
-        const coins: providerTypes.Coin[] = [];
-        for(const key of respPckt.coins.keys()) {
-            const thing: [string, providerTypes.Optional<Coin>] = respPckt.coins[key];
-            if(thing[1] !== null) {
-                coins.push(
-                    thing[1]
-                );
-            }
-        }
+        const coins: providerTypes.Coin[] = respPckt.coins
+            .filter((e) => e[1] !== null)
+            .map((e) => e[1]!);
 
         return coins;
     }
@@ -533,25 +555,31 @@ export class LeafletProvider implements Provider {
         await this.messageManager.registerFilter({
             messageToSend: msgToSend,
             consumeMessage: (msg: Message) => {
-                if(msg.type === ProtocolMessageTypes.reject_additions_request) {
+                if(BigNumber.from(msg.type).toNumber() === ProtocolMessageTypes.reject_additions_request) {
                     const rPckt: RejectAdditionsRequest = Serializer.deserialize(
                         RejectAdditionsRequest,
                         msg.data
                     );
 
-                    if(rPckt.height === height && rPckt.headerHash === headerHash) {
+                    if(
+                        BigNumber.from(rPckt.height).toNumber() === height &&
+                        rPckt.headerHash === headerHash
+                    ) {
                         returnNull = true;
                         return true;
                     }
                 }
 
-                if(msg.type === ProtocolMessageTypes.respond_additions) {
+                if(BigNumber.from(msg.type).toNumber() === ProtocolMessageTypes.respond_additions) {
                     const rPckt: RespondAdditions = Serializer.deserialize(
                         RespondAdditions,
                         msg.data
                     );
 
-                    if(rPckt.headerHash === headerHash && rPckt.height === height) {
+                    if(
+                        BigNumber.from(rPckt.height).toNumber() === height &&
+                        rPckt.headerHash === headerHash
+                    ) {
                         respPckt = rPckt;
                         return true;
                     }

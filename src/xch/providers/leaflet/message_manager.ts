@@ -150,7 +150,7 @@ export class MessageManager {
                 );
                 await this._msgChannel.connect();
                 this._canSendMessage = this._msgChannel.isConnected();
-
+                
                 for(let i = 0; i < this._filters.length && this._canSendMessage; ++i) {
                     const filter: MessageFilter = this._filters[i].filter;
                     this._filters[i].lastMessageReceived = new Date().getTime();

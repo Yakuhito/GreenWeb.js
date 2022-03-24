@@ -6,7 +6,7 @@ export const ObjectField = (objClass: any) => {
     const serializer: FieldSerializer<typeof objClass> = {
         serialize: (value, buf) => {
             const props: IPropsType = Object.getPrototypeOf(value)[propertySerializerName];
-
+            
             for (const propName of Object.keys(props)) {
                 buf = props[propName].serialize(value[propName as keyof typeof value], buf);
             }

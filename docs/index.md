@@ -20,7 +20,7 @@ The main javascript files exports a single object, `greenweb`. It has the follow
 Use the following snippet to include GreenWeb.js on a page:
 
 ```html
-<script src="https://assets.fireacademy.io/greenweb-1.0.4.js"></script>
+<script src="https://assets.fireacademy.io/greenweb-1.0.5.js"></script>
 ```
 
 Or just use the latest version (not recommended):

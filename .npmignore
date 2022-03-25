@@ -1,0 +1,13 @@
+dist/greenweb.js
+dist/greenweb.js.LICENSE.txt
+src/test/
+web_test/
+docs/
+.eslintignore
+.eslintrc.js
+.nyc_output/
+.nycrc
+.python-version
+mkdocs.yml
+pre_build.js
+webpack.config.js

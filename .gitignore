@@ -107,3 +107,5 @@ web_test/greenweb.js
 
 # uh.... this should've been here a long time ago
 dist/
+
+lib/

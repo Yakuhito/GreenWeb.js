@@ -1,5 +1,4 @@
-dist/greenweb.js
-dist/greenweb.js.LICENSE.txt
+dist/
 src/test/
 web_test/
 docs/
@@ -11,3 +10,4 @@ docs/
 mkdocs.yml
 pre_build.js
 webpack.config.js
+src/

@@ -4,3 +4,4 @@ webpack.*.js
 pre_build.js
 dist/*
 web_test/*
+lib/*

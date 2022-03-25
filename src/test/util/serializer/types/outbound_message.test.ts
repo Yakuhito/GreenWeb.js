@@ -2,7 +2,6 @@ import { expect } from "chai";
 import { makeMsg, NodeType } from "../../../../util/serializer/types/outbound_message";
 import { ProtocolMessageTypes } from "../../../../util/serializer/types/protocol_message_types";
 import { Capability, Handshake } from "../../../../util/serializer/types/shared_protocol";
-import { getSoftwareVersion } from "../../../../util/software_version";
 
 describe("makeMsg()", () => {
     it("Can correctly serialize handshake message", () => {
@@ -12,7 +11,7 @@ describe("makeMsg()", () => {
         const handshake: Handshake = new Handshake();
         handshake.networkId = "mainnet";
         handshake.protocolVersion = "v0.0.33";
-        handshake.softwareVersion = getSoftwareVersion();
+        handshake.softwareVersion = "GreenWeb v1.0.4";
         handshake.serverPort = 8444;
         handshake.nodeType = NodeType.WALLET;
         handshake.capabilities = [[Capability.BASE, "1"],];

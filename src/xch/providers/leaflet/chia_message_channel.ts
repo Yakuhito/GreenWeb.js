@@ -70,9 +70,19 @@ export class ChiaMessageChannel implements IChiaMessageChannel {
 
         return new Promise((resolve) => {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            this.ws!.onmessage = (message) => {
+            this.ws!.onmessage = async (message) => {
+                let isBlob: boolean;
+
+                try {
+                    isBlob = message.data instanceof Blob;
+                } catch(_) {
+                    isBlob = false;
+                }
+
                 const msg: Buffer = message.data instanceof Array ? Buffer.concat(message.data) :
-                    message.data instanceof ArrayBuffer ? Buffer.from(message.data) : message.data;
+                    isBlob ? Buffer.from(await message.data.arrayBuffer()) :
+                        Buffer.from(message.data);
+
 
                 this.messageHandler(msg);
             }

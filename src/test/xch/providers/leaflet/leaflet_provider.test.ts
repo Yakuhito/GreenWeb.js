@@ -83,7 +83,7 @@ describe("LeafletProvider", () => {
             // as idiotic as this test is, line 29 needs to be used in a test to get full coverage :|
             // webSocketCreateFunc: (url: string) => IWebSocket = (url: string) => new WebSocket(url),
             const p = new LeafletProvider(
-                "leaflet.fireacademy.io", "TEST-API-KEY", 6969, "testnet1000"
+                "nonexistent.fireacademy.io", "TEST-API-KEY", 18444, "testnet1000"
             );
             expect(p.isConnected()).to.be.false;
             expect(p.close).to.not.throw;

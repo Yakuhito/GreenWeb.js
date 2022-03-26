@@ -1,6 +1,6 @@
 {
   "name": "greenwebjs",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "author": "yakuhito",
   "description": "Chia JavaScript API",
   "license": "MIT",
@@ -36,6 +36,7 @@
     "bech32": "^2.0.0",
     "buffer": "^6.0.3",
     "clvm": "^1.0.8",
+    "cross-blob": "^3.0.1",
     "crypto-js": "^4.1.1",
     "stream-browserify": "^3.0.0",
     "ws": "^8.2.3"

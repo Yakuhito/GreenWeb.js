@@ -410,8 +410,86 @@ describe("ChiaMessageChannel", () => {
                 ProtocolMessageTypes.handshake,
                 handshake
             );
-            obj.onmessage?.({
+            await obj.onmessage?.({
                 data: handshakeMsg,
+            });
+
+            expect(lastMessageHandled.toString("hex")).to.equal(handshakeMsg.toString("hex"));
+        });
+
+        it("Works when message.data is a Blob", async () => {
+            let url: string = "";
+            let sentMessages: number = 0;
+            let lastMessageHandled = Buffer.from([]);
+
+            const obj: IWebSocket = {
+                onmessage: async (m: any) => { },
+                onopen: () => { },
+                send: (msg: Buffer) => sentMessages += 1,
+                close: () => { },
+                onerror: () => { },
+                readyState: WebSocket.CONNECTING
+            };
+            const webSocketOverrideCreateFunc = (_url: string) => {
+                url = _url;
+
+                return obj;
+            };
+            const msgChannel: ChiaMessageChannel = new ChiaMessageChannel({
+                host: "host",
+                port: 1337,
+                apiKey: "API-KEY",
+                onMessage: (m: Buffer) => lastMessageHandled = m,
+                networkId: "mainnet",
+                webSocketCreateFunc: webSocketOverrideCreateFunc
+            });
+
+            const opener = async () => {
+                while(obj.onmessage === null) {
+                    await sleep(20);
+                }
+
+                obj.readyState = WebSocket.OPEN;
+                obj.onopen?.("hey");
+            };
+
+            await Promise.all([
+                msgChannel.connect(),
+                opener()
+            ]);
+
+            expect(url).to.equal("wss://host:1337/API-KEY/ws");
+            expect(sentMessages).to.equal(1);
+
+            const handshake: Handshake = new Handshake();
+            handshake.networkId = "mainnet";
+            handshake.protocolVersion = "v0.0.33";
+            handshake.softwareVersion = getSoftwareVersion();
+            handshake.serverPort = 8444;
+            handshake.nodeType = NodeType.WALLET;
+            handshake.capabilities = [[Capability.BASE, "1"],];
+
+            const handshakeMsg: Buffer = makeMsg(
+                ProtocolMessageTypes.handshake,
+                handshake
+            );
+
+            class Blob {
+                private _buf: Buffer;
+
+                constructor(buf: Buffer) {
+                    this._buf = buf;
+                }
+
+                public async arrayBuffer(): Promise<Buffer> {
+                    return this._buf;
+                }
+            }
+            (global as any).Blob = Blob;
+
+            const blob = new Blob(handshakeMsg);
+            await obj.onmessage?.({
+                data: blob,
             });
 
             expect(lastMessageHandled.toString("hex")).to.equal(handshakeMsg.toString("hex"));
@@ -473,7 +551,7 @@ describe("ChiaMessageChannel", () => {
                 ProtocolMessageTypes.handshake,
                 handshake
             );
-            obj.onmessage?.({
+            await obj.onmessage?.({
                 data: [handshakeMsg,],
             });
 
@@ -543,7 +621,7 @@ describe("ChiaMessageChannel", () => {
                 view[i] = handshakeMsg[i];
             }
 
-            obj.onmessage?.({
+            await obj.onmessage?.({
                 data: ab,
             });
 
@@ -594,7 +672,7 @@ describe("ChiaMessageChannel", () => {
             expect(url).to.equal("wss://host:1337/API-KEY/ws");
             expect(sentMessages).to.equal(1);
 
-            obj.onmessage?.({
+            await obj.onmessage?.({
                 data: Buffer.from([1, 2, 3, 4]),
             });
 
@@ -660,7 +738,7 @@ describe("ChiaMessageChannel", () => {
 
             const handshakeMsg: Buffer = Serializer.serialize(msg);
 
-            obj.onmessage?.({
+            await obj.onmessage?.({
                 data: handshakeMsg,
             });
 
@@ -734,13 +812,13 @@ describe("ChiaMessageChannel", () => {
                 msgPart1.toString("hex") + msgPart2.toString("hex")
             ).to.equal(handshakeMsg.toString("hex"));
 
-            obj.onmessage?.({
+            await obj.onmessage?.({
                 data: msgPart1
             });
 
             expect(lastMessageHandled.byteLength).to.equal(0);
 
-            obj.onmessage?.({
+            await obj.onmessage?.({
                 data: msgPart2
             });
 
@@ -828,7 +906,7 @@ describe("ChiaMessageChannel", () => {
 
             const requestMsg: Buffer = Serializer.serialize(msg2);
 
-            obj.onmessage?.({
+            await obj.onmessage?.({
                 data: Buffer.concat([handshakeMsg, requestMsg])
             });
 

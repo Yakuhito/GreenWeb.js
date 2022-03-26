@@ -1,3 +1,3 @@
 export function getSoftwareVersion(): string {
-    return "GreenWeb v1.0.9";
+    return "GreenWeb v1.1.0";
 }

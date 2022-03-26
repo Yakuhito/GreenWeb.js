@@ -37,7 +37,7 @@ export class MessageManager {
 
     constructor(
         createMessageChannel: (handleMessage: (rawMsg: Buffer) => void) => Promise<IChiaMessageChannel>,
-        timeout: number = 4200,
+        timeout: number = 500,
         controllerSleepBetweenChecks: number = 1000
     ) {
         this._createMessageChannel = createMessageChannel;
@@ -53,7 +53,7 @@ export class MessageManager {
                 BigNumber.from(msg.type).toNumber() === ProtocolMessageTypes.new_peak_wallet ||
                 BigNumber.from(msg.type).toNumber() === ProtocolMessageTypes.handshake,
             deleteAfterFirstMessageConsumed: false,
-            expectedMaxRensponseWait: 120 * 1000,
+            expectedMaxRensponseWait: 60 * 1000,
         };
 
         this._filters.push({
@@ -123,7 +123,7 @@ export class MessageManager {
     private async _controllerFunction(): Promise<void> {
         while(this.open) {
             const timestamp: number = new Date().getTime();
-            let restart: boolean = !this._canSendMessage;
+            let restart: boolean = !this._canSendMessage || !this._msgChannel.isConnected();
             
             for(let i = 0; i < this._filters.length && !restart; ++i) {
                 const filter = this._filters[i].filter;

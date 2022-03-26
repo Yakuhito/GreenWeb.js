@@ -517,6 +517,7 @@ export class LeafletProvider implements Provider {
 
         const coins: providerTypes.Coin[] = respPckt.coins
             .filter((e) => e[1] !== null)
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             .map((e) => e[1]!);
 
         return coins;

@@ -268,7 +268,7 @@ export class LeafletProvider implements Provider {
             return null;
         }
 
-        return respPckt;
+        return respPckt as providerTypes.PuzzleSolution;
     }
 
     public async getCoinChildren({ coinId }: getCoinChildrenArgs): Promise<providerTypes.CoinState[]> {

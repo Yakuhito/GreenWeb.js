@@ -6,7 +6,7 @@ This page includes example usage for a provider. Note that methods that are not 
 
 | Function\Provider                                             |        [LeafletProvider](leaflet-provider.md)        |        [GobyProvider](goby-provider.md)        |        [MultiProvider](multi-provider.md)        |
 |---------------------------------------------------------------|:---------------:|:------------:|:-------------:|
-| [conenct](#connect)                                           |        ✅        |       ✅      |       ✅       |
+| [connect](#connect)                                           |        ✅        |       ✅      |       ✅       |
 | [close](#close)                                               |        ✅        |       ✅      |       ✅       |
 | [getNetworkId](#getnetworkid)                                 |        ✅        |       ✅      |       ✅       |
 | [isConnected](#isconnected)                                   |        ✅        |       ✅      |       ✅       |
@@ -113,7 +113,7 @@ Depend on the type of the provider.
 
 ### Returns
 
-A `Provider` instance - do not forget to also call `initialize()`!
+A `Provider` instance - do not forget to also call `connect()`!
 
 ### Example
 

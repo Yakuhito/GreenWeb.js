@@ -27,7 +27,7 @@ The sub-module is also provides a wrapper around [`Provider`](provider.md): simp
 ```js
 // works
 const provider = new greenweb.xch.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
-provider.initialize().then(() => {
+provider.connect().then(() => {
   provider.getBlockNumber().then(blockNumber => console.log(blockNumber));
 });
 ```
@@ -36,7 +36,7 @@ provider.initialize().then(() => {
 // also works
 const provider = new greenweb.xch.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
 greenweb.xch.setProvider(provider);
-greenweb.xch.initialize().then(() => {
+greenweb.xch.connect().then(() => {
   greenweb.xch.getBlockNumber().then(blockNumber => console.log(blockNumber));
 });
 ```
@@ -44,7 +44,7 @@ greenweb.xch.initialize().then(() => {
 ```js
 // does not work, unless .setProvider() was called previously
 const provider = new greenweb.xch.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
-greenweb.xch.initialize().then(() => {
+greenweb.xch.connect().then(() => {
   greenweb.xch.getBlockNumber().then(blockNumber => console.log(blockNumber));
 });
 ```

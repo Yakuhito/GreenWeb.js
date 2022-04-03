@@ -7,11 +7,39 @@ import { ProtocolMessageTypes } from "../../../../util/serializer/types/protocol
 import { Capability, Handshake } from "../../../../util/serializer/types/shared_protocol";
 import { RequestPuzzleSolution } from "../../../../util/serializer/types/wallet_protocol";
 import { getSoftwareVersion } from "../../../../util/software_version";
-import { ChiaMessageChannel, IWebSocket } from "../../../../xch/providers/leaflet/chia_message_channel";
+import { ChiaMessageChannel, IWebSocket, _ensureWebSocket } from "../../../../xch/providers/leaflet/chia_message_channel";
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 describe("ChiaMessageChannel", () => {
+    describe("_ensureWebSocket()", () => {
+        it("Doesn't override WebSocket if window.document is defined", () => {
+            (global as any).WebSocket = "TEST";
+            (global as any).window = { document: "EXISTS" };
+            _ensureWebSocket();
+            expect(
+                (global as any).WebSocket
+            ).to.equal("TEST");
+        });
+
+        it("Overrides WebSocket if window.document is undefined", () => {
+            (global as any).WebSocket = "TEST";
+            (global as any).window = {};
+            _ensureWebSocket();
+            expect(
+                (global as any).WebSocket
+            ).to.not.equal("TEST");
+        });
+
+        it("Overrides WebSocket if window is undefined", () => {
+            (global as any).WebSocket = "TEST";
+            _ensureWebSocket();
+            expect(
+                (global as any).WebSocket
+            ).to.not.equal("TEST");
+        });
+    });
+
     describe("connect()", () => {
         it("Works", async () => {
             let url: string = "";

@@ -5,10 +5,16 @@ import { ProtocolMessageTypes } from "../../../util/serializer/types/protocol_me
 import { Capability, Handshake, PROTOCOL_VERSION } from "../../../util/serializer/types/shared_protocol";
 import { getSoftwareVersion } from "../../../util/software_version";
 
-try {
-    (global as any).WebSocket = require("ws");
-// eslint-disable-next-line no-empty
-} catch(_) {}
+export function _ensureWebSocket() {
+    try {
+        if(typeof window == "undefined" || !window.document) {
+            (global as any).WebSocket = require("ws");
+        }
+        // eslint-disable-next-line no-empty
+    } catch(_) { }
+}
+
+_ensureWebSocket();
 
 export interface ChiaMessageChannelOptions {
     host: string;

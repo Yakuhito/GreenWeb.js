@@ -13,26 +13,18 @@ const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 describe("ChiaMessageChannel", () => {
     describe("_ensureWebSocket()", () => {
-        it("Doesn't override WebSocket if window.document is defined", () => {
+        it("Doesn't override WebSocket if document is defined", () => {
             (global as any).WebSocket = "TEST";
-            (global as any).window = { document: "EXISTS" };
+            (global as any).document = "DEFINED";
             _ensureWebSocket();
             expect(
                 (global as any).WebSocket
             ).to.equal("TEST");
         });
 
-        it("Overrides WebSocket if window.document is undefined", () => {
+        it("Overrides WebSocket if document is undefined", () => {
             (global as any).WebSocket = "TEST";
-            (global as any).window = {};
-            _ensureWebSocket();
-            expect(
-                (global as any).WebSocket
-            ).to.not.equal("TEST");
-        });
-
-        it("Overrides WebSocket if window is undefined", () => {
-            (global as any).WebSocket = "TEST";
+            (global as any).document = undefined;
             _ensureWebSocket();
             expect(
                 (global as any).WebSocket

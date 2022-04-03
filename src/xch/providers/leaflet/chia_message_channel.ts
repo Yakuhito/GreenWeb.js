@@ -7,12 +7,15 @@ import { getSoftwareVersion } from "../../../util/software_version";
 
 export function _ensureWebSocket() {
     try {
-        if(typeof window == "undefined" || !window.document) {
-            (global as any).WebSocket = require("ws");
+        if(typeof document === "undefined") {
+            // server: overwrite WebSocket
+            global.WebSocket = require("ws");
         }
         // eslint-disable-next-line no-empty
-    } catch(_) { }
+    } catch(_) {}
 }
+
+
 
 _ensureWebSocket();
 

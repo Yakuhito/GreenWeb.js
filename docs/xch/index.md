@@ -28,7 +28,9 @@ The sub-module is also provides a wrapper around [`Provider`](provider.md): simp
 // works
 const provider = new greenweb.xch.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
 provider.connect().then(() => {
-  provider.getBlockNumber().then(blockNumber => console.log(blockNumber));
+  provider.getBalance({
+    address: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3"
+  }).then(balance => console.log(balance.toNumber()));
 });
 ```
 
@@ -37,7 +39,9 @@ provider.connect().then(() => {
 const provider = new greenweb.xch.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
 greenweb.xch.setProvider(provider);
 greenweb.xch.connect().then(() => {
-  greenweb.xch.getBlockNumber().then(blockNumber => console.log(blockNumber));
+  greenweb.xch.getBalance({
+    address: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3"
+  }).then(balance => console.log(balance.toNumber()));
 });
 ```
 
@@ -45,6 +49,8 @@ greenweb.xch.connect().then(() => {
 // does not work, unless .setProvider() was called previously
 const provider = new greenweb.xch.providers.LeafletProvider('leaflet.fireacademy.io', 'TEST-API-KEY');
 greenweb.xch.connect().then(() => {
-  greenweb.xch.getBlockNumber().then(blockNumber => console.log(blockNumber));
+  greenweb.xch.getBalance({
+    address: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3"
+  }).then(balance => console.log(balance.toNumber()));
 });
 ```

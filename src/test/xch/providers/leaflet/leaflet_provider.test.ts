@@ -96,7 +96,7 @@ describe("LeafletProvider", () => {
 
             await p.close();
         });
-    });
+    }).timeout(10000);
 
     describe("initialize()", () => {
         it("Sends handshake message", async () => {

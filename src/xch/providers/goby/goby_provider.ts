@@ -3,8 +3,9 @@ Special thanks to donate.goby.app and offerpool.io
 */
 
 import { BigNumber } from "@ethersproject/bignumber";
+import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Provider } from "../provider";
-import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, acceptOfferArgs, transferArgs, transferCATArgs, subscribeToAddressChangesArgs } from "../provider_args";
+import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, acceptOfferArgs, transferArgs, transferCATArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs } from "../provider_args";
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin } from "../provider_types";
 
 // https://stackoverflow.com/questions/56457935/typescript-error-property-x-does-not-exist-on-type-window
@@ -217,5 +218,10 @@ export class GobyProvider implements Provider {
     public subscribeToAddressChanges({ callback }: subscribeToAddressChangesArgs): void {
         this._callbacks.push(callback);
         callback(this._address);
+    }
+
+    public async signCoinSpends(args: signCoinSpendsArgs): Promise<SpendBundle> {
+        // hopefully soon
+        throw new Error("GobyProvider does not implement this method.");
     }
 }

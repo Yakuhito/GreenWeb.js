@@ -1,4 +1,5 @@
 import { BigNumberish } from "@ethersproject/bignumber";
+import { CoinSpend } from "../../util/serializer/types/coin_spend";
 import { CoinState } from "./provider_types";
 
 export type getBalanceArgs = {
@@ -69,4 +70,8 @@ export type acceptOfferArgs = {
 
 export type subscribeToAddressChangesArgs = {
     callback: (address: string) => void,
+};
+
+export type signCoinSpendsArgs = {
+    coinSpends: CoinSpend[],
 };

@@ -1,6 +1,7 @@
 import { BigNumber } from "@ethersproject/bignumber";
+import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Provider } from "../provider";
-import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs } from "../provider_args";
+import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs } from "../provider_args";
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin } from "../provider_types";
 
 export class MultiProvider implements Provider {
@@ -298,6 +299,22 @@ export class MultiProvider implements Provider {
 
                 return this.providers[i].subscribeToAddressChanges(args);
             } catch (_) {
+                continue;
+            }
+        }
+
+        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+    }
+
+    public async signCoinSpends(args: signCoinSpendsArgs): Promise<SpendBundle> {
+        for(let i = 0; i < this.providers.length; ++i) {
+            try {
+                if(!this.providers[i].isConnected()) {
+                    continue;
+                }
+
+                return this.providers[i].signCoinSpends(args);
+            } catch(_) {
                 continue;
             }
         }

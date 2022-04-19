@@ -121,4 +121,22 @@ export class SignUtils {
 
         return d;
     }
+
+    public static pkmPairsForConditionsDict(
+        conditionsDict: ConditionsDict,
+        coinName: bytes,
+        additionalData: bytes,
+    ): Array<[bytes, bytes]> {
+        const ret: Array<[bytes, bytes]> = [];
+
+        for(const cwa of conditionsDict.get(ConditionOpcode.AGG_SIG_UNSAFE) ?? []) {
+            ret.push([cwa.vars[0], cwa.vars[1]]);
+        }
+
+        for(const cwa of conditionsDict.get(ConditionOpcode.AGG_SIG_ME) ?? []) {
+            ret.push([cwa.vars[0], cwa.vars[1] + coinName + additionalData]);
+        }
+
+        return ret;
+    }
 }

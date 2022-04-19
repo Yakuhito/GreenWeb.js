@@ -1,10 +1,11 @@
 import { BigNumber } from "@ethersproject/bignumber";
-import { CLVMType, getBLSModule, initialize, OPERATOR_LOOKUP, run_program, Tuple } from "clvm";
+import { getBLSModule, initialize, } from "clvm";
 import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Provider } from "../provider";
 import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs } from "../provider_args";
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin, bytes } from "../provider_types";
 import { Util } from "../../../util";
+import { SignUtils } from "./sign_utils";
 
 const MAX_BLOCK_COST_CLVM = 11000000000;
 
@@ -119,26 +120,33 @@ export class PrivateKeyProvider implements Provider {
         for(let i = 0; i < coinSpends.length; i++) {
             const coinSpend = coinSpends[i];
 
-            //todo
-
-
-            const toSign = Buffer.concat([
-                Buffer.from(
-                    result.as_bin().raw()
-                ),
-                Buffer.from(
-                    Util.coin.getId(coinSpend.coin),
-                    "hex"
-                ),
-                Buffer.from(networkData, "hex"),
-            ]);
-
-            const sig = AugSchemeMPL.sign(
-                pKey,
-                toSign
+            const [, conditions, ] = SignUtils.conditionsDictForSolution(
+                coinSpend.puzzleReveal,
+                coinSpend.solution,
+                MAX_BLOCK_COST_CLVM
             );
 
-            signatures.push(sig);
+            if(conditions !== null && conditions.size > 0) {
+                const pk_msg_things = SignUtils.pkmPairsForConditionsDict(
+                    conditions,
+                    Util.coin.getId(coinSpend.coin),
+                    networkData
+                );
+    
+                for(const [pk, msg] of pk_msg_things) {
+                    if(pk !== this.privateKey) {
+                        console.log("pk is different from pkey :(");
+                    }
+
+                    const sig = AugSchemeMPL.sign(
+                        pKey,
+                        Buffer.from(msg, "hex")
+                    );
+        
+                    signatures.push(sig);
+                }
+                
+            }
         }
 
         const sb = new SpendBundle();

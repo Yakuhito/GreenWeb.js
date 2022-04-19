@@ -2,8 +2,9 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
+import { SpendBundle } from "../../../../util/serializer/types/spend_bundle";
 import { MultiProvider } from "../../../../xch/providers/multi";
-import { acceptOfferArgs, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, PuzzleSolution, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../../../xch/providers/provider";
+import { acceptOfferArgs, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../../../xch/providers/provider";
 
 let calledMethods: Array<{id: number, methodName: string}> = [];
 let overwriteMethods: Map<string, (id: number) => any> = new Map<string, (id: number) => any>();
@@ -37,6 +38,9 @@ class ObservableProvider implements Provider {
 
     constructor(id: number) {
         this._id = id;
+    }
+    signCoinSpends(args: signCoinSpendsArgs): Promise<SpendBundle> {
+        throw new Error('Method not implemented.');
     }
 
     private _processMethod(methodName: string): any {

@@ -1,10 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
+import { SpendBundle } from "../../util/serializer/types/spend_bundle";
 import { XCHModule } from "../../xch";
-import { acceptOfferArgs, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, PuzzleSolution, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../xch/providers/provider";
+import { acceptOfferArgs, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../xch/providers/provider";
 
 class TestProvider implements Provider {
+    signCoinSpends(args: signCoinSpendsArgs): Promise<SpendBundle> {
+        throw new Error('Method not implemented.');
+    }
     async connect(): Promise<void> {
         return;
     }

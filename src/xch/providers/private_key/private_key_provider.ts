@@ -6,6 +6,8 @@ import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdate
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin, bytes } from "../provider_types";
 import { Util } from "../../../util";
 
+const MAX_BLOCK_COST_CLVM = 11000000000;
+
 export class PrivateKeyProvider implements Provider {
     private privateKey: string;
     private connected: boolean;
@@ -117,10 +119,11 @@ export class PrivateKeyProvider implements Provider {
         for(let i = 0; i < coinSpends.length; i++) {
             const coinSpend = coinSpends[i];
 
-            const [, result]: Tuple<number, CLVMType> = run_program(
+            const [, conditions,]: Tuple<number, CLVMType> = run_program(
                 coinSpend.puzzleReveal,
                 coinSpend.solution,
-                OPERATOR_LOOKUP
+                OPERATOR_LOOKUP,
+                MAX_BLOCK_COST_CLVM
             );
 
 

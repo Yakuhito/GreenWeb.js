@@ -119,12 +119,7 @@ export class PrivateKeyProvider implements Provider {
         for(let i = 0; i < coinSpends.length; i++) {
             const coinSpend = coinSpends[i];
 
-            const [, conditions,]: Tuple<number, CLVMType> = run_program(
-                coinSpend.puzzleReveal,
-                coinSpend.solution,
-                OPERATOR_LOOKUP,
-                MAX_BLOCK_COST_CLVM
-            );
+            //todo
 
 
             const toSign = Buffer.concat([

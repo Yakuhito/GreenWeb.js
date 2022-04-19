@@ -5,6 +5,6 @@ import { bytes } from "../provider_types";
 import { ConditionOpcode } from "./condition_opcodes";
 
 export class ConditionWithArgs {
-    @fields.Object(ConditionOpcode) opcode: ConditionOpcode;
+    @fields.Bytes() opcode: ConditionOpcode;
     @fields.List(fields.Bytes) vars: bytes[];
 }

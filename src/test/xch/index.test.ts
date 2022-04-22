@@ -6,9 +6,6 @@ import { XCHModule } from "../../xch";
 import { acceptOfferArgs, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../xch/providers/provider";
 
 class TestProvider implements Provider {
-    signCoinSpends(args: signCoinSpendsArgs): Promise<SpendBundle> {
-        throw new Error('Method not implemented.');
-    }
     async connect(): Promise<void> {
         return;
     }
@@ -66,10 +63,13 @@ class TestProvider implements Provider {
     subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
         args.callback("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
     }
+    async signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
+        return null;
+    }
 }
 
 describe("XCHModule", () => {
-    it("Exposes 3 providers", () => {
+    it("Exposes 4 providers", () => {
         expect(
             Object.keys(XCHModule.providers).length
         ).to.be.equal(4);
@@ -240,6 +240,14 @@ describe("XCHModule", () => {
                 })
             ).to.throw("Provider not set!");
             expect(callbackCalled).to.be.false;
+        });
+
+        it("signCoinSpends()", () => {
+            expect(
+                () => XCHModule.signCoinSpends({
+                    coinSpends: []
+                })
+            ).to.throw("Provider not set!");
         });
     });
 
@@ -416,6 +424,14 @@ describe("XCHModule", () => {
             });
 
             expect(callbackCalled).to.be.true;
+        });
+
+        it("signCoinSpends()", async () => {
+            const res = await XCHModule.signCoinSpends({
+                coinSpends: []
+            });
+
+            expect(res).to.be.null;
         });
     });
 });

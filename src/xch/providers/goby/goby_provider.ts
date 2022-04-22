@@ -220,7 +220,7 @@ export class GobyProvider implements Provider {
         callback(this._address);
     }
 
-    public async signCoinSpends(args: signCoinSpendsArgs): Promise<SpendBundle> {
+    public async signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
         // hopefully soon
         throw new Error("GobyProvider does not implement this method.");
     }

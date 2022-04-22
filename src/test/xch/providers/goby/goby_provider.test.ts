@@ -1176,4 +1176,11 @@ describe("GobyProvider", () => {
         await p.close();
         expect(address).to.equal("");
     });
+
+    it("signCoinSpends()", () => {
+        const p = new GobyProvider();
+        return _expectNotImplError(() => p.signCoinSpends({
+            coinSpends: []
+        }));
+    });
 });

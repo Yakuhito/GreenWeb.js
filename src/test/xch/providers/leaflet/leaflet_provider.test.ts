@@ -1618,4 +1618,20 @@ describe("LeafletProvider", () => {
             ).to.throw("LeafletProvider does not implement this method.");
         });
     });
+
+    describe("signCoinSpends()", () => {
+        it("Throws 'not implemented' error.", async () => {
+            const [provider] = await _setup(() => { });
+            let errorOk: boolean = false;
+            try {
+                await provider.signCoinSpends({
+                    coinSpends: []
+                });
+            } catch(e: any) {
+                errorOk = e.message === "LeafletProvider does not implement this method.";
+            }
+            
+            expect(errorOk).to.be.true;
+        });
+    });
 });

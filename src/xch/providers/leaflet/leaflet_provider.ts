@@ -13,6 +13,7 @@ import { MessageManager } from "./message_manager";
 import { ChiaMessageChannel, IWebSocket } from "./chia_message_channel";
 import { Util } from "../../../util";
 import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
+import { Optional } from "../../../util/serializer/basic_types";
 
 const addressUtil = new AddressUtil();
 
@@ -628,7 +629,7 @@ export class LeafletProvider implements Provider {
         throw new Error("LeafletProvider does not implement this method.");
     }
 
-    public async signCoinSpends(args: signCoinSpendsArgs): Promise<SpendBundle> {
+    public async signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
         throw new Error("LeafletProvider does not implement this method.");
     }
 }

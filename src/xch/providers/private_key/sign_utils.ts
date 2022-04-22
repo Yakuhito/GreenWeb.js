@@ -65,9 +65,6 @@ export class SignUtils {
     public static parseSExpToCondition(
         sexp: SExp,
     ): [boolean, ConditionWithArgs | null] {
-        if(sexp.list_len() < 1) {
-            return [true, null];
-        }
         const as_atoms = SignUtils.asAtomList(sexp);
         if(as_atoms.length < 1) {
             return [true, null];

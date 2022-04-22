@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable max-len */
 import { expect } from "chai";
-import { Bytes, CLVMObject, CLVMType, OPERATOR_LOOKUP, run_program, SExp, sexp_from_stream, Stream, Tuple } from "clvm";
-import { clvm } from "../../../..";
+import { Bytes, CLVMObject, SExp, sexp_from_stream, Stream, Tuple } from "clvm";
 import { ConditionOpcode } from "../../../../xch/providers/private_key/condition_opcodes";
 import { ConditionWithArgs } from "../../../../xch/providers/private_key/condition_with_args";
 import { SignUtils } from "../../../../xch/providers/private_key/sign_utils";
@@ -114,6 +114,14 @@ describe.only("SignUtils", () => {
         });
     });
 
+    const _SExpFromSerialized = (serialized: bytes) => {
+        const s: Stream = new Stream(new Bytes(
+            Buffer.from(serialized, "hex")
+        ));
+        const sexp: SExp = sexp_from_stream(s, SExp.to);
+        return sexp;
+    }
+
     describe("asAtomList()", () => {
         it("Works", () => {
             /*
@@ -123,11 +131,7 @@ describe.only("SignUtils", () => {
             ff31ff33ff3780
             (venv) yakuhito@catstation:~/projects/clvm_tools$
             */
-            const SERIALIZED = "ff31ff33ff3780";
-            const s: Stream = new Stream(new Bytes(
-                Buffer.from(SERIALIZED, "hex")
-            ));
-            const sexp: SExp = sexp_from_stream(s, SExp.to);
+            const sexp: SExp = _SExpFromSerialized("ff31ff33ff3780");
             const res: bytes[] = SignUtils.asAtomList(sexp);
             
             expect(res.length).to.equal(3);
@@ -152,6 +156,34 @@ describe.only("SignUtils", () => {
             const res: bytes[] = SignUtils.asAtomList(sexp);
             expect(res.length).to.equal(1);
             expect(res[0]).to.equal("31");
+        });
+    });
+
+    describe("parseSExpToCondition()", () => {
+        it("Works for a normal condition", () => {
+            /*
+                (venv) yakuhito@catstation:~/projects/clvm_tools$ run '(list 51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 1337)'
+                (51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 1337)
+                (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 1337)'
+                ff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980
+            */
+            const sexp: SExp = _SExpFromSerialized("ff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980");
+            const res = SignUtils.parseSExpToCondition(sexp);
+
+            expect(res[0]).to.be.false;
+            expect(res[1]).to.not.be.null;
+            expect(res[1]?.opcode).to.equal(ConditionOpcode.CREATE_COIN);
+            expect(res[1]?.vars.length).to.equal(2);
+            expect(res[1]?.vars[0]).to.equal("b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664");
+            expect(res[1]?.vars[1]).to.equal("0539"); // 1337
+        });
+
+        it("Works if given () as input", () => {
+            const sexp: SExp = _SExpFromSerialized("80"); // ()
+            const res = SignUtils.parseSExpToCondition(sexp);
+
+            expect(res[0]).to.be.true;
+            expect(res[1]).to.be.null;
         });
     });
 });

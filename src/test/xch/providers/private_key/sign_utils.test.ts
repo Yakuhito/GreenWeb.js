@@ -186,6 +186,42 @@ describe.only("SignUtils", () => {
             expect(res[1]).to.be.null;
         });
     });
+
+    describe("parseSExpToConditions()", () => {
+        it("Works with expected input", () => {
+            /*
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ run '(list (list 51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 1337) (list 73 100000))'
+            ((51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 1337) (73 0x0186a0))
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '((51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 1337) (73 0x0186a0))'
+            ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ffff49ff830186a08080
+            */
+            const sexp: SExp = _SExpFromSerialized("ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ffff49ff830186a08080"); // ()
+            const res = SignUtils.parseSExpToConditions(sexp);
+
+            expect(res[0]).to.be.false;
+            expect(res[1]).to.not.be.null;
+            const arr: ConditionWithArgs[] = res[1] ?? [];
+            expect(arr.length).to.equal(2);
+            expect(arr[0].opcode).to.equal(ConditionOpcode.CREATE_COIN);
+            expect(arr[0].vars.toString()).to.equal("b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664,0539");
+            expect(arr[1].opcode).to.equal(ConditionOpcode.ASSERT_MY_AMOUNT);
+            expect(arr[1].vars.toString()).to.equal("0186a0");
+        });
+
+        it("Works if given list contains an invalid condition", () => {
+            /*
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ run '(list (list 51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 1337) () (list 73 100000))'
+            ((51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 1337) () (73 0x0186a0))
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '((51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 1337) () (73 0x0186a0))'
+            ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ff80ffff49ff830186a08080
+            */
+            const sexp: SExp = _SExpFromSerialized("ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ff80ffff49ff830186a08080"); // ()
+            const res = SignUtils.parseSExpToConditions(sexp);
+
+            expect(res[0]).to.be.true;
+            expect(res[1]).to.be.null;
+        });
+    });
 });
 
 /*

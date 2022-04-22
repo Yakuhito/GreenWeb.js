@@ -47,16 +47,12 @@ export class SignUtils {
         sexp: SExp,
     ): [boolean, ConditionWithArgs[] | null] {
         const results: ConditionWithArgs[] = [];
-        try {
-            for(const e of sexp.as_iter()) {
-                const [error, cvp] = SignUtils.parseSExpToCondition(e);
-                if(error || cvp === null) {
-                    return [error, null];
-                }
-                results.push(cvp);
+        for(const e of sexp.as_iter()) {
+            const [error, cvp] = SignUtils.parseSExpToCondition(e);
+            if(error || cvp === null) {
+                return [true, null];
             }
-        } catch(_) {
-            return [true, null];
+            results.push(cvp);
         }
 
         return [false, results];

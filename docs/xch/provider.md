@@ -4,27 +4,28 @@ This page includes example usage for a provider. Note that methods that are not 
 
 # Available Providers
 
-| Function\Provider                                             |        [LeafletProvider](leaflet-provider.md)        |        [GobyProvider](goby-provider.md)        |        [MultiProvider](multi-provider.md)        |
-|---------------------------------------------------------------|:---------------:|:------------:|:-------------:|
-| [connect](#connect)                                           |        ✅        |       ✅      |       ✅       |
-| [close](#close)                                               |        ✅        |       ✅      |       ✅       |
-| [getNetworkId](#getnetworkid)                                 |        ✅        |       ✅      |       ✅       |
-| [isConnected](#isconnected)                                   |        ✅        |       ✅      |       ✅       |
-| [getBlockNumber](#getblocknumber)                             |        ✅        |       ❎      |       ❔       |
-| [getBalance](#getbalance)                                     |        ✅        |       ❎      |       ❔       |
-| [subscribeToPuzzleHashUpdates](#subscribetopuzzlehashupdates) |        ✅        |       ❎      |       ❔       |
-| [subscribeToCoinUpdates](#subscribetocoinupdates)             |        ✅        |       ❎      |       ❔       |
-| [getPuzzleSolution](#getpuzzlesolution)                       |        ✅        |       ❎      |       ❔       |
-| [getCoinChildren](#getcoinchildren)                           |        ✅        |       ❎      |       ❔       |
-| [getBlockHeader](#getblockheader)                             |        ✅        |       ❎      |       ❔       |
-| [getBlocksHeaders](#getblocksheaders)                         |        ✅        |       ❎      |       ❔       |
-| [getCoinRemovals](#getcoinremovals)                           |        ✅        |       ❎      |       ❔       |
-| [getCoinAdditions](#getcoinadditions)                         |        ✅        |       ❎      |       ❔       |
-| [getAddress](#getaddress)                                     |        ✅        |       ❎      |       ❔       |
-| [transfer](#transfer)                                         |        ❎        |       ✅      |       ❔       |
-| [transferCAT](#transfercat)                                   |        ❎        |       ✅      |       ❔       |
-| [acceptOffer](#acceptoffer)                                   |        ❎        |       ✅      |       ❔       |
-| [subscribeToAddressChanges](#subscribetoaddresschanges)       |        ❎        |       ✅      |       ❔       |
+| Function\Provider | [LeafletProvider](leaflet-provider.md) | [GobyProvider](goby-provider.md) | [MultiProvider](multi-provider.md) | [PrivateKeyProvider](private-key-provider) |
+|---|:---:|:---:|:---:|:---:|
+| [connect](#connect) | ✅ | ✅ | ✅ | ✅ |
+| [close](#close) | ✅ | ✅ | ✅ | ✅ |
+| [getNetworkId](#getnetworkid) | ✅ | ✅ | ✅ | ✅ |
+| [isConnected](#isconnected) | ✅ | ✅ | ✅ | ✅ |
+| [getBlockNumber](#getblocknumber) | ✅ | ❎ | ❔ | ❎ |
+| [getBalance](#getbalance) | ✅ | ❎ | ❔ | ❎ |
+| [subscribeToPuzzleHashUpdates](#subscribetopuzzlehashupdates) | ✅ | ❎ | ❔ | ❎ |
+| [subscribeToCoinUpdates](#subscribetocoinupdates) | ✅ | ❎ | ❔ | ❎ |
+| [getPuzzleSolution](#getpuzzlesolution) | ✅ | ❎ | ❔ | ❎ |
+| [getCoinChildren](#getcoinchildren) | ✅ | ❎ | ❔ | ❎ |
+| [getBlockHeader](#getblockheader) | ✅ | ❎ | ❔ | ❎ |
+| [getBlocksHeaders](#getblocksheaders) | ✅ | ❎ | ❔ | ❎ |
+| [getCoinRemovals](#getcoinremovals) | ✅ | ❎ | ❔ | ❎ |
+| [getCoinAdditions](#getcoinadditions) | ✅ | ❎ | ❔ | ❎ |
+| [getAddress](#getaddress) | ✅ | ❎ | ❔ | ❎ |
+| [transfer](#transfer) | ❎ | ✅ | ❔ | ❎ |
+| [transferCAT](#transfercat) | ❎ | ✅ | ❔ | ❎ |
+| [acceptOffer](#acceptoffer) | ❎ | ✅ | ❔ | ❎ |
+| [subscribeToAddressChanges](#subscribetoaddresschanges) | ❎ | ✅ | ❔ | ❎ |
+| [signCoinSpends](#signcoinspends) | ❎ | ❎ | ❔ | ✅ |
 
 # Custom Data Types
 
@@ -58,9 +59,9 @@ Used to represent a coin - to get its id/name, use `greenweb.utils.coin.getId(co
 
 ```js
 export class Coin {
-    parentCoinInfo: bytes;
-    puzzleHash: bytes;
-    amount: uint;
+    @fields.Bytes(32) parentCoinInfo: bytes;
+    @fields.Bytes(32) puzzleHash: bytes;
+    @fields.Uint(64) amount: uint;
 }
 ```
 
@@ -98,6 +99,25 @@ export class PuzzleSolution {
     height: uint;
     puzzle: SExp;
     solution: SExp;
+}
+```
+
+## CoinSpend
+
+```js
+export class CoinSpend {
+    @fields.Object(Coin) coin: Coin;
+    @fields.SExp() puzzleReveal: SExp;
+    @fields.SExp() solution: SExp;
+}
+```
+
+## SpendBundle
+
+```js
+export class SpendBundle {
+    @fields.List(fields.Object(CoinSpend)) coinSpends: CoinSpend[];
+    @fields.Bytes(96) aggregatedSignature: bytes;
 }
 ```
 
@@ -667,5 +687,30 @@ None.
 ```js
 greenweb.xch.subscribeToAddressChanges({
     callback: (address) => console.log(address);
+});
+```
+
+## signCoinSpends
+
+Signs a list of `CoinSpend`s wth a given private key and returns a `SpendBundle`.
+
+### Arguments
+
+```js
+export type signCoinSpendsArgs = {
+    coinSpends: CoinSpend[],
+};
+```
+
+### Returns
+
+`Promise<Optional<SpendBundle>>` - `null` if the signing failed, `SpendBundle` otherwise
+
+### Example
+
+```js
+// please don't ask your users for their private keys - yaku
+const spendBundle = await provider.signCoinSpends({
+  coinSpends: myCoinSpends // variable set somewhere else in the code
 });
 ```

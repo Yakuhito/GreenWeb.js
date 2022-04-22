@@ -7,11 +7,13 @@ import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdate
 import { HeaderBlock } from "../../../util/serializer/types/header_block";
 import { Coin } from "../../../util/serializer/types/coin";
 import { AddressUtil } from "../../../util/address";
-import { transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs } from "../provider_args";
+import { transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs } from "../provider_args";
 import { BigNumber } from "@ethersproject/bignumber";
 import { MessageManager } from "./message_manager";
 import { ChiaMessageChannel, IWebSocket } from "./chia_message_channel";
 import { Util } from "../../../util";
+import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
+import { Optional } from "../../../util/serializer/basic_types";
 
 const addressUtil = new AddressUtil();
 
@@ -624,6 +626,10 @@ export class LeafletProvider implements Provider {
     }
 
     public subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
+        throw new Error("LeafletProvider does not implement this method.");
+    }
+
+    public async signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
         throw new Error("LeafletProvider does not implement this method.");
     }
 }

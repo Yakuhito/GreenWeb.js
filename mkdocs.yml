@@ -8,6 +8,7 @@ nav:
             - 'LeafletProvider': 'xch/leaflet-provider.md'
             - 'GobyProvider': 'xch/goby-provider.md'
             - 'MultiProvider': 'xch/multi-provider.md'
+            - 'PrivateKeyProvider': 'xch/private-key-provider.md'
         - 'clvm':
             - 'Module Overview': 'clvm/index.md'
         - 'util':

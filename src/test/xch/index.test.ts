@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
+import { SpendBundle } from "../../util/serializer/types/spend_bundle";
 import { XCHModule } from "../../xch";
-import { acceptOfferArgs, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, PuzzleSolution, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../xch/providers/provider";
+import { acceptOfferArgs, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../xch/providers/provider";
 
 class TestProvider implements Provider {
     async connect(): Promise<void> {
@@ -62,13 +63,16 @@ class TestProvider implements Provider {
     subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
         args.callback("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
     }
+    async signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
+        return null;
+    }
 }
 
 describe("XCHModule", () => {
-    it("Exposes 3 providers", () => {
+    it("Exposes 4 providers", () => {
         expect(
             Object.keys(XCHModule.providers).length
-        ).to.be.equal(3);
+        ).to.be.equal(4);
     });
 
     it("Exposes its set provider", () => {
@@ -236,6 +240,14 @@ describe("XCHModule", () => {
                 })
             ).to.throw("Provider not set!");
             expect(callbackCalled).to.be.false;
+        });
+
+        it("signCoinSpends()", () => {
+            expect(
+                () => XCHModule.signCoinSpends({
+                    coinSpends: []
+                })
+            ).to.throw("Provider not set!");
         });
     });
 
@@ -412,6 +424,14 @@ describe("XCHModule", () => {
             });
 
             expect(callbackCalled).to.be.true;
+        });
+
+        it("signCoinSpends()", async () => {
+            const res = await XCHModule.signCoinSpends({
+                coinSpends: []
+            });
+
+            expect(res).to.be.null;
         });
     });
 });

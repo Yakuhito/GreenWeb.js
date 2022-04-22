@@ -39,7 +39,7 @@ This package can be added via npm:
 npm install --save greenwebjs
 ```
 
-For browser-based clients, you also need to install the `buffer` package and define the global `Buffer` class. For Vue.js, just add the following lines to `index.html`:
+For browser-based clients, you also need to install the `buffer` package and define the global `Buffer` class. For Vue.js 3, just add the following lines to `index.html`:
 
 ```js
 <script setup lang="ts">
@@ -47,6 +47,8 @@ import { Buffer } from "buffer";
 (window as any).Buffer = Buffer;
 </script>
 ```
+
+Unfortunately, most setups have issues when GreenWeb.js is installed this way. If you're seeing an error that you cannot fix, just include the `greenweb.js` script from the FireAcademy CDN.
 
 ### Browser - Build it!
 To generate the latest `greenweb.js` file, clone the repository and use `npm` to build:

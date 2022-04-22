@@ -2,8 +2,9 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
+import { SpendBundle } from "../../../../util/serializer/types/spend_bundle";
 import { MultiProvider } from "../../../../xch/providers/multi";
-import { acceptOfferArgs, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, PuzzleSolution, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../../../xch/providers/provider";
+import { acceptOfferArgs, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../../../xch/providers/provider";
 
 let calledMethods: Array<{id: number, methodName: string}> = [];
 let overwriteMethods: Map<string, (id: number) => any> = new Map<string, (id: number) => any>();
@@ -27,7 +28,8 @@ const METHODS: Array<Record<string, any>> = [
     ["transfer", (obj: Provider) => obj.transfer({ to: "", value: 0 })],
     ["transferCAT", (obj: Provider) => obj.transferCAT({ to: "", assetId: "", value: 5 })],
     ["acceptOffer", (obj: Provider) => obj.acceptOffer({ offer: "" })],
-    ["subscribeToAddressChanges", (obj: Provider) => obj.subscribeToAddressChanges({ callback: () => { } })]
+    ["subscribeToAddressChanges", (obj: Provider) => obj.subscribeToAddressChanges({ callback: () => { } })],
+    ["signCoinSpends", (obj: Provider) => obj.signCoinSpends({ coinSpends: [] })],
 ];
 
 const EXCEPTIONS = [0, 1, 3];
@@ -111,6 +113,9 @@ class ObservableProvider implements Provider {
     subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
         return this._processMethod(METHODS[18][0]);
     }
+    signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
+        return this._processMethod(METHODS[19][0]);
+    }
 }
 
 describe("MultiProvider", () => {
@@ -120,7 +125,7 @@ describe("MultiProvider", () => {
     });
 
     it("Calls fallbacks correctly (#1)", async () => {
-        const mask = "0001111001011001010";
+        const mask = "00011110010110010101";
         const provider1: ObservableProvider = new ObservableProvider(1);
         const provider2: ObservableProvider = new ObservableProvider(2);
 
@@ -162,7 +167,7 @@ describe("MultiProvider", () => {
     });
 
     it("Calls fallbacks correctly (#2)", async () => {
-        const mask = "0001111001011001010";
+        const mask = "00011110010110010101";
         const provider1: ObservableProvider = new ObservableProvider(1);
         const provider2: ObservableProvider = new ObservableProvider(2);
 

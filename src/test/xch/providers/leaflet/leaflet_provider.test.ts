@@ -98,7 +98,7 @@ describe("LeafletProvider", () => {
         });
     }).timeout(10000);
 
-    describe("initialize()", () => {
+    describe("connect()", () => {
         it("Sends handshake message", async () => {
             let sentMessages: number = 0;
             let lastSentMessage: Message;
@@ -1616,6 +1616,22 @@ describe("LeafletProvider", () => {
                     callback: () => { }
                 })
             ).to.throw("LeafletProvider does not implement this method.");
+        });
+    });
+
+    describe("signCoinSpends()", () => {
+        it("Throws 'not implemented' error.", async () => {
+            const [provider] = await _setup(() => { });
+            let errorOk: boolean = false;
+            try {
+                await provider.signCoinSpends({
+                    coinSpends: []
+                });
+            } catch(e: any) {
+                errorOk = e.message === "LeafletProvider does not implement this method.";
+            }
+            
+            expect(errorOk).to.be.true;
         });
     });
 });

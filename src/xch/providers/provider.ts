@@ -1,6 +1,7 @@
 import { Optional, Coin, CoinState, BlockHeader, PuzzleSolution } from "./provider_types";
-import { acceptOfferArgs, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "./provider_args";
+import { acceptOfferArgs, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "./provider_args";
 import { BigNumber } from "@ethersproject/bignumber";
+import { SpendBundle } from "../../util/serializer/types/spend_bundle";
 
 export * from "./provider_types";
 export * from "./provider_args";
@@ -38,4 +39,5 @@ export interface Provider {
     transferCAT(args: transferCATArgs): Promise<boolean>;
     acceptOffer(args: acceptOfferArgs): Promise<boolean>;
     subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void;
+    signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>>;
 }

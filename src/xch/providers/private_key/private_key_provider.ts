@@ -136,6 +136,7 @@ export class PrivateKeyProvider implements Provider {
                 for(const [pk, msg] of pk_msg_things) {
                     if(pk !== this.privateKey) {
                         console.log("pk is different from pkey :(");
+                        continue;
                     }
 
                     const sig = AugSchemeMPL.sign(

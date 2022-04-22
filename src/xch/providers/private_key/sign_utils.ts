@@ -37,7 +37,7 @@ export class SignUtils {
             );
             const [error, result] = SignUtils.parseSExpToConditions(r);
 
-            return [error, result,cost];
+            return [error, result, cost];
         } catch(_) {
             return [true, null, 0];
         }

@@ -7,7 +7,7 @@ import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin, bytes } from ".
 import { Util } from "../../../util";
 import { SignUtils } from "./sign_utils";
 
-const MAX_BLOCK_COST_CLVM = 11000000000;
+export const MAX_BLOCK_COST_CLVM = 11000000000;
 
 export class PrivateKeyProvider implements Provider {
     private privateKey: string;

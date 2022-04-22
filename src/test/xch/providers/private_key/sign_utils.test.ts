@@ -5,7 +5,7 @@ import { Bytes, CLVMObject, SExp, sexp_from_stream, Stream, Tuple } from "clvm";
 import { ConditionOpcode } from "../../../../xch/providers/private_key/condition_opcodes";
 import { ConditionWithArgs } from "../../../../xch/providers/private_key/condition_with_args";
 import { MAX_BLOCK_COST_CLVM } from "../../../../xch/providers/private_key/private_key_provider";
-import { SignUtils } from "../../../../xch/providers/private_key/sign_utils";
+import { ConditionsDict, SignUtils } from "../../../../xch/providers/private_key/sign_utils";
 import { bytes } from "../../../../xch/providers/provider_types";
 
 //todo: arrange test describes to match the function definition order in sign_utils.ts
@@ -270,17 +270,62 @@ describe.only("SignUtils", () => {
             expect(res[2]).to.equal(0);
         });
     });
+
+    describe("conditionsDictForSolution()", () => {
+        it("Works", () => {
+            /*
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ cat test.clvm 
+            (mod (THROW_ERROR)
+                (defconstant AGG_SIG_ME 50)
+  	            (defconstant CREATE_COIN 51)
+
+  	            (if (= THROW_ERROR 1)
+  		            (x "ERROR")
+  		            (list
+  			            (list AGG_SIG_ME 0xa37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37 "yakuhito")
+  			            (list CREATE_COIN 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 10)
+  		            )
+  	            )
+            )
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ run test.clvm 
+            (a (q 2 (i (= 5 (q . 1)) (q 8 (q . "ERROR")) (q 4 (c 4 (q 0xa37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37 "yakuhito")) (c (c 6 (q 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 10)) ()))) 1) (c (q 50 . 51) 1))
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(a (q 2 (i (= 5 (q . 1)) (q 8 (q . "ERROR")) (q 4 (c 4 (q 0xa37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37 "yakuhito")) (c (c 6 (q 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 10)) ()))) 1) (c (q 50 . 51) 1))'
+            ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080
+            */
+
+            const program: SExp = _SExpFromSerialized("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
+            const solution: SExp = _SExpFromSerialized("ff8080"); // (())
+            const res = SignUtils.conditionsDictForSolution(program, solution, MAX_BLOCK_COST_CLVM);
+
+            expect(res[0]).to.be.false;
+            expect(res[1]).to.not.be.null;
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const dict: ConditionsDict = res[1]!;
+            expect(dict.size).to.equal(2);
+
+            const aggSigMes = dict.get(ConditionOpcode.AGG_SIG_ME);
+            expect(aggSigMes?.length).to.equal(1);
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const aggSigMe = aggSigMes![0];
+            expect(aggSigMe.opcode).to.equal(ConditionOpcode.AGG_SIG_ME);
+            expect(aggSigMe.vars.toString()).to.equal("a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37,79616b756869746f");
+            
+            const createCoins = dict.get(ConditionOpcode.CREATE_COIN);
+            expect(createCoins?.length).to.equal(1);
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const createCoin = createCoins![0];
+            expect(createCoin.opcode).to.equal(ConditionOpcode.CREATE_COIN);
+            expect(createCoin.vars.toString()).to.equal("b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664,0a");
+        });
+
+        it("Works if puzzle throws an exception", () => {
+            const program: SExp = _SExpFromSerialized("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
+            const solution: SExp = _SExpFromSerialized("ff0180"); // (1) => should throw exception
+
+            const res = SignUtils.conditionsDictForSolution(program, solution, MAX_BLOCK_COST_CLVM);
+            expect(res[0]).to.be.true;
+            expect(res[1]).to.be.null;
+            expect(res[2]).to.equal(0);
+        });
+    });
 });
-
-/*
-
-
-
-            const SERIALIZED_CLVM = "ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080";
-            const s: Stream = new Stream(new Bytes(
-                Buffer.from(SERIALIZED_CLVM, "hex")
-            ));
-            const program: SExp = sexp_from_stream(s, SExp.to);
-            const solution: SExp = SExp.to([SExp.FALSE]);
-            const result: CLVMType = run_program(program, solution, OPERATOR_LOOKUP)[1];
-*/

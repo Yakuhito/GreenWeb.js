@@ -103,13 +103,14 @@ export class SignUtils {
         
         for(let i = 0; i < conditions.length; i++) {
             const cvp = conditions[i];
-            if(!d.has(cvp.opcode)) {
-                d.set(cvp.opcode, []);
-            }
-            const newItem = d.get(cvp.opcode) ?? [];
-            newItem.push(cvp);
 
-            d.set(cvp.opcode, newItem);
+            let item = d.get(cvp.opcode);
+            if(item === undefined) {
+                item = [];
+            }
+
+            item.push(cvp);
+            d.set(cvp.opcode, item);
         }
 
         return d;

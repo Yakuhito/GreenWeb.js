@@ -70,4 +70,41 @@ describe.only("SignUtils", () => {
             expect(res[1][1]).to.equal("9090901122");
         });
     });
+
+    describe("conditionsByOpcode()", () => {
+        it("Works", () => {
+            const c1 = new ConditionWithArgs();
+            c1.opcode = ConditionOpcode.AGG_SIG_ME;
+            c1.vars = ["11", "22"];
+            const c2 = new ConditionWithArgs();
+            c2.opcode = ConditionOpcode.ASSERT_COIN_ANNOUNCEMENT;
+            c2.vars = ["33", "44"];
+            const c3 = new ConditionWithArgs();
+            c3.opcode = ConditionOpcode.AGG_SIG_ME;
+            c3.vars = ["55", "66"];
+
+            const conditions: ConditionWithArgs[] = [c1, c2, c3];
+            const res = SignUtils.conditionsByOpcode(conditions);
+
+            expect(res.get(ConditionOpcode.AGG_SIG_ME)?.length).to.equal(2);
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const aggSigMes = res.get(ConditionOpcode.AGG_SIG_ME)!;
+            expect(aggSigMes[0].opcode).to.equal(ConditionOpcode.AGG_SIG_ME);
+            expect(aggSigMes[0].vars.length).to.equal(2);
+            expect(aggSigMes[0].vars[0]).to.equal("11");
+            expect(aggSigMes[0].vars[1]).to.equal("22");
+            expect(aggSigMes[1].opcode).to.equal(ConditionOpcode.AGG_SIG_ME);
+            expect(aggSigMes[1].vars.length).to.equal(2);
+            expect(aggSigMes[1].vars[0]).to.equal("55");
+            expect(aggSigMes[1].vars[1]).to.equal("66");
+
+            expect(res.get(ConditionOpcode.ASSERT_COIN_ANNOUNCEMENT)?.length).to.equal(1);
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const ann = res.get(ConditionOpcode.ASSERT_COIN_ANNOUNCEMENT)![0];
+            expect(ann.opcode).to.equal(ConditionOpcode.ASSERT_COIN_ANNOUNCEMENT);
+            expect(ann.vars.length).to.equal(2);
+            expect(ann.vars[0]).to.equal("33");
+            expect(ann.vars[1]).to.equal("44");
+        });
+    });
 });

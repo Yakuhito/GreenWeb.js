@@ -13,6 +13,7 @@ Arguments:
  - `host`: leaflet host
  - `apiKey`: leaflet API key
  - `port`: default 18444; FireAcademy also works with 443
+ - `networkId`: default `mainnet`; the value will be used to construct the provider's handshake message
  - `webSocketCreateFunc`: a function that takes an URL and returns an `IWebSocket` instance. Mainly used for testing.
 
 You can use `LeafletProvider` with [FireAcademy.io](https://fireacademy.io)

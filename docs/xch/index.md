@@ -15,6 +15,7 @@ The `greenweb.xch` sub-module allows interacting with the Chia blockchain. This 
 [`LeafletProvider`](leaflet-provider.md) implements [`Provider`](provider.md) and can be used to connect to [`leaflet`](https://github.com/FireAcademy/leaflet-docker) nodes.
 [`GobyProvider`](goby-provider.md) tries to connect to a user's [Goby Wallet](https://www.goby.app/) extension.
 To use multiple providers, one can use [`MultiProvider`](multi-provider.md).
+[`PrivateKeyProvider`](private-key-provider.md) requires a private key to function and is mainly used for testing.
 
 To see the functions implemented by each provider, please see [this page](provider.md).
 

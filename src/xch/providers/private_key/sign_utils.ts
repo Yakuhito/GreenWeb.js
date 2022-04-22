@@ -1,4 +1,4 @@
-import { OPERATOR_LOOKUP, run_program, SExp } from "clvm";
+import { Bytes, OPERATOR_LOOKUP, run_program, SExp } from "clvm";
 import { bytes } from "../provider_types";
 import { ConditionOpcode } from "./condition_opcodes";
 import { ConditionWithArgs } from "./condition_with_args";
@@ -92,11 +92,11 @@ export class SignUtils {
             if(pair === null || pair === undefined) {
                 break;
             }
-            const atom = pair[0].atom;
+            const atom: Bytes = pair[0].atom;
             if(atom === null || atom === undefined) {
                 break;
             }
-            items.push(atom.as_bin().hex().slice(2));
+            items.push(atom.hex());
             obj = pair[1];
         }
 

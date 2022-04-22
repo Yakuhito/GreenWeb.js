@@ -1,7 +1,13 @@
+/* eslint-disable max-len */
 import { expect } from "chai";
+import { Bytes, CLVMObject, CLVMType, OPERATOR_LOOKUP, run_program, SExp, sexp_from_stream, Stream, Tuple } from "clvm";
+import { clvm } from "../../../..";
 import { ConditionOpcode } from "../../../../xch/providers/private_key/condition_opcodes";
 import { ConditionWithArgs } from "../../../../xch/providers/private_key/condition_with_args";
 import { SignUtils } from "../../../../xch/providers/private_key/sign_utils";
+import { bytes } from "../../../../xch/providers/provider_types";
+
+//todo: arrange test describes to match the function definition order in sign_utils.ts
 
 describe.only("SignUtils", () => {
     describe("pkmPairsForConditionsDict()", () => {
@@ -107,4 +113,76 @@ describe.only("SignUtils", () => {
             expect(ann.vars[1]).to.equal("44");
         });
     });
+
+    describe("asAtomList()", () => {
+        it("Works", () => {
+            /*
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ run '(list 0x31 0x33 0x37)'
+            (49 51 55)
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(49 51 55)'
+            ff31ff33ff3780
+            (venv) yakuhito@catstation:~/projects/clvm_tools$
+            */
+            const SERIALIZED = "ff31ff33ff3780";
+            const s: Stream = new Stream(new Bytes(
+                Buffer.from(SERIALIZED, "hex")
+            ));
+            const sexp: SExp = sexp_from_stream(s, SExp.to);
+            const res: bytes[] = SignUtils.asAtomList(sexp);
+            
+            expect(res.length).to.equal(3);
+            expect(res.toString()).to.equal("31,33,37");
+        });
+
+        it("Works if list ends unexpectedly", () => {
+            const sexp: SExp = new SExp(
+                new CLVMObject(new Tuple(
+                    new CLVMObject(
+                        Bytes.from([0x31])
+                    ),
+                    new CLVMObject(
+                        new Tuple(
+                            Bytes.from([0x33]),
+                            Bytes.from([0x37])
+                        )
+                    )
+                ))
+            );
+            
+            const res: bytes[] = SignUtils.asAtomList(sexp);
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal("31");
+        });
+    });
 });
+
+/*
+(venv) yakuhito@catstation:~/projects/clvm_tools$ cat test.clvm 
+(mod (THROW_ERROR)
+    (defconstant AGG_SIG 50)
+  	(defconstant CREATE_COIN 51)
+  	(defconstant AGG_SIG_ME 57)
+
+  	(if (= THROW_ERROR 1)
+  		(x "ERROR")
+  		(list
+  			(list AGG_SIG 0xa37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37 "yakuhito")
+  			(list CREATE_COIN 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 10)
+  		)
+  	)
+)
+(venv) yakuhito@catstation:~/projects/clvm_tools$ run test.clvm 
+(a (q 2 (i (= 5 (q . 1)) (q 8 (q . "ERROR")) (q 4 (c 4 (q 0xa37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37 "yakuhito")) (c (c 6 (q 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 10)) ()))) 1) (c (q 50 . 51) 1))
+(venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(a (q 2 (i (= 5 (q . 1)) (q 8 (q . "ERROR")) (q 4 (c 4 (q 0xa37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37 "yakuhito")) (c (c 6 (q 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 10)) ()))) 1) (c (q 50 . 51) 1))'
+ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080
+(venv) yakuhito@catstation:~/projects/clvm_tools$
+
+
+            const SERIALIZED_CLVM = "ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080";
+            const s: Stream = new Stream(new Bytes(
+                Buffer.from(SERIALIZED_CLVM, "hex")
+            ));
+            const program: SExp = sexp_from_stream(s, SExp.to);
+            const solution: SExp = SExp.to([SExp.FALSE]);
+            const result: CLVMType = run_program(program, solution, OPERATOR_LOOKUP)[1];
+*/

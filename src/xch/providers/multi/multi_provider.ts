@@ -306,7 +306,7 @@ export class MultiProvider implements Provider {
         throw new Error("MultiProvider could not find an active Provider that implements this method.");
     }
 
-    public async signCoinSpends(args: signCoinSpendsArgs): Promise<SpendBundle> {
+    public async signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
         for(let i = 0; i < this.providers.length; ++i) {
             try {
                 if(!this.providers[i].isConnected()) {

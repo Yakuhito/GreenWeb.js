@@ -98,7 +98,7 @@ describe("LeafletProvider", () => {
         });
     }).timeout(10000);
 
-    describe("initialize()", () => {
+    describe("connect()", () => {
         it("Sends handshake message", async () => {
             let sentMessages: number = 0;
             let lastSentMessage: Message;

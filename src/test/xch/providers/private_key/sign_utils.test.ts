@@ -8,7 +8,7 @@ import { MAX_BLOCK_COST_CLVM } from "../../../../xch/providers/private_key/priva
 import { ConditionsDict, SignUtils } from "../../../../xch/providers/private_key/sign_utils";
 import { bytes } from "../../../../xch/providers/provider_types";
 
-const _SExpFromSerialized = (serialized: bytes) => {
+export const _SExpFromSerialized = (serialized: bytes) => {
     const s: Stream = new Stream(new Bytes(
         Buffer.from(serialized, "hex")
     ));

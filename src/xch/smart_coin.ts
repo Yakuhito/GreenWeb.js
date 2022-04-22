@@ -4,6 +4,13 @@ import { CoinSpend } from "../util/serializer/types/coin_spend";
 import { bytes, uint } from "./providers/provider_types";
 import { Util } from  "../util";
 
+export type SmartCoinConstructorArgs = {
+    parentCoinInfo: string | null,
+    puzzleHash: string | null,
+    amount: uint | null,
+    puzzle: SExp | null
+};
+
 export class SmartCoin {
     public parentCoinInfo: string | null;
     public puzzleHash: string | null;
@@ -11,13 +18,27 @@ export class SmartCoin {
 
     public puzzle: SExp | null;
     
-    constructor(coin: Coin | null, puzzle: SExp | null) {
-        this.parentCoinInfo = coin?.parentCoinInfo ?? null;
-        this.puzzleHash = coin?.puzzleHash ?? null;
-        this.amount = coin?.amount ?? null;
-
+    constructor({
+        parentCoinInfo = null,
+        puzzleHash = null,
+        amount = null,
+        puzzle = null,
+    }: SmartCoinConstructorArgs) {
+        this.parentCoinInfo = parentCoinInfo;
+        this.puzzleHash = puzzleHash;
+        this.amount = amount;
         this.puzzle = puzzle;
+
         this.calculatePuzzleHash();
+    }
+
+    public static fromCoin(coin: Coin | null, puzzle: SExp | null): SmartCoin {
+        return new SmartCoin({
+            parentCoinInfo: coin?.parentCoinInfo ?? null,
+            puzzleHash: coin?.puzzleHash ?? null,
+            amount: coin?.amount ?? null,
+            puzzle: puzzle
+        });
     }
 
     private calculatePuzzleHash(): void {

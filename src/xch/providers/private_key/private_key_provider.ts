@@ -15,8 +15,13 @@ export class PrivateKeyProvider implements Provider {
     private network: string;
 
     constructor(privateKey: bytes, network: string = "mainnet") {
-        // todo: check privateKey
-        this.privateKey = privateKey;
+        const key = Util.address.validateHashString(privateKey);
+
+        if(key === "") {
+            throw new Error("Invalid private key.");
+        }
+
+        this.privateKey = key;
         this.connected = false;
         this.network = network;
     }
@@ -32,7 +37,7 @@ export class PrivateKeyProvider implements Provider {
     }
 
     public getNetworkId(): string {
-        throw new Error("PrivateKeyProvider does not implement this method.");
+        return this.network;
     }
 
     public isConnected(): boolean {
@@ -99,7 +104,7 @@ export class PrivateKeyProvider implements Provider {
         throw new Error("PrivateKeyProvider does not implement this method.");
     }
 
-    public async signCoinSpends({ coinSpends }: signCoinSpendsArgs): Promise<SpendBundle> {
+    public async signCoinSpends({ coinSpends }: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
         // todo
         // network genesis challenge
         const networkData: string = this.network === "mainnet" ?
@@ -112,10 +117,11 @@ export class PrivateKeyProvider implements Provider {
         const signatures: Array<typeof emptySig> = [
             AugSchemeMPL.aggregate([]),
         ];
-        const pKey = PrivateKey.from_bytes(
-            Buffer.from(this.privateKey),
+        const sk = PrivateKey.from_bytes(
+            Buffer.from(this.privateKey, "hex"),
             false
         );
+        const publicKey = Buffer.from(sk.get_g1().serialize()).toString("hex");
 
         for(let i = 0; i < coinSpends.length; i++) {
             const coinSpend = coinSpends[i];
@@ -126,7 +132,7 @@ export class PrivateKeyProvider implements Provider {
                 MAX_BLOCK_COST_CLVM
             );
 
-            if(conditions !== null && conditions.size > 0) {
+            if(conditions !== null) {
                 const pk_msg_things = SignUtils.pkmPairsForConditionsDict(
                     conditions,
                     Util.coin.getId(coinSpend.coin),
@@ -134,13 +140,12 @@ export class PrivateKeyProvider implements Provider {
                 );
     
                 for(const [pk, msg] of pk_msg_things) {
-                    if(pk !== this.privateKey) {
-                        console.log("pk is different from pkey :(");
+                    if(pk !== publicKey) {
                         continue;
                     }
 
                     const sig = AugSchemeMPL.sign(
-                        pKey,
+                        sk,
                         Buffer.from(msg, "hex")
                     );
         

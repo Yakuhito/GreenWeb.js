@@ -39,5 +39,5 @@ export interface Provider {
     transferCAT(args: transferCATArgs): Promise<boolean>;
     acceptOffer(args: acceptOfferArgs): Promise<boolean>;
     subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void;
-    signCoinSpends(args: signCoinSpendsArgs): Promise<SpendBundle>;
+    signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>>;
 }

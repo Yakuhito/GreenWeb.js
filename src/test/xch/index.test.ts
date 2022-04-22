@@ -72,7 +72,7 @@ describe("XCHModule", () => {
     it("Exposes 3 providers", () => {
         expect(
             Object.keys(XCHModule.providers).length
-        ).to.be.equal(3);
+        ).to.be.equal(4);
     });
 
     it("Exposes its set provider", () => {

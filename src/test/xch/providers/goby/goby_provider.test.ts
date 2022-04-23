@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { expect } from "chai";
+import { Util } from "../../../../util";
+import { Network } from "../../../../util/network";
+import { SpendBundle } from "../../../../util/serializer/types/spend_bundle";
 import { GobyProvider } from "../../../../xch/providers/goby/goby_provider";
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
@@ -372,7 +375,7 @@ describe("GobyProvider", () => {
             );
 
             expect(p.isConnected()).to.be.false;
-            expect(p.getNetworkId()).to.equal("");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
         });
 
         it("Works if not connected, after connect", async () => {
@@ -394,7 +397,7 @@ describe("GobyProvider", () => {
             await p.connect();
 
             expect(p.isConnected()).to.be.false;
-            expect(p.getNetworkId()).to.equal("");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
         });
 
         it("Works if connected via constructor (default value)", async () => {
@@ -426,7 +429,7 @@ describe("GobyProvider", () => {
             expect(registeredCallbacks).to.equal(2);
             expect(await p.getAddress()).to.equal("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
 
-            expect(p.getNetworkId()).to.equal("mainnet");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
         });
 
         it("Works if connected via connect()", async () => {
@@ -456,7 +459,7 @@ describe("GobyProvider", () => {
             expect(await p.getAddress()).to.equal("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
             expect(registeredCallbacks).to.equal(2);
 
-            expect(p.getNetworkId()).to.equal("mainnet");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
         });
 
         it("Works if 'chainChanged' event callback is fired", async () => {
@@ -490,31 +493,28 @@ describe("GobyProvider", () => {
             expect(await p.getAddress()).to.equal("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
             expect(registeredCallbacks).to.equal(2);
 
-            expect(p.getNetworkId()).to.equal("mainnet");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
 
-            await chainChangedCallback("yakuhito");
-            expect(p.getNetworkId()).to.equal("yakuhito");
+            await chainChangedCallback("0x02");
+            expect(p.getNetworkId()).to.equal(Network.testnet10);
 
-            await chainChangedCallback("yakuhito2");
-            expect(p.getNetworkId()).to.equal("yakuhito2");
+            await chainChangedCallback("0x01");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
 
-            await chainChangedCallback("mainnet");
-            expect(p.getNetworkId()).to.equal("mainnet");
+            await chainChangedCallback("0x02");
+            expect(p.getNetworkId()).to.equal(Network.testnet10);
 
-            await chainChangedCallback("0x2");
-            expect(p.getNetworkId()).to.equal("testnet10");
+            await chainChangedCallback("0x01");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
 
-            await chainChangedCallback("0x1");
-            expect(p.getNetworkId()).to.equal("mainnet");
+            await chainChangedCallback("0x01");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
 
-            await chainChangedCallback(0x2);
-            expect(p.getNetworkId()).to.equal("testnet10");
+            await chainChangedCallback("0x02");
+            expect(p.getNetworkId()).to.equal(Network.testnet10);
 
-            await chainChangedCallback(0x1);
-            expect(p.getNetworkId()).to.equal("mainnet");
-
-            await chainChangedCallback("lasttest");
-            expect(p.getNetworkId()).to.equal("lasttest");
+            await chainChangedCallback("0x01");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
         });
     });
 
@@ -686,98 +686,57 @@ describe("GobyProvider", () => {
         });
     });
 
-    const _expectNotImplError = async (func: () => Promise<any>) => {
-        let thrownOk: boolean = false;
+    const _expectNotImplError = (funcName: string, func: (p: GobyProvider) => any) => {
+        describe(funcName, () => {
+            it("Throws 'not implemented' error", async () => {
+                let thrownOk: boolean = false;
+                const p = new GobyProvider();
 
-        try {
-            await func();
-        } catch(err) {
-            thrownOk = err instanceof Error && err.message === "GobyProvider does not implement this method.";
-        }
-        expect(thrownOk).to.be.true;
+                try {
+                    await func(p);
+                } catch(err) {
+                    thrownOk = err instanceof Error && err.message === "GobyProvider does not implement this method.";
+                }
+                expect(thrownOk).to.be.true;
+            });
+        });
     }
 
-    it("getBlockNumber()", () => {
-        const p = new GobyProvider();
-        return _expectNotImplError(() => p.getBlockNumber());
-    });
-
-    it("getBalance()", async () => {
-        const p = new GobyProvider();
-        return _expectNotImplError(() => p.getBalance({}));
-    });
-
-    it("subscribeToPuzzleHashUpdates()", async () => {
-        const p = new GobyProvider();
-
-        let callbackCalled = false;
-        expect(
-            () => p.subscribeToPuzzleHashUpdates({
-                puzzleHash: "testtest",
-                callback: () => callbackCalled = true
-            })
-        ).to.throw("GobyProvider does not implement this method.");
-        expect(callbackCalled).to.to.false;
-    });
-
-    it("subscribeToCoinUpdates()", () => {
-        const p = new GobyProvider();
-
-        let callbackCalled = false;
-        expect(
-            () => p.subscribeToCoinUpdates({
-                coinId: "testtest",
-                callback: () => callbackCalled = true
-            })
-        ).to.throw("GobyProvider does not implement this method.");
-        expect(callbackCalled).to.to.false;
-    });
-
-    it("getPuzzleSolution()", async () => {
-        const p = new GobyProvider();
-        return _expectNotImplError(() => p.getPuzzleSolution({
-            coinId: "testtest",
-            height: 7
-        }));
-    });
-
-    it("getCoinChildren()", async () => {
-        const p = new GobyProvider();
-        return _expectNotImplError(() => p.getCoinChildren({
-            coinId: "testtest"
-        }));
-    });
-
-    it("getBlockHeader()", () => {
-        const p = new GobyProvider();
-        return _expectNotImplError(() => p.getBlockHeader({
-            height: 42
-        }));
-    });
-
-    it("getBlocksHeaders()", () => {
-        const p = new GobyProvider();
-        return _expectNotImplError(() => p.getBlocksHeaders({
-            startHeight: 7,
-            endHeight: 42
-        }));
-    });
-
-    it("getCoinRemovals()", () => {
-        const p = new GobyProvider();
-        return _expectNotImplError(() => p.getCoinRemovals({
-            height: 7,
-            headerHash: "hash"
-        }));
-    });
-
-    it("getCoinAdditions()", () => {
-        const p = new GobyProvider();
-        return _expectNotImplError(() => p.getCoinAdditions({
-            height: 7,
-            headerHash: "hash"
-        }));
-    });
+    _expectNotImplError("getBlockNumber()", (p) => p.getBlockNumber());
+    _expectNotImplError("getBalance()", (p) => p.getBalance({}));
+    _expectNotImplError("subscribeToPuzzleHashUpdates()", (p) => p.subscribeToPuzzleHashUpdates({
+        puzzleHash: "testtest",
+        callback: () => { throw new Error("oops"); }
+    }));
+    _expectNotImplError("subscribeToCoinUpdates()", (p) => p.subscribeToCoinUpdates({
+        coinId: "testtest",
+        callback: () => { throw new Error("oops"); }
+    }));
+    _expectNotImplError("getPuzzleSolution()", (p) => p.getPuzzleSolution({
+        coinId: "testtest",
+        height: 7
+    }));
+    _expectNotImplError("getCoinChildren()", (p) => p.getCoinChildren({
+        coinId: "testtest"
+    }));
+    _expectNotImplError("getBlockHeader()", (p) => p.getBlockHeader({
+        height: 42
+    }));
+    _expectNotImplError("getBlocksHeaders()", (p) => p.getBlocksHeaders({
+        startHeight: 7,
+        endHeight: 42
+    }));
+    _expectNotImplError("getCoinRemovals()", (p) => p.getCoinRemovals({
+        height: 7,
+        headerHash: "hash"
+    }));
+    _expectNotImplError("getCoinAdditions()", (p) => p.getCoinAdditions({
+        height: 7,
+        headerHash: "hash"
+    }));
+    _expectNotImplError("pushSpendBundle()", (p) => p.pushSpendBundle({
+        spendBundle: new SpendBundle(),
+    }));
 
     describe("transfer()", () => {
         it("Does not request 'transfer' if not connected", async () => {
@@ -1130,57 +1089,181 @@ describe("GobyProvider", () => {
         });
     });
 
-    it("subscribeToAddressChanges()", async () => {
-        let accountsChangedCallback: any;
+    describe("subscribeToAddressChanges()", () => {
+        it("Works", async () => {
+            let accountsChangedCallback: any;
 
-        const p = new GobyProvider(
-            true,
-            {
-                isGoby: true,
-                request: async ({ method, params }: { method: string, params?: any }) => {
-                    if(method === "requestAccounts") {
-                        return ["xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3"];
-                    }
-                    return [];
-                },
-                on: async (event: string, callback: any) => {
-                    if(event === "accountsChanged") {
-                        accountsChangedCallback = callback;
+            const p = new GobyProvider(
+                true,
+                {
+                    isGoby: true,
+                    request: async ({ method, params }: { method: string, params?: any }) => {
+                        if(method === "requestAccounts") {
+                            return ["xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3"];
+                        }
+                        return [];
+                    },
+                    on: async (event: string, callback: any) => {
+                        if(event === "accountsChanged") {
+                            accountsChangedCallback = callback;
+                        }
                     }
                 }
-            }
-        );
+            );
 
-        await p.connect();
-        expect(p.isConnected()).to.be.true;
+            await p.connect();
+            expect(p.isConnected()).to.be.true;
 
-        let address: string = "";
-        p.subscribeToAddressChanges({
-            callback: (addr: string) => address = addr
+            let address: string = "";
+            p.subscribeToAddressChanges({
+                callback: (addr: string) => address = addr
+            });
+
+            expect(address).to.equal("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
+
+            await accountsChangedCallback(null);
+            expect(address).to.equal("");
+
+            await accountsChangedCallback(["xch1234"]);
+            expect(address).to.equal("xch1234");
+
+            await accountsChangedCallback([]);
+            expect(address).to.equal("");
+
+            await accountsChangedCallback(["xch1", "xch2", "xch3"]);
+            expect(address).to.equal("xch1");
+
+            await p.close();
+            expect(address).to.equal("");
         });
-
-        expect(address).to.equal("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
-
-        await accountsChangedCallback(null);
-        expect(address).to.equal("");
-
-        await accountsChangedCallback(["xch1234"]);
-        expect(address).to.equal("xch1234");
-
-        await accountsChangedCallback([]);
-        expect(address).to.equal("");
-
-        await accountsChangedCallback(["xch1", "xch2", "xch3"]);
-        expect(address).to.equal("xch1");
-
-        await p.close();
-        expect(address).to.equal("");
     });
 
-    it("signCoinSpends()", () => {
-        const p = new GobyProvider();
-        return _expectNotImplError(() => p.signCoinSpends({
-            coinSpends: []
-        }));
+    _expectNotImplError("signCoinSpends()", (p) => p.signCoinSpends({
+        coinSpends: []
+    }));
+
+    describe("changeNetwork()", () => {
+        const SUPPORTED_NETWORKS = [Network.mainnet, Network.testnet10];
+        const EXPECTED_IDS = ["0x01", "0x02"];
+
+        for(let i = 0; i < SUPPORTED_NETWORKS.length; ++i) {
+            const network = SUPPORTED_NETWORKS[i];
+            const expectedId = EXPECTED_IDS[i];
+
+            const testTitle = "Correctly requests network change (" + network + ")";
+            it(testTitle, async () => {
+                let walletSwitchChainRequests = 0;
+                let lastChainId = "0";
+                const p = new GobyProvider(
+                    true,
+                    {
+                        isGoby: true,
+                        request: async ({ method, params }: { method: string, params?: any }) => {
+                            if(method === "requestAccounts") {
+                                return ["xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3"];
+                            } else if(method === "walletSwitchChain") {
+                                walletSwitchChainRequests += 1;
+                                lastChainId = params.chainId;
+                            } else {
+                                throw new Error("oops");
+                            }
+                        },
+                        on: async (event: string, callback: any) => {
+                            // do nothing
+                        }
+                    }
+                );
+
+                await p.connect();
+
+                expect(p.isConnected()).to.be.true;
+
+                const result = await p.changeNetwork({
+                    network: network
+                });
+
+                expect(result).to.be.true;
+                expect(walletSwitchChainRequests).to.equal(1);
+                expect(lastChainId).to.equal(expectedId);
+            });
+
+            const testTitle2 = "Returns false if network change throws error (" + network + ")";
+            it(testTitle2, async () => {
+                let walletSwitchChainRequests = 0;
+                const p = new GobyProvider(
+                    true,
+                    {
+                        isGoby: true,
+                        request: async ({ method, params }: { method: string, params?: any }) => {
+                            if(method === "requestAccounts") {
+                                return ["xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3"];
+                            } else if(method === "walletSwitchChain") {
+                                walletSwitchChainRequests += 1;
+                                throw new Error("nope");
+                            } else {
+                                throw new Error("oops");
+                            }
+                        },
+                        on: async (event: string, callback: any) => {
+                            // do nothing
+                        }
+                    }
+                );
+
+                await p.connect();
+
+                expect(p.isConnected()).to.be.true;
+
+                const result = await p.changeNetwork({
+                    network: network
+                });
+
+                expect(result).to.be.false;
+                expect(walletSwitchChainRequests).to.equal(1);
+            });
+        }
+
+        const ALL_NETWORKS = Util.network.networks;
+        for(let i = 0; i < ALL_NETWORKS.length; i++) {
+            const network = ALL_NETWORKS[i];
+            if(SUPPORTED_NETWORKS.includes(network)) {
+                continue;
+            }
+
+            const testTitle = "Returns false and doesn't make any request for unsupported networks (" + network + ")";
+            it(testTitle, async () => {
+                let walletSwitchChainRequests = 0;
+
+                const p = new GobyProvider(
+                    true,
+                    {
+                        isGoby: true,
+                        request: async ({ method, params }: { method: string, params?: any }) => {
+                            if(method === "requestAccounts") {
+                                return ["xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3"];
+                            } else if(method === "walletSwitchChain") {
+                                walletSwitchChainRequests += 1;
+                            } else {
+                                throw new Error("oops");
+                            }
+                        },
+                        on: async (event: string, callback: any) => {
+                            // do nothing
+                        }
+                    }
+                );
+
+                await p.connect();
+
+                expect(p.isConnected()).to.be.true;
+
+                const result = await p.changeNetwork({
+                    network: network
+                });
+
+                expect(result).to.be.false;
+                expect(walletSwitchChainRequests).to.equal(0);
+            });
+        }
     });
 });

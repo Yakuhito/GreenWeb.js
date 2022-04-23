@@ -2,19 +2,20 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { getBLSModule, initialize, } from "clvm";
 import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Provider } from "../provider";
-import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs } from "../provider_args";
+import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, changeNetworkArgs, pushSpendBundleArgs } from "../provider_args";
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin, bytes } from "../provider_types";
 import { Util } from "../../../util";
 import { SignUtils } from "./sign_utils";
+import { Network } from "../../../util/network";
 
 export const MAX_BLOCK_COST_CLVM = 11000000000;
 
 export class PrivateKeyProvider implements Provider {
     private privateKey: string;
     private connected: boolean;
-    private network: string;
+    private network: Network;
 
-    constructor(privateKey: bytes, network: string = "mainnet") {
+    constructor(privateKey: bytes, network: Network = Network.mainnet) {
         const key = Util.address.validateHashString(privateKey);
 
         if(key === "") {
@@ -36,7 +37,7 @@ export class PrivateKeyProvider implements Provider {
         this.connected = false;
     }
 
-    public getNetworkId(): string {
+    public getNetworkId(): Network {
         return this.network;
     }
 
@@ -44,72 +45,31 @@ export class PrivateKeyProvider implements Provider {
         return this.connected;
     }
 
-    public async getBlockNumber(): Promise<Optional<number>> {
+    private _doesNotImplementError(): any {
         throw new Error("PrivateKeyProvider does not implement this method.");
     }
 
-    public async getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async getCoinChildren(args: getCoinChildrenArgs): Promise<CoinState[]> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<BlockHeader>> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async getAddress(): Promise<string> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async transfer(args: transferArgs): Promise<boolean> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async transferCAT(args: transferCATArgs): Promise<boolean> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async acceptOffer(args: acceptOfferArgs): Promise<boolean> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
+    public async getBlockNumber(): Promise<Optional<number>> { return this._doesNotImplementError(); }
+    public async getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>> { return this._doesNotImplementError(); }
+    public subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void { return this._doesNotImplementError(); }
+    public subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void { return this._doesNotImplementError(); }
+    public async getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>> { return this._doesNotImplementError(); }
+    public async getCoinChildren(args: getCoinChildrenArgs): Promise<CoinState[]> { return this._doesNotImplementError(); }
+    public async getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<BlockHeader>> { return this._doesNotImplementError(); }
+    public async getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>> { return this._doesNotImplementError(); }
+    public async getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>> { return this._doesNotImplementError(); }
+    public async getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> { return this._doesNotImplementError(); }
+    public async pushSpendBundle(args: pushSpendBundleArgs): Promise<boolean> { return this._doesNotImplementError(); }
+    public async getAddress(): Promise<string> { return this._doesNotImplementError(); }
+    public async transfer(args: transferArgs): Promise<boolean> { return this._doesNotImplementError(); }
+    public async transferCAT(args: transferCATArgs): Promise<boolean> { return this._doesNotImplementError(); }
+    public async acceptOffer(args: acceptOfferArgs): Promise<boolean> { return this._doesNotImplementError(); }
+    public subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void { return this._doesNotImplementError(); }
 
     public async signCoinSpends({ coinSpends }: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
         // todo
         // network genesis challenge
-        const networkData: string = this.network === "mainnet" ?
-            "ccd5bb71183532bff220ba46c268991a3ff07eb358e8255a65c30a2dce0e5fbb" :
-            "ae83525ba8d1dd3f09b277de18ca3e43fc0af20d20c4b3e92ef2a48bd291ccb2";
+        const networkData: string = Util.network.getGenesisChallenge(this.network);
 
         const { PrivateKey, AugSchemeMPL } = getBLSModule();
 
@@ -161,5 +121,14 @@ export class PrivateKeyProvider implements Provider {
             AugSchemeMPL.aggregate(signatures).serialize()
         ).toString("hex");
         return sb;
+    }
+
+    public async changeNetwork(args: changeNetworkArgs): Promise<boolean> {
+        if(Util.network.networks.includes(args.network)) {
+            this.network = args.network;
+            return true;
+        }
+
+        return false;
     }
 }

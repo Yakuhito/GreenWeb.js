@@ -7,6 +7,7 @@ import { expect } from "chai";
 import { SExp } from "clvm";
 import { AddressUtil } from "../../../../util/address";
 import { CoinUtil } from "../../../../util/coin";
+import { Network } from "../../../../util/network";
 import { Serializer } from "../../../../util/serializer/serializer";
 import { Coin } from "../../../../util/serializer/types/coin";
 import { Foliage, FoliageBlockData, TransactionsInfo } from "../../../../util/serializer/types/foliage";
@@ -17,8 +18,9 @@ import { ProofOfSpace } from "../../../../util/serializer/types/proof_of_space";
 import { ProtocolMessageTypes } from "../../../../util/serializer/types/protocol_message_types";
 import { RewardChainBlock } from "../../../../util/serializer/types/reward_chain_block";
 import { Capability, Handshake } from "../../../../util/serializer/types/shared_protocol";
+import { SpendBundle } from "../../../../util/serializer/types/spend_bundle";
 import { VDFInfo, VDFProof } from "../../../../util/serializer/types/vdf";
-import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RejectAdditionsRequest, RejectHeaderBlocks, RejectHeaderRequest, RejectPuzzleSolution, RejectRemovalsRequest, RespondAdditions, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondRemovals, RespondToCoinUpdates, RespondToPhUpdates } from "../../../../util/serializer/types/wallet_protocol";
+import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RejectAdditionsRequest, RejectHeaderBlocks, RejectHeaderRequest, RejectPuzzleSolution, RejectRemovalsRequest, RespondAdditions, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondRemovals, RespondToCoinUpdates, RespondToPhUpdates, TransactionAck } from "../../../../util/serializer/types/wallet_protocol";
 import { getSoftwareVersion } from "../../../../util/software_version";
 import { LeafletProvider } from "../../../../xch/providers/leaflet";
 import { IWebSocket } from "../../../../xch/providers/leaflet/chia_message_channel";
@@ -45,7 +47,7 @@ describe("LeafletProvider", () => {
             };
             const webSocketOverrideCreateFunc = (_url: string) => obj;
             const provider: LeafletProvider = new LeafletProvider(
-                "leaflet.fireacademy.io", "TEST-API-KEY", 12345, "testnet42", webSocketOverrideCreateFunc
+                "leaflet.fireacademy.io", "TEST-API-KEY", 12345, Network.testnet10, webSocketOverrideCreateFunc
             );
 
             const opener = async () => {
@@ -79,15 +81,15 @@ describe("LeafletProvider", () => {
     });
 
     describe("constructor", () => {
-        it("Works with default values", async () => {
+        it("Works", async () => {
             // as idiotic as this test is, line 29 needs to be used in a test to get full coverage :|
             // webSocketCreateFunc: (url: string) => IWebSocket = (url: string) => new WebSocket(url),
             const p = new LeafletProvider(
-                "nonexistent.fireacademy.io", "TEST-API-KEY", 18444, "testnet1000"
+                "nonexistent.fireacademy.io", "TEST-API-KEY", 18444, Network.testnet0
             );
             expect(p.isConnected()).to.be.false;
             expect(p.close).to.not.throw;
-            expect(p.getNetworkId()).to.equal("testnet1000");
+            expect(p.getNetworkId()).to.equal(Network.testnet0);
             expect(await p.getBlockNumber()).to.be.null;
 
             await p.connect();
@@ -121,7 +123,7 @@ describe("LeafletProvider", () => {
                 Handshake,
                 Buffer.from(lastSentMessage!.data, "hex")
             );
-            expect(handshake.networkId).to.equal("testnet42");
+            expect(handshake.networkId).to.equal(Network.testnet10);
             expect(
                 handshake.protocolVersion.startsWith("0.0.")
             ).to.be.true;
@@ -146,15 +148,15 @@ describe("LeafletProvider", () => {
                 "leaflet.fireacademy.io", "TEST-API-KEY"
             );
 
-            expect(provider.getNetworkId()).to.equal("mainnet");
+            expect(provider.getNetworkId()).to.equal(Network.mainnet);
         });
 
         it("Correctly reports network id when one is provided", async () => {
             const provider: LeafletProvider = new LeafletProvider(
-                "leaflet.fireacademy.io", "TEST-API-KEY", 12345, "testnet42"
+                "leaflet.fireacademy.io", "TEST-API-KEY", 12345, Network.testnet7
             );
 
-            expect(provider.getNetworkId()).to.equal("testnet42");
+            expect(provider.getNetworkId()).to.equal(Network.testnet7);
         });
     });
 
@@ -1563,75 +1565,140 @@ describe("LeafletProvider", () => {
         });
     });
 
-    describe("getAddress()", () => {
+    const _throwsNotImplemented = (func: any) => {
         it("Throws 'not implemented' error.", async () => {
             const [provider] = await _setup(() => { });
-            expect(
-                provider.getAddress
-            ).to.throw("LeafletProvider does not implement this method.");
+            let errOk: boolean = false;
+
+            try {
+                await func(provider);
+            } catch(e: any) {
+                errOk = e.message === "LeafletProvider does not implement this method.";
+            }
+            
+            expect(errOk).to.be.true;
         });
+    };
+
+    describe("pushSpendBundle()", () => {
+        const tests = [
+            "Works when response says tx was successful",
+            "Works when response says tx is pending",
+            "Works when response says tx failed (no error)",
+            "Works when response says tx failed (with error)",
+        ];
+        const responseStatuses = [1, 2, 3, 3];
+        const responseErrors = [null, null, null, "error"];
+        const expectToFail = [false, false, true, true];
+
+        for(let i = 0; i < tests.length; i++) {
+            it(tests[i], async () => {
+                let lastMessage: Message;
+    
+                const [provider, sendMessage] = await _setup((msg) => {
+                    lastMessage = msg;
+                });
+    
+                const sb = new SpendBundle();
+                sb.aggregatedSignature = "00".repeat(96);
+                sb.coinSpends = [];
+                
+                const promise = provider.pushSpendBundle({ spendBundle: sb });
+    
+                while(
+                    BigNumber.from(lastMessage!.type).toNumber() !== ProtocolMessageTypes.send_transaction
+                ) {
+                    await sleep(10);
+                }
+    
+                const decoy = new TransactionAck();
+                decoy.txid = "11".repeat(32);
+                decoy.status = expectToFail[i] ? 1 : 3;
+                decoy.error = null;
+
+                const decoyPckt: Message = new Message();
+                decoyPckt.type = ProtocolMessageTypes.new_peak;
+                decoyPckt.id = null;
+                decoyPckt.data = Serializer.serialize(decoy).toString("hex");
+
+                const ack = new TransactionAck();
+                ack.txid = "00".repeat(32);
+                ack.status = responseStatuses[i];
+                ack.error = responseErrors[i];
+    
+                const respPckt: Message = new Message();
+                respPckt.type = ProtocolMessageTypes.transaction_ack;
+                respPckt.id = null;
+                respPckt.data = Serializer.serialize(ack).toString("hex");
+    
+                sendMessage(decoyPckt);
+                sendMessage(respPckt);
+    
+                const result = await promise;
+
+                if(expectToFail[i]) {
+                    expect(result).to.be.false;
+                } else {
+                    expect(result).to.be.true;
+                }
+            });
+        }
+    });
+
+    describe("getAddress()", () => {
+        _throwsNotImplemented(
+            (p: LeafletProvider) => p.getAddress()
+        );
     });
 
     describe("transfer()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const [provider] = await _setup(() => {});
-            expect(
-                () => provider.transfer({
-                    to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
-                    value: 1337
-                })
-            ).to.throw("LeafletProvider does not implement this method.");
-        });
+        _throwsNotImplemented(
+            (p: LeafletProvider) => p.transfer({
+                to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+                value: 1337
+            })
+        );
     });
 
     describe("transferCAT()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const [provider] = await _setup(() => { });
-            expect(
-                () => provider.transferCAT({
-                    to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
-                    assetId: "00".repeat(32),
-                    value: 1337
-                })
-            ).to.throw("LeafletProvider does not implement this method.");
-        });
+        _throwsNotImplemented(
+            (p: LeafletProvider) => p.transferCAT({
+                to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+                assetId: "00".repeat(32),
+                value: 1337
+            })
+        );
     });
     
     describe("acceptOffer()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const [provider] = await _setup(() => { });
-            expect(
-                () => provider.acceptOffer({
-                    offer: "offer12345"
-                })
-            ).to.throw("LeafletProvider does not implement this method.");
-        });
+        _throwsNotImplemented(
+            (p: LeafletProvider) => p.acceptOffer({
+                offer: "offer12345"
+            })
+        );
     });
 
     describe("subscribeToAddressChanges()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const [provider] = await _setup(() => { });
-            expect(
-                () => provider.subscribeToAddressChanges({
-                    callback: () => { }
-                })
-            ).to.throw("LeafletProvider does not implement this method.");
-        });
+        _throwsNotImplemented(
+            (p: LeafletProvider) => p.subscribeToAddressChanges({
+                callback: () => { }
+            })
+        );
     });
 
     describe("signCoinSpends()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const [provider] = await _setup(() => { });
-            let errorOk: boolean = false;
-            try {
-                await provider.signCoinSpends({
-                    coinSpends: []
-                });
-            } catch(e: any) {
-                errorOk = e.message === "LeafletProvider does not implement this method.";
-            }
-            
-            expect(errorOk).to.be.true;
-        });
+        _throwsNotImplemented(
+            (p: LeafletProvider) => p.signCoinSpends({
+                coinSpends: []
+            })
+        );
+    });
+
+    describe("changeNetwork()", () => {
+        _throwsNotImplemented(
+            (p: LeafletProvider) => p.changeNetwork({
+                network: Network.testnet10
+            })
+        );
     });
 });

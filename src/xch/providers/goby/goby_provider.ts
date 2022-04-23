@@ -3,9 +3,10 @@ Special thanks to donate.goby.app and offerpool.io
 */
 
 import { BigNumber } from "@ethersproject/bignumber";
+import { Network } from "../../../util/network";
 import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Provider } from "../provider";
-import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, acceptOfferArgs, transferArgs, transferCATArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs } from "../provider_args";
+import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, acceptOfferArgs, transferArgs, transferCATArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, changeNetworkArgs, pushSpendBundleArgs } from "../provider_args";
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin } from "../provider_types";
 
 // https://stackoverflow.com/questions/56457935/typescript-error-property-x-does-not-exist-on-type-window
@@ -17,7 +18,7 @@ declare global {
 
 export class GobyProvider implements Provider {
     private _address: string = "";
-    private _networkId: string = "mainnet";
+    private _network: Network = Network.mainnet;
     private _callbacks: Array<(address: string) => void> = [];
     private _chiaOverwrite: any = null;
     private _callbacksInitialized: boolean = false;
@@ -59,19 +60,12 @@ export class GobyProvider implements Provider {
             this._getChia().on("accountsChanged", (accounts: string[]) => {
                 this._changeAddress(accounts?.[0] ?? "");
             });
-            this._getChia().on("chainChanged", (chainId: string | number) => {
-                if(typeof chainId === "number") {
-                    chainId = "0x" + chainId.toString(16);
+            this._getChia().on("chainChanged", (chainId: string) => {
+                if(chainId === "0x01") {
+                    this._network = Network.mainnet;
+                } else {
+                    this._network = Network.testnet10;
                 }
-
-                if(chainId.startsWith("0x")) {
-                    if(chainId === "0x1") {
-                        chainId = "mainnet";
-                    } else {
-                        chainId = "testnet10";
-                    }
-                }
-                this._networkId = chainId;
             });
         }
         this._address = newAddress;
@@ -105,56 +99,51 @@ export class GobyProvider implements Provider {
         this._changeAddress("");
     }
 
-    public getNetworkId(): string {
+    public getNetworkId(): Network {
         if(!this.isConnected()) {
-            return "";
+            return Network.mainnet;
         }
 
-        return this._networkId;
+        return this._network;
     }
 
     public isConnected(): boolean {
         return this._address !== "";
     }
 
-    public async getBlockNumber(): Promise<Optional<number>> {
+    private _doesNotImplementError(): any {
         throw new Error("GobyProvider does not implement this method.");
     }
 
-    public async getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>> {
-        throw new Error("GobyProvider does not implement this method.");
-    }
+    public async getBlockNumber(): Promise<Optional<number>> { return this._doesNotImplementError(); }
+    public async getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>> { return this._doesNotImplementError(); }
+    public subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void { return this._doesNotImplementError(); }
+    public subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void { return this._doesNotImplementError(); }
+    public async getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>> { return this._doesNotImplementError(); }
+    public async getCoinChildren(args: getCoinChildrenArgs): Promise<CoinState[]> { return this._doesNotImplementError(); }
+    public async getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<BlockHeader>> { return this._doesNotImplementError(); }
+    public async getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>> { return this._doesNotImplementError(); }
+    public async getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>> { return this._doesNotImplementError(); }
+    public async getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> { return this._doesNotImplementError(); }
 
-    public subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void {
-        throw new Error("GobyProvider does not implement this method.");
-    }
+    public async pushSpendBundle({ spendBundle }: pushSpendBundleArgs): Promise<boolean> {
+        // Seems like this feature isn't live yet
+        return this._doesNotImplementError();
+        // try {
+        //     const res = await this._getChia().request({
+        //         method: "pushTx",
+        //         params: {
+        //             spendBundle,
+        //         }
+        //     });
 
-    public subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void {
-        throw new Error("GobyProvider does not implement this method.");
-    }
-
-    public async getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>> {
-        throw new Error("GobyProvider does not implement this method.");
-    }
-
-    public async getCoinChildren(args: getCoinChildrenArgs): Promise<CoinState[]> {
-        throw new Error("GobyProvider does not implement this method.");
-    }
-
-    public async getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<BlockHeader>> {
-        throw new Error("GobyProvider does not implement this method.");
-    }
-
-    public async getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>> {
-        throw new Error("GobyProvider does not implement this method.");
-    }
-
-    public async getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>> {
-        throw new Error("GobyProvider does not implement this method.");
-    }
-
-    public async getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> {
-        throw new Error("GobyProvider does not implement this method.");
+        //     if([1, 2].includes(res.status) || ["success", "pending"].includes(res.status)) {
+        //         return true;
+        //     }
+        //     return false;
+        // } catch(_) {
+        //     return false;
+        // }
     }
 
     public async getAddress(): Promise<string> {
@@ -222,6 +211,33 @@ export class GobyProvider implements Provider {
 
     public async signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
         // hopefully soon
-        throw new Error("GobyProvider does not implement this method.");
+        return this._doesNotImplementError();
+    }
+
+    public async changeNetwork({ network }: changeNetworkArgs): Promise<boolean> {
+        let chainId: string = "";
+        switch (network) {
+            case Network.mainnet:
+                chainId = "0x01";
+                break;
+            case Network.testnet10:
+                chainId = "0x02";
+                break;
+            default:
+                return false;
+        }
+
+        try {
+            await this._getChia().request({
+                method: "walletSwitchChain",
+                params: {
+                    chainId,
+                }
+            });
+        } catch (_) {
+            return false;
+        }
+
+        return true;
     }
 }

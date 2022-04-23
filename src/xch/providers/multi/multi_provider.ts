@@ -1,7 +1,8 @@
 import { BigNumber } from "@ethersproject/bignumber";
+import { Network } from "../../../util/network";
 import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Provider } from "../provider";
-import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs } from "../provider_args";
+import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, changeNetworkArgs, pushSpendBundleArgs } from "../provider_args";
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin } from "../provider_types";
 
 export class MultiProvider implements Provider {
@@ -37,7 +38,11 @@ export class MultiProvider implements Provider {
         }
     }
 
-    public getNetworkId(): string {
+    private _doesNotImplementError(): any {
+        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+    }
+
+    public getNetworkId(): Network {
         for(let i = 0; i < this.providers.length; ++i) {
             try {
                 if(!this.providers[i].isConnected()) {
@@ -50,7 +55,7 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
     }
 
     public isConnected(): boolean {
@@ -79,7 +84,7 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
     }
     
     public async getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>> {
@@ -95,7 +100,7 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
     }
 
     public subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void {
@@ -111,7 +116,7 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
     }
 
     public subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void {
@@ -127,7 +132,7 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
     }
 
     public async getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>> {
@@ -143,7 +148,7 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
     }
 
     public async getCoinChildren(args: getCoinChildrenArgs): Promise<CoinState[]> {
@@ -159,7 +164,7 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
     }
 
     public async getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<BlockHeader>> {
@@ -175,7 +180,7 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
     }
 
     public async getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>> {
@@ -191,7 +196,7 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
     }
 
     public async getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>> {
@@ -207,7 +212,7 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
     }
 
     public async getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> {
@@ -223,7 +228,7 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
     }
 
     public async getAddress(): Promise<string> {
@@ -239,7 +244,23 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
+    }
+
+    public async pushSpendBundle(args: pushSpendBundleArgs): Promise<boolean> {
+        for(let i = 0; i < this.providers.length; ++i) {
+            try {
+                if(!this.providers[i].isConnected()) {
+                    continue;
+                }
+
+                return await this.providers[i].pushSpendBundle(args);
+            } catch (_) {
+                continue;
+            }
+        }
+
+        return this._doesNotImplementError();
     }
 
     public async transfer(args: transferArgs): Promise<boolean> {
@@ -255,7 +276,7 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
     }
 
     public async transferCAT(args: transferCATArgs): Promise<boolean> {
@@ -271,7 +292,7 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
     }
 
     public async acceptOffer(args: acceptOfferArgs): Promise<boolean> {
@@ -287,7 +308,7 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
     }
 
     public subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
@@ -303,7 +324,7 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
     }
 
     public async signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
@@ -319,6 +340,22 @@ export class MultiProvider implements Provider {
             }
         }
 
-        throw new Error("MultiProvider could not find an active Provider that implements this method.");
+        return this._doesNotImplementError();
+    }
+
+    public async changeNetwork(args: changeNetworkArgs): Promise<boolean> {
+        for(let i = 0; i < this.providers.length; ++i) {
+            try {
+                if(!this.providers[i].isConnected()) {
+                    continue;
+                }
+
+                return this.providers[i].changeNetwork(args);
+            } catch(_) {
+                continue;
+            }
+        }
+
+        return this._doesNotImplementError();
     }
 }

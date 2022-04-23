@@ -2,8 +2,11 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { expect } from "chai";
 import { getBLSModule, initialize } from "clvm";
+import { Util } from "../../../../util";
+import { Network } from "../../../../util/network";
 import { Serializer } from "../../../../util/serializer/serializer";
 import { CoinSpend } from "../../../../util/serializer/types/coin_spend";
+import { SpendBundle } from "../../../../util/serializer/types/spend_bundle";
 import { PrivateKeyProvider } from "../../../../xch/providers/private_key";
 import { SmartCoin } from "../../../../xch/smart_coin";
 import { _SExpFromSerialized } from "./sign_utils.test";
@@ -57,13 +60,13 @@ describe("PrivateKeyProvider", () => {
         it("Correctly reports network id when none is provided", async () => {
             const provider = new PrivateKeyProvider("00".repeat(32));
 
-            expect(provider.getNetworkId()).to.equal("mainnet");
+            expect(provider.getNetworkId()).to.equal(Network.mainnet);
         });
 
         it("Correctly reports network id when one is provided", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32), "testnet10");
+            const provider = new PrivateKeyProvider("00".repeat(32), Network.testnet10);
 
-            expect(provider.getNetworkId()).to.equal("testnet10");
+            expect(provider.getNetworkId()).to.equal(Network.testnet10);
         });
     });
 
@@ -76,205 +79,152 @@ describe("PrivateKeyProvider", () => {
     });
 
     const _expectNotImplementedError = async (func: any) => {
-        let errorOk = false;
-        try {
-            await func();
-        } catch(e: any) {
-            errorOk = e.message === NOT_IMPL_ERROR;
-        }
+        it("Throws 'not implemented' error.", async () => {
+            const provider = new PrivateKeyProvider("00".repeat(32));
 
-        expect(errorOk).to.be.true;
+            let errorOk = false;
+            try {
+                await func(provider);
+            } catch(e: any) {
+                errorOk = e.message === NOT_IMPL_ERROR;
+            }
+
+            expect(errorOk).to.be.true;
+        });
     };
 
     describe("getBlockNumber()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-
-            _expectNotImplementedError(
-                () => provider.getBlockNumber()
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getBlockNumber()
+        );
     });
 
     describe("getBalance()", () => {
-        it("Throws 'not implemented' error.", () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.getBalance({
-                    address: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
-                    minHeight: 7
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getBalance({
+                address: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+                minHeight: 7
+            })
+        );
     });
 
     describe("subscribeToPuzzleHashUpdates()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            let callbackCalled: boolean = false;
-
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.subscribeToPuzzleHashUpdates({
-                    puzzleHash: "testtest",
-                    callback: () => callbackCalled = true,
-                })
-            );
-            expect(callbackCalled).to.be.false;
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.subscribeToPuzzleHashUpdates({
+                puzzleHash: "testtest",
+                callback: () => { throw new Error("oops") },
+            })
+        );
     });
 
     describe("subscribeToCoinUpdates()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            let callbackCalled: boolean = false;
-
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.subscribeToCoinUpdates({
-                    coinId: "testtest",
-                    callback: () => callbackCalled = true,
-                })
-            );
-            expect(callbackCalled).to.be.false;
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.subscribeToCoinUpdates({
+                coinId: "testtest",
+                callback: () => { throw new Error("oops") },
+            })
+        );
     });
 
     describe("getPuzzleSolution()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.getPuzzleSolution({
-                    coinId: "testtest",
-                    height: 5,
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getPuzzleSolution({
+                coinId: "testtest",
+                height: 5,
+            })
+        );
     });
 
     describe("getCoinChildren()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.getCoinChildren({
-                    coinId: "testtest"
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getCoinChildren({
+                coinId: "testtest"
+            })
+        );
     });
 
     describe("getBlockHeader()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.getBlockHeader({
-                    height: 42
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getBlockHeader({
+                height: 42
+            })
+        );
     });
 
     describe("getBlocksHeaders()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.getBlocksHeaders({
-                    startHeight: 7,
-                    endHeight: 42
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getBlocksHeaders({
+                startHeight: 7,
+                endHeight: 42
+            })
+        );
     });
 
     describe("getCoinRemovals()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.getCoinRemovals({
-                    height: 5,
-                    headerHash: "testtest"
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getCoinRemovals({
+                height: 5,
+                headerHash: "testtest"
+            })
+        );
     });
 
     describe("getCoinAdditions()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.getCoinAdditions({
-                    height: 5,
-                    headerHash: "testtest"
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getCoinAdditions({
+                height: 5,
+                headerHash: "testtest"
+            })
+        );
+    });
+
+    describe("pushSpendBundle()", () => {
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.pushSpendBundle({
+                spendBundle: new SpendBundle(),
+            })
+        );
     });
 
     describe("getAddress()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                provider.getAddress
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getAddress()
+        );
     });
 
     describe("transfer()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.transfer({
-                    to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
-                    value: 5
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.transfer({
+                to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+                value: 5
+            })
+        );
     });
 
     describe("transferCAT()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.transferCAT({
-                    to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
-                    assetId: "Kitty",
-                    value: 5
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.transferCAT({
+                to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+                assetId: "Kitty",
+                value: 5
+            })
+        );
     });
 
     describe("acceptOffer()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.acceptOffer({
-                    offer: "offer",
-                })
-            );
-        });
-    });
-
-    describe("acceptOffer()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.acceptOffer({
-                    offer: "offer",
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.acceptOffer({
+                offer: "offer",
+            })
+        );
     });
 
     describe("subscribeToAddressChanges()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            let callbackCalled: boolean = false;
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.subscribeToAddressChanges({
-                    callback: (addr) => callbackCalled = true
-                })
-            );
-            expect(callbackCalled).to.be.false;
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.subscribeToAddressChanges({
+                callback: (addr) => { throw new Error("oops"); },
+            })
+        );
     });
 
     describe("signCoinSpends()", () => {
@@ -308,7 +258,7 @@ describe("PrivateKeyProvider", () => {
             const messageToSign: Buffer = Buffer.concat([
                 Buffer.from("yakuhito"),
                 Buffer.from(c.getId() ?? "", "hex"),
-                Buffer.from("ccd5bb71183532bff220ba46c268991a3ff07eb358e8255a65c30a2dce0e5fbb", "hex") // mainnet additional data
+                Buffer.from(Util.network.getGenesisChallenge(Network.mainnet), "hex") // mainnet additional data
             ]);
             const signedMessage = AugSchemeMPL.sign(
                 sk,
@@ -366,7 +316,7 @@ describe("PrivateKeyProvider", () => {
             const messageToSign: Buffer = Buffer.concat([
                 Buffer.from("yakuhito"),
                 Buffer.from(c.getId() ?? "", "hex"),
-                Buffer.from("ae83525ba8d1dd3f09b277de18ca3e43fc0af20d20c4b3e92ef2a48bd291ccb2", "hex") // testnet10 additional data
+                Buffer.from(Util.network.getGenesisChallenge(Network.testnet10), "hex") // testnet10 additional data
             ]);
             const signedMessage = AugSchemeMPL.sign(
                 sk,
@@ -375,7 +325,7 @@ describe("PrivateKeyProvider", () => {
 
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const cs: CoinSpend = c.spend(solution)!;
-            const provider = new PrivateKeyProvider(privKey, "testnet10");
+            const provider = new PrivateKeyProvider(privKey, Network.testnet10);
             await provider.connect();
 
             const spendBundle = await provider.signCoinSpends({
@@ -621,6 +571,30 @@ describe("PrivateKeyProvider", () => {
             expect(
                 Buffer.from(AugSchemeMPL.aggregate([]).serialize()).toString("hex")
             ).to.equal(spendBundle?.aggregatedSignature);
+        });
+    });
+
+    describe("changeNetwork()", () => {
+        it("Works", async () => {
+            const provider = new PrivateKeyProvider("01".repeat(32));
+            await provider.connect();
+
+            expect(provider.getNetworkId()).to.equal(Network.mainnet);
+            await provider.changeNetwork({
+                network: Network.testnet7
+            });
+            expect(provider.getNetworkId()).to.equal(Network.testnet7);
+        });
+
+        it("Doesn't do anything if provided network id is invalid", async () => {
+            const provider = new PrivateKeyProvider("01".repeat(32));
+            await provider.connect();
+
+            expect(provider.getNetworkId()).to.equal(Network.mainnet);
+            await provider.changeNetwork({
+                network: "yakuhito" as Network
+            });
+            expect(provider.getNetworkId()).to.equal(Network.mainnet);
         });
     });
 });

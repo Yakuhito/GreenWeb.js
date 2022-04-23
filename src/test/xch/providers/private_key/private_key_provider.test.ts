@@ -8,7 +8,7 @@ import { Serializer } from "../../../../util/serializer/serializer";
 import { CoinSpend } from "../../../../util/serializer/types/coin_spend";
 import { SpendBundle } from "../../../../util/serializer/types/spend_bundle";
 import { PrivateKeyProvider } from "../../../../xch/providers/private_key";
-import { SmartCoin } from "../../../../xch/smart_coin";
+import { SmartCoin } from "../../../../smart_coin";
 import { _SExpFromSerialized } from "./sign_utils.test";
 
 const NOT_IMPL_ERROR: string = "PrivateKeyProvider does not implement this method.";

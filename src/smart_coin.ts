@@ -1,8 +1,8 @@
 import { SExp } from "clvm";
-import { Coin } from "../util/serializer/types/coin";
-import { CoinSpend } from "../util/serializer/types/coin_spend";
-import { bytes, uint } from "./providers/provider_types";
-import { Util } from  "../util";
+import { Coin } from "./util/serializer/types/coin";
+import { CoinSpend } from "./util/serializer/types/coin_spend";
+import { bytes, uint } from "./xch/providers/provider_types";
+import { Util } from  "./util";
 
 export type SmartCoinConstructorArgs = {
     parentCoinInfo: string | null,

@@ -13,6 +13,8 @@ export enum Network {
 }
 
 export class NetworkUtil {
+    public Network = Network;
+
     public networks: Network[] = [
         Network.mainnet,
         Network.testnet0,

@@ -20,12 +20,14 @@ This page includes example usage for a provider. Note that methods that are not 
 | [getBlocksHeaders](#getblocksheaders) | ✅ | ❎ | ❔ | ❎ |
 | [getCoinRemovals](#getcoinremovals) | ✅ | ❎ | ❔ | ❎ |
 | [getCoinAdditions](#getcoinadditions) | ✅ | ❎ | ❔ | ❎ |
+| [pushSpendBundle](#pushspendbundle) | ✅ | ❎ | ❔ | ❎ |
 | [getAddress](#getaddress) | ✅ | ❎ | ❔ | ❎ |
 | [transfer](#transfer) | ❎ | ✅ | ❔ | ❎ |
 | [transferCAT](#transfercat) | ❎ | ✅ | ❔ | ❎ |
 | [acceptOffer](#acceptoffer) | ❎ | ✅ | ❔ | ❎ |
 | [subscribeToAddressChanges](#subscribetoaddresschanges) | ❎ | ✅ | ❔ | ❎ |
 | [signCoinSpends](#signcoinspends) | ❎ | ❎ | ❔ | ✅ |
+| [changeNetwork](#changenetwork) | ❎ | ✅ | ❔ | ✅ |
 
 # Custom Data Types
 
@@ -118,6 +120,23 @@ export class CoinSpend {
 export class SpendBundle {
     @fields.List(fields.Object(CoinSpend)) coinSpends: CoinSpend[];
     @fields.Bytes(96) aggregatedSignature: bytes;
+}
+```
+
+## Network
+
+`Network` is just a string enum - it can be viewed as a string in most cases.
+
+```js
+export enum Network {
+    mainnet = "mainnet",
+    testnet0 = "testnet0",
+    testnet2 = "testnet2",
+    testnet3 = "testnet3",
+    testnet4 = "testnet4",
+    testnet5 = "testnet5",
+    testnet7 = "testnet7",
+    testnet10 = "testnet10",
 }
 ```
 
@@ -574,6 +593,34 @@ greenweb.xch.getAddress().then(console.log);
 
 ---
 
+## pushSpendBundle
+
+Pushes a `SpendBundle` to the Chia network.
+
+### Arguments
+
+```js
+export type pushSpendBundleArgs = {
+    spendBundle: SpendBundle
+};
+```
+
+### Returns
+
+`Promise<boolean>` - `true` if the transaction was submitted and is pending/successful, `false` otherwise (the transaction was not submitted or it failed)
+
+### Example
+
+```js
+greenweb.xch.pushSpendBundle({
+  spendBundle: mySpendBundle // set somewhere in the code
+}).then(console.log);
+
+// true
+```
+
+---
+
 ## transfer
 
 Send XCH to an address. Note that the user might be asked for confirmation.
@@ -690,6 +737,8 @@ greenweb.xch.subscribeToAddressChanges({
 });
 ```
 
+---
+
 ## signCoinSpends
 
 Signs a list of `CoinSpend`s wth a given private key and returns a `SpendBundle`.
@@ -710,7 +759,35 @@ export type signCoinSpendsArgs = {
 
 ```js
 // please don't ask your users for their private keys - yaku
-const spendBundle = await provider.signCoinSpends({
+const spendBundle = await greenweb.xch.signCoinSpends({
   coinSpends: myCoinSpends // variable set somewhere else in the code
 });
+```
+
+---
+
+## changeNetwork
+
+Changes the network that a `Provider` operates on.
+
+### Arguments
+
+```js
+export type changeNetworkArgs = {
+    network: Network,
+};
+```
+
+### Returns
+
+`Promise<boolean>` - `true` if the network was changed, `false` otherwise
+
+### Example
+
+```js
+greenweb.xch.changeNetwork({
+  network: greenweb.util.network.networks[0] // "mainnet"
+}).then(console.log);
+
+// true
 ```

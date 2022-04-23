@@ -191,7 +191,7 @@ provider.close().then(() => {
 
 ## getNetworkId
 
-Returns the current network id as a string.
+Returns the current network id as a `Network` enum member, which is a string.
 
 ### Arguments
 
@@ -199,7 +199,7 @@ None
 
 ### Returns
 
-`string` - `'mainnet'`
+`Network` / `string` - `'mainnet'`, `'testnet10'`, etc.
 
 ### Example
 

@@ -2,6 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { expect } from "chai";
 import { getBLSModule, initialize } from "clvm";
+import { Util } from "../../../../util";
+import { Network } from "../../../../util/network";
 import { Serializer } from "../../../../util/serializer/serializer";
 import { CoinSpend } from "../../../../util/serializer/types/coin_spend";
 import { PrivateKeyProvider } from "../../../../xch/providers/private_key";
@@ -10,7 +12,7 @@ import { _SExpFromSerialized } from "./sign_utils.test";
 
 const NOT_IMPL_ERROR: string = "PrivateKeyProvider does not implement this method.";
 
-describe("PrivateKeyProvider", () => {
+describe.only("PrivateKeyProvider", () => {
     describe("constructor", () => {
         it("Works", () => {
             const provider = new PrivateKeyProvider("00".repeat(32));
@@ -61,7 +63,7 @@ describe("PrivateKeyProvider", () => {
         });
 
         it("Correctly reports network id when one is provided", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32), "testnet10");
+            const provider = new PrivateKeyProvider("00".repeat(32), Network.testnet10);
 
             expect(provider.getNetworkId()).to.equal("testnet10");
         });
@@ -308,7 +310,7 @@ describe("PrivateKeyProvider", () => {
             const messageToSign: Buffer = Buffer.concat([
                 Buffer.from("yakuhito"),
                 Buffer.from(c.getId() ?? "", "hex"),
-                Buffer.from("ccd5bb71183532bff220ba46c268991a3ff07eb358e8255a65c30a2dce0e5fbb", "hex") // mainnet additional data
+                Buffer.from(Util.network.getGenesisChallenge(Network.mainnet), "hex") // mainnet additional data
             ]);
             const signedMessage = AugSchemeMPL.sign(
                 sk,
@@ -366,7 +368,7 @@ describe("PrivateKeyProvider", () => {
             const messageToSign: Buffer = Buffer.concat([
                 Buffer.from("yakuhito"),
                 Buffer.from(c.getId() ?? "", "hex"),
-                Buffer.from("ae83525ba8d1dd3f09b277de18ca3e43fc0af20d20c4b3e92ef2a48bd291ccb2", "hex") // testnet10 additional data
+                Buffer.from(Util.network.getGenesisChallenge(Network.testnet10), "hex") // testnet10 additional data
             ]);
             const signedMessage = AugSchemeMPL.sign(
                 sk,
@@ -375,7 +377,7 @@ describe("PrivateKeyProvider", () => {
 
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const cs: CoinSpend = c.spend(solution)!;
-            const provider = new PrivateKeyProvider(privKey, "testnet10");
+            const provider = new PrivateKeyProvider(privKey, Network.testnet10);
             await provider.connect();
 
             const spendBundle = await provider.signCoinSpends({

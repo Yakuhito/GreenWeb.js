@@ -6,15 +6,16 @@ import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdate
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin, bytes } from "../provider_types";
 import { Util } from "../../../util";
 import { SignUtils } from "./sign_utils";
+import { Network } from "../../../util/network";
 
 export const MAX_BLOCK_COST_CLVM = 11000000000;
 
 export class PrivateKeyProvider implements Provider {
     private privateKey: string;
     private connected: boolean;
-    private network: string;
+    private network: Network;
 
-    constructor(privateKey: bytes, network: string = "mainnet") {
+    constructor(privateKey: bytes, network: Network = Network.mainnet) {
         const key = Util.address.validateHashString(privateKey);
 
         if(key === "") {
@@ -37,7 +38,7 @@ export class PrivateKeyProvider implements Provider {
     }
 
     public getNetworkId(): string {
-        return this.network;
+        return Util.network.getNetworkName(this.network);
     }
 
     public isConnected(): boolean {
@@ -107,9 +108,7 @@ export class PrivateKeyProvider implements Provider {
     public async signCoinSpends({ coinSpends }: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
         // todo
         // network genesis challenge
-        const networkData: string = this.network === "mainnet" ?
-            "ccd5bb71183532bff220ba46c268991a3ff07eb358e8255a65c30a2dce0e5fbb" :
-            "ae83525ba8d1dd3f09b277de18ca3e43fc0af20d20c4b3e92ef2a48bd291ccb2";
+        const networkData: string = Util.network.getGenesisChallenge(this.network);
 
         const { PrivateKey, AugSchemeMPL } = getBLSModule();
 

@@ -3,6 +3,7 @@ Special thanks to donate.goby.app and offerpool.io
 */
 
 import { BigNumber } from "@ethersproject/bignumber";
+import { Network } from "../../../util/network";
 import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Provider } from "../provider";
 import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, acceptOfferArgs, transferArgs, transferCATArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs } from "../provider_args";
@@ -17,7 +18,7 @@ declare global {
 
 export class GobyProvider implements Provider {
     private _address: string = "";
-    private _networkId: string = "mainnet";
+    private _network: Network = Network.mainnet;
     private _callbacks: Array<(address: string) => void> = [];
     private _chiaOverwrite: any = null;
     private _callbacksInitialized: boolean = false;
@@ -59,19 +60,12 @@ export class GobyProvider implements Provider {
             this._getChia().on("accountsChanged", (accounts: string[]) => {
                 this._changeAddress(accounts?.[0] ?? "");
             });
-            this._getChia().on("chainChanged", (chainId: string | number) => {
-                if(typeof chainId === "number") {
-                    chainId = "0x" + chainId.toString(16);
+            this._getChia().on("chainChanged", (chainId: string) => {
+                if(chainId === "0x1") {
+                    this._network = Network.mainnet;
+                } else {
+                    this._network = Network.testnet10;
                 }
-
-                if(chainId.startsWith("0x")) {
-                    if(chainId === "0x1") {
-                        chainId = "mainnet";
-                    } else {
-                        chainId = "testnet10";
-                    }
-                }
-                this._networkId = chainId;
             });
         }
         this._address = newAddress;
@@ -105,12 +99,12 @@ export class GobyProvider implements Provider {
         this._changeAddress("");
     }
 
-    public getNetworkId(): string {
+    public getNetworkId(): Network {
         if(!this.isConnected()) {
-            return "";
+            return Network.mainnet;
         }
 
-        return this._networkId;
+        return this._network;
     }
 
     public isConnected(): boolean {

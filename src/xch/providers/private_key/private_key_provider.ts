@@ -37,8 +37,8 @@ export class PrivateKeyProvider implements Provider {
         this.connected = false;
     }
 
-    public getNetworkId(): string {
-        return Util.network.getNetworkName(this.network);
+    public getNetworkId(): Network {
+        return this.network;
     }
 
     public isConnected(): boolean {

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
+import { Network } from "../../util/network";
 import { SpendBundle } from "../../util/serializer/types/spend_bundle";
 import { XCHModule } from "../../xch";
 import { acceptOfferArgs, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../xch/providers/provider";
@@ -12,8 +13,8 @@ class TestProvider implements Provider {
     async close(): Promise<void> {
         return;
     }
-    getNetworkId(): string {
-        return "mainnet";
+    getNetworkId(): Network {
+        return Network.mainnet;
     }
     isConnected(): boolean {
         return true;
@@ -281,7 +282,7 @@ describe("XCHModule", () => {
         });
 
         it("getNetworkId()", () => {
-            expect(XCHModule.getNetworkId()).to.equal("mainnet");
+            expect(XCHModule.getNetworkId()).to.equal(Network.mainnet);
         });
 
         it("isConnected()", () => {

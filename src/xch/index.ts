@@ -9,6 +9,7 @@ import { SmartCoin } from "./smart_coin";
 import { Coin as serializerCoin } from "../util/serializer/types/coin";
 import { CoinSpend } from "../util/serializer/types/coin_spend";
 import { SpendBundle } from "../util/serializer/types/spend_bundle";
+import { Network } from "../util/network";
 
 export class XCHModule {
     public static providers = {
@@ -45,7 +46,7 @@ export class XCHModule {
 
         return XCHModule.provider!.close();
     }
-    static getNetworkId(): string {
+    static getNetworkId(): Network {
         if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 

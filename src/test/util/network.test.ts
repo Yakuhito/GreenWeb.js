@@ -3,16 +3,6 @@ import { expect } from "chai";
 import { Network, NetworkUtil } from "../../util/network";
 
 const networkUtil = new NetworkUtil();
-const networks = [
-    Network.mainnet,
-    Network.testnet0,
-    Network.testnet2,
-    Network.testnet3,
-    Network.testnet4,
-    Network.testnet5,
-    Network.testnet7,
-    Network.testnet10
-];
 const genesisChallenges = [
     "ccd5bb71183532bff220ba46c268991a3ff07eb358e8255a65c30a2dce0e5fbb",
     "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -37,24 +27,23 @@ const networkNames = [
 describe("NetworkUtil", () => {
     describe("networks", () => {
         it("Exposes all networks in the right order", () => {
-            expect(networkUtil.networks.length).to.equal(networks.length);
+            expect(networkUtil.networks.length).to.equal(networkNames.length);
 
-            for(let i = 0; i < networks.length; ++i) {
+            for(let i = 0; i < networkNames.length; ++i) {
                 expect(
                     networkUtil.networks[i]
-                ).to.equal(networks[i])
+                ).to.equal(networkNames[i])
             }
         });
     });
 
     describe("getGenesisChallenge()", () => {
         it("Returns the correct value for all networks", () => {
-            expect(networks.length).to.equal(genesisChallenges.length);
-            expect(networkUtil.networks.length).to.equal(networks.length);
+            expect(networkUtil.networks.length).to.equal(networkNames.length);
 
-            for(let i = 0; i < networks.length; i++) {
+            for(let i = 0; i < networkUtil.networks.length; i++) {
                 expect(
-                    networkUtil.getGenesisChallenge(networks[i])
+                    networkUtil.getGenesisChallenge(networkUtil.networks[i])
                 ).to.equal(genesisChallenges[i]);
             }
         });
@@ -62,7 +51,7 @@ describe("NetworkUtil", () => {
         it("Throws error if supplied network id does not exist", () => {
             let errorOk: boolean = false;
             try {
-                networkUtil.getGenesisChallenge(100);
+                networkUtil.getGenesisChallenge("test" as Network);
             } catch(e: any) {
                 errorOk = e.message === "Unknown network id.";
             }
@@ -79,32 +68,11 @@ describe("NetworkUtil", () => {
         });
 
         it("Returns 'txch' for testnets", () => {
-            for(let i = 1; i < networks.length; ++i) {
+            for(let i = 1; i < networkUtil.networks.length; ++i) {
                 expect(
-                    networkUtil.getAddressPrefix(networks[i])
+                    networkUtil.getAddressPrefix(networkUtil.networks[i])
                 ).to.equal("txch");
             }
-        });
-    });
-
-    describe("getNetworkName()", () => {
-        it("Returns the correct value for all networks", () => {
-            for(let i = 0; i < networks.length; ++i) {
-                expect(
-                    networkUtil.getNetworkName(networks[i])
-                ).to.equal(networkNames[i]);
-            }
-        });
-
-        it("Throws error if supplied network id does not exist", () => {
-            let errorOk: boolean = false;
-            try {
-                networkUtil.getNetworkName(100);
-            } catch(e: any) {
-                errorOk = e.message === "Unknown network id.";
-            }
-            
-            expect(errorOk).to.be.true;
         });
     });
 });

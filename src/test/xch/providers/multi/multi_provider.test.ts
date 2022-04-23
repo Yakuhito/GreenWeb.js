@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
+import { Network } from "../../../../util/network";
 import { SpendBundle } from "../../../../util/serializer/types/spend_bundle";
 import { MultiProvider } from "../../../../xch/providers/multi";
 import { acceptOfferArgs, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../../../xch/providers/provider";
@@ -62,7 +63,7 @@ class ObservableProvider implements Provider {
     async close(): Promise<void> {
         return this._processMethod(METHODS[1][0]);
     }
-    getNetworkId(): string {
+    getNetworkId(): Network {
         return this._processMethod(METHODS[2][0]);
     }
     isConnected(): boolean {

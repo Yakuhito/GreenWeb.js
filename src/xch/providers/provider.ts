@@ -2,6 +2,7 @@ import { Optional, Coin, CoinState, BlockHeader, PuzzleSolution } from "./provid
 import { acceptOfferArgs, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "./provider_args";
 import { BigNumber } from "@ethersproject/bignumber";
 import { SpendBundle } from "../../util/serializer/types/spend_bundle";
+import { Network } from "../../util/network";
 
 export * from "./provider_types";
 export * from "./provider_args";
@@ -10,7 +11,7 @@ export interface Provider {
     /* basics */
     connect(): Promise<void>;
     close(): Promise<void>;
-    getNetworkId(): string;
+    getNetworkId(): Network;
     isConnected(): boolean;
 
     /* blockchain-related */

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { expect } from "chai";
+import { Network } from "../../../../util/network";
 import { GobyProvider } from "../../../../xch/providers/goby/goby_provider";
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
@@ -372,7 +373,7 @@ describe("GobyProvider", () => {
             );
 
             expect(p.isConnected()).to.be.false;
-            expect(p.getNetworkId()).to.equal("");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
         });
 
         it("Works if not connected, after connect", async () => {
@@ -394,7 +395,7 @@ describe("GobyProvider", () => {
             await p.connect();
 
             expect(p.isConnected()).to.be.false;
-            expect(p.getNetworkId()).to.equal("");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
         });
 
         it("Works if connected via constructor (default value)", async () => {
@@ -426,7 +427,7 @@ describe("GobyProvider", () => {
             expect(registeredCallbacks).to.equal(2);
             expect(await p.getAddress()).to.equal("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
 
-            expect(p.getNetworkId()).to.equal("mainnet");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
         });
 
         it("Works if connected via connect()", async () => {
@@ -456,7 +457,7 @@ describe("GobyProvider", () => {
             expect(await p.getAddress()).to.equal("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
             expect(registeredCallbacks).to.equal(2);
 
-            expect(p.getNetworkId()).to.equal("mainnet");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
         });
 
         it("Works if 'chainChanged' event callback is fired", async () => {
@@ -490,31 +491,28 @@ describe("GobyProvider", () => {
             expect(await p.getAddress()).to.equal("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
             expect(registeredCallbacks).to.equal(2);
 
-            expect(p.getNetworkId()).to.equal("mainnet");
-
-            await chainChangedCallback("yakuhito");
-            expect(p.getNetworkId()).to.equal("yakuhito");
-
-            await chainChangedCallback("yakuhito2");
-            expect(p.getNetworkId()).to.equal("yakuhito2");
-
-            await chainChangedCallback("mainnet");
-            expect(p.getNetworkId()).to.equal("mainnet");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
 
             await chainChangedCallback("0x2");
-            expect(p.getNetworkId()).to.equal("testnet10");
+            expect(p.getNetworkId()).to.equal(Network.testnet10);
 
             await chainChangedCallback("0x1");
-            expect(p.getNetworkId()).to.equal("mainnet");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
 
-            await chainChangedCallback(0x2);
-            expect(p.getNetworkId()).to.equal("testnet10");
+            await chainChangedCallback("0x2");
+            expect(p.getNetworkId()).to.equal(Network.testnet10);
 
-            await chainChangedCallback(0x1);
-            expect(p.getNetworkId()).to.equal("mainnet");
+            await chainChangedCallback("0x1");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
 
-            await chainChangedCallback("lasttest");
-            expect(p.getNetworkId()).to.equal("lasttest");
+            await chainChangedCallback("0x1");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
+
+            await chainChangedCallback("0x2");
+            expect(p.getNetworkId()).to.equal(Network.testnet10);
+
+            await chainChangedCallback("0x1");
+            expect(p.getNetworkId()).to.equal(Network.mainnet);
         });
     });
 

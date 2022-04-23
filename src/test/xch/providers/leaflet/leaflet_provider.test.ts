@@ -7,6 +7,7 @@ import { expect } from "chai";
 import { SExp } from "clvm";
 import { AddressUtil } from "../../../../util/address";
 import { CoinUtil } from "../../../../util/coin";
+import { Network } from "../../../../util/network";
 import { Serializer } from "../../../../util/serializer/serializer";
 import { Coin } from "../../../../util/serializer/types/coin";
 import { Foliage, FoliageBlockData, TransactionsInfo } from "../../../../util/serializer/types/foliage";
@@ -45,7 +46,7 @@ describe("LeafletProvider", () => {
             };
             const webSocketOverrideCreateFunc = (_url: string) => obj;
             const provider: LeafletProvider = new LeafletProvider(
-                "leaflet.fireacademy.io", "TEST-API-KEY", 12345, "testnet42", webSocketOverrideCreateFunc
+                "leaflet.fireacademy.io", "TEST-API-KEY", 12345, Network.testnet10, webSocketOverrideCreateFunc
             );
 
             const opener = async () => {
@@ -79,15 +80,15 @@ describe("LeafletProvider", () => {
     });
 
     describe("constructor", () => {
-        it("Works with default values", async () => {
+        it("Works", async () => {
             // as idiotic as this test is, line 29 needs to be used in a test to get full coverage :|
             // webSocketCreateFunc: (url: string) => IWebSocket = (url: string) => new WebSocket(url),
             const p = new LeafletProvider(
-                "nonexistent.fireacademy.io", "TEST-API-KEY", 18444, "testnet1000"
+                "nonexistent.fireacademy.io", "TEST-API-KEY", 18444, Network.testnet0
             );
             expect(p.isConnected()).to.be.false;
             expect(p.close).to.not.throw;
-            expect(p.getNetworkId()).to.equal("testnet1000");
+            expect(p.getNetworkId()).to.equal(Network.testnet0);
             expect(await p.getBlockNumber()).to.be.null;
 
             await p.connect();
@@ -121,7 +122,7 @@ describe("LeafletProvider", () => {
                 Handshake,
                 Buffer.from(lastSentMessage!.data, "hex")
             );
-            expect(handshake.networkId).to.equal("testnet42");
+            expect(handshake.networkId).to.equal(Network.testnet10);
             expect(
                 handshake.protocolVersion.startsWith("0.0.")
             ).to.be.true;
@@ -146,15 +147,15 @@ describe("LeafletProvider", () => {
                 "leaflet.fireacademy.io", "TEST-API-KEY"
             );
 
-            expect(provider.getNetworkId()).to.equal("mainnet");
+            expect(provider.getNetworkId()).to.equal(Network.mainnet);
         });
 
         it("Correctly reports network id when one is provided", async () => {
             const provider: LeafletProvider = new LeafletProvider(
-                "leaflet.fireacademy.io", "TEST-API-KEY", 12345, "testnet42"
+                "leaflet.fireacademy.io", "TEST-API-KEY", 12345, Network.testnet7
             );
 
-            expect(provider.getNetworkId()).to.equal("testnet42");
+            expect(provider.getNetworkId()).to.equal(Network.testnet7);
         });
     });
 

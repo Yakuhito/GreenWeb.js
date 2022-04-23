@@ -1,4 +1,5 @@
 import { BigNumber } from "@ethersproject/bignumber";
+import { Network } from "../../../util/network";
 import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Provider } from "../provider";
 import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs } from "../provider_args";
@@ -37,7 +38,7 @@ export class MultiProvider implements Provider {
         }
     }
 
-    public getNetworkId(): string {
+    public getNetworkId(): Network {
         for(let i = 0; i < this.providers.length; ++i) {
             try {
                 if(!this.providers[i].isConnected()) {

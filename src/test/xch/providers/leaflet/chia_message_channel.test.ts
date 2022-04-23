@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { expect } from "chai";
+import { Network } from "../../../../util/network";
 import { Serializer } from "../../../../util/serializer/serializer";
 import { makeMsg, Message, NodeType } from "../../../../util/serializer/types/outbound_message";
 import { ProtocolMessageTypes } from "../../../../util/serializer/types/protocol_message_types";
@@ -55,7 +56,7 @@ describe("ChiaMessageChannel", () => {
                 port: 1337,
                 apiKey: "API-KEY",
                 onMessage: () => { },
-                networkId: "mainnet",
+                network: Network.mainnet,
                 webSocketCreateFunc: webSocketOverrideCreateFunc
             });
 
@@ -100,7 +101,7 @@ describe("ChiaMessageChannel", () => {
                 port: 1337,
                 apiKey: "API-KEY",
                 onMessage: () => { },
-                networkId: "mainnet",
+                network: Network.mainnet,
                 webSocketCreateFunc: webSocketOverrideCreateFunc
             });
 
@@ -156,7 +157,7 @@ describe("ChiaMessageChannel", () => {
                 port: 1337,
                 apiKey: "API-KEY",
                 onMessage: () => { },
-                networkId: "mainnet",
+                network: Network.mainnet,
                 webSocketCreateFunc: webSocketOverrideCreateFunc
             });
 
@@ -203,7 +204,7 @@ describe("ChiaMessageChannel", () => {
                 port: 1337,
                 apiKey: "API-KEY",
                 onMessage: () => { },
-                networkId: "mainnet",
+                network: Network.mainnet,
                 webSocketCreateFunc: webSocketOverrideCreateFunc
             });
 
@@ -239,7 +240,7 @@ describe("ChiaMessageChannel", () => {
                 port: 1337,
                 apiKey: "API-KEY",
                 onMessage: () => { },
-                networkId: "mainnet",
+                network: Network.mainnet,
                 webSocketCreateFunc: webSocketOverrideCreateFunc
             });
 
@@ -288,7 +289,7 @@ describe("ChiaMessageChannel", () => {
                 port: 1337,
                 apiKey: "API-KEY",
                 onMessage: () => { },
-                networkId: "mainnet",
+                network: Network.mainnet,
                 webSocketCreateFunc: webSocketOverrideCreateFunc
             });
 
@@ -319,7 +320,7 @@ describe("ChiaMessageChannel", () => {
             port: 1337,
             apiKey: "API-KEY",
             onMessage: () => { },
-            networkId: "mainnet",
+            network: Network.mainnet,
             webSocketCreateFunc: webSocketOverrideCreateFunc
         });
 
@@ -347,7 +348,7 @@ describe("ChiaMessageChannel", () => {
             port: 1337,
             apiKey: "API-KEY",
             onMessage: () => { },
-            networkId: "mainnet",
+            network: Network.mainnet,
             webSocketCreateFunc: webSocketOverrideCreateFunc
         });
 
@@ -397,7 +398,7 @@ describe("ChiaMessageChannel", () => {
                 port: 1337,
                 apiKey: "API-KEY",
                 onMessage: (m: Buffer) => lastMessageHandled = m,
-                networkId: "mainnet",
+                network: Network.mainnet,
                 webSocketCreateFunc: webSocketOverrideCreateFunc
             });
 
@@ -460,7 +461,7 @@ describe("ChiaMessageChannel", () => {
                 port: 1337,
                 apiKey: "API-KEY",
                 onMessage: (m: Buffer) => lastMessageHandled = m,
-                networkId: "mainnet",
+                network: Network.mainnet,
                 webSocketCreateFunc: webSocketOverrideCreateFunc
             });
 
@@ -538,7 +539,7 @@ describe("ChiaMessageChannel", () => {
                 port: 1337,
                 apiKey: "API-KEY",
                 onMessage: (m: Buffer) => lastMessageHandled = m,
-                networkId: "mainnet",
+                network: Network.mainnet,
                 webSocketCreateFunc: webSocketOverrideCreateFunc
             });
 
@@ -601,7 +602,7 @@ describe("ChiaMessageChannel", () => {
                 port: 1337,
                 apiKey: "API-KEY",
                 onMessage: (m: Buffer) => lastMessageHandled = m,
-                networkId: "mainnet",
+                network: Network.mainnet,
                 webSocketCreateFunc: webSocketOverrideCreateFunc
             });
 
@@ -671,7 +672,7 @@ describe("ChiaMessageChannel", () => {
                 port: 1337,
                 apiKey: "API-KEY",
                 onMessage: (m: Buffer) => lastMessageHandled = m,
-                networkId: "mainnet",
+                network: Network.mainnet,
                 webSocketCreateFunc: webSocketOverrideCreateFunc
             });
 
@@ -722,7 +723,7 @@ describe("ChiaMessageChannel", () => {
                 port: 1337,
                 apiKey: "API-KEY",
                 onMessage: (m: Buffer) => lastMessageHandled = m,
-                networkId: "mainnet",
+                network: Network.mainnet,
                 webSocketCreateFunc: webSocketOverrideCreateFunc
             });
 
@@ -788,7 +789,7 @@ describe("ChiaMessageChannel", () => {
                 port: 1337,
                 apiKey: "API-KEY",
                 onMessage: (m: Buffer) => lastMessageHandled = m,
-                networkId: "mainnet",
+                network: Network.mainnet,
                 webSocketCreateFunc: webSocketOverrideCreateFunc
             });
 
@@ -879,7 +880,7 @@ describe("ChiaMessageChannel", () => {
                 port: 1337,
                 apiKey: "API-KEY",
                 onMessage: (m: Buffer) => handledMessages.push(m),
-                networkId: "mainnet",
+                network: Network.mainnet,
                 webSocketCreateFunc: webSocketOverrideCreateFunc
             });
 

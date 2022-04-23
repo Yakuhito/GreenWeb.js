@@ -1,5 +1,6 @@
 // https://github.com/freddiecoleman/chia-network-scanner/blob/main/MessageChannel.ts
 
+import { Network } from "../../../util/network";
 import { makeMsg, NodeType } from "../../../util/serializer/types/outbound_message";
 import { ProtocolMessageTypes } from "../../../util/serializer/types/protocol_message_types";
 import { Capability, Handshake, PROTOCOL_VERSION } from "../../../util/serializer/types/shared_protocol";
@@ -24,7 +25,7 @@ export interface ChiaMessageChannelOptions {
     port: number;
     apiKey: string;
     onMessage: (message: Buffer) => void;
-    networkId: string;
+    network: Network;
     webSocketCreateFunc: (url: string) => IWebSocket;
 }
 
@@ -51,11 +52,11 @@ export class ChiaMessageChannel implements IChiaMessageChannel {
     private readonly host: string;
     private readonly apiKey: string;
     private readonly onMessage: (message: Buffer) => void;
-    private readonly networkId: string;
+    private readonly network: Network;
     private inboundDataBuffer: Buffer = Buffer.from([]);
     private webSocketCreateFunc: (url: string) => IWebSocket;
 
-    constructor({ host, port, apiKey, onMessage, networkId, webSocketCreateFunc }: ChiaMessageChannelOptions) {
+    constructor({ host, port, apiKey, onMessage, network, webSocketCreateFunc }: ChiaMessageChannelOptions) {
         this.port = port;
         this.onMessage = onMessage;
 
@@ -63,7 +64,7 @@ export class ChiaMessageChannel implements IChiaMessageChannel {
             host = "[" + host + "]"
         }
         this.host = host;
-        this.networkId = networkId;
+        this.network = network;
         this.apiKey = apiKey;
         this.webSocketCreateFunc = webSocketCreateFunc;
     }
@@ -159,7 +160,7 @@ export class ChiaMessageChannel implements IChiaMessageChannel {
 
     private onConnected(): void {
         const handshake: Handshake = new Handshake();
-        handshake.networkId = this.networkId;
+        handshake.networkId = this.network;
         handshake.protocolVersion = PROTOCOL_VERSION;
         handshake.softwareVersion = getSoftwareVersion();
         handshake.serverPort = this.port;

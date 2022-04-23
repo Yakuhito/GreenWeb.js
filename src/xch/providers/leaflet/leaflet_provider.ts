@@ -14,6 +14,7 @@ import { ChiaMessageChannel, IWebSocket } from "./chia_message_channel";
 import { Util } from "../../../util";
 import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Optional } from "../../../util/serializer/basic_types";
+import { Network } from "../../../util/network";
 
 const addressUtil = new AddressUtil();
 
@@ -21,22 +22,22 @@ export class LeafletProvider implements Provider {
     public messageManager: MessageManager;
 
     private blockNumber: providerTypes.Optional<number> = null;
-    private networkId;
+    private network: Network;
 
     constructor(
         host: string,
         apiKey: string,
         port = 18444,
-        networkId = "mainnet",
+        network = Network.mainnet,
         webSocketCreateFunc: (url: string) => IWebSocket = (url: string) => new WebSocket(url),
     ) {
         this.messageManager = new MessageManager(
             async (onMessage) => new ChiaMessageChannel({
-                host, port, apiKey, onMessage, networkId, webSocketCreateFunc
+                host, port, apiKey, onMessage, network, webSocketCreateFunc
             })
         );
 
-        this.networkId = networkId;
+        this.network = network;
     }
 
     public async connect() {
@@ -63,8 +64,8 @@ export class LeafletProvider implements Provider {
         await this.messageManager.close();
     }
 
-    public getNetworkId(): string {
-        return this.networkId;
+    public getNetworkId(): Network {
+        return this.network;
     }
 
     public isConnected(): boolean {

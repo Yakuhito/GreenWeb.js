@@ -12,7 +12,7 @@ import { _SExpFromSerialized } from "./sign_utils.test";
 
 const NOT_IMPL_ERROR: string = "PrivateKeyProvider does not implement this method.";
 
-describe.only("PrivateKeyProvider", () => {
+describe("PrivateKeyProvider", () => {
     describe("constructor", () => {
         it("Works", () => {
             const provider = new PrivateKeyProvider("00".repeat(32));
@@ -59,13 +59,13 @@ describe.only("PrivateKeyProvider", () => {
         it("Correctly reports network id when none is provided", async () => {
             const provider = new PrivateKeyProvider("00".repeat(32));
 
-            expect(provider.getNetworkId()).to.equal("mainnet");
+            expect(provider.getNetworkId()).to.equal(Network.mainnet);
         });
 
         it("Correctly reports network id when one is provided", async () => {
             const provider = new PrivateKeyProvider("00".repeat(32), Network.testnet10);
 
-            expect(provider.getNetworkId()).to.equal("testnet10");
+            expect(provider.getNetworkId()).to.equal(Network.testnet10);
         });
     });
 

@@ -13,6 +13,17 @@ export enum Network {
 }
 
 export class NetworkUtil {
+    public networks: Network[] = [
+        Network.mainnet,
+        Network.testnet0,
+        Network.testnet2,
+        Network.testnet3,
+        Network.testnet4,
+        Network.testnet5,
+        Network.testnet7,
+        Network.testnet10
+    ];
+
     public getGenesisChallenge(networkId: Network): bytes {
         switch(networkId) {
             case Network.mainnet:

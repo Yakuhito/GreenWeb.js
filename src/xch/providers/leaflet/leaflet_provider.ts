@@ -623,13 +623,13 @@ export class LeafletProvider implements Provider {
         await this.messageManager.registerFilter({
             messageToSend: msgToSend,
             consumeMessage: (msg: Message) => {
-                if(msg.id === ProtocolMessageTypes.transaction_ack) {
+                if(BigNumber.from(msg.type).eq(ProtocolMessageTypes.transaction_ack)) {
                     respPckt = Serializer.deserialize(
                         TransactionAck,
                         msg.data
                     );
 
-                    return true; // txid, status, and error dont'r really help
+                    return true; // txid, status, and error don't really help
                 }
 
                 return false;
@@ -675,7 +675,7 @@ export class LeafletProvider implements Provider {
         return this._doesNotImplementError();
     }
 
-    public changeNetwork(args: changeNetworkArgs): Promise<boolean> {
+    public async changeNetwork(args: changeNetworkArgs): Promise<boolean> {
         return this._doesNotImplementError();
     }
 }

@@ -4,7 +4,7 @@ import { expect } from "chai";
 import { Network } from "../../util/network";
 import { SpendBundle } from "../../util/serializer/types/spend_bundle";
 import { XCHModule } from "../../xch";
-import { acceptOfferArgs, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../xch/providers/provider";
+import { acceptOfferArgs, BlockHeader, changeNetworkArgs, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, pushSpendBundleArgs, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../xch/providers/provider";
 
 class TestProvider implements Provider {
     async connect(): Promise<void> {
@@ -49,6 +49,9 @@ class TestProvider implements Provider {
     async getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> {
         return [];
     }
+    async pushSpendBundle(args: pushSpendBundleArgs): Promise<boolean> {
+        return true;
+    }
     async getAddress(): Promise<string> {
         return "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3";
     }
@@ -66,6 +69,9 @@ class TestProvider implements Provider {
     }
     async signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
         return null;
+    }
+    async changeNetwork(args: changeNetworkArgs): Promise<boolean> {
+        return true;
     }
 }
 
@@ -96,160 +102,84 @@ describe("XCHModule", () => {
         beforeEach(() => {
             XCHModule.clearProvider();
         });
+
+        const _throwsException = (funcName: string, func: any) => {
+            it(funcName, async () => {
+                let errOk: boolean = false;
+                try {
+                    await func();
+                } catch(e: any) {
+                    errOk = e.message === "Provider not set!";
+                }
+
+                expect(errOk).to.be.true;
+            });
+        };
         
-        it("connect()", () => {
-            expect(XCHModule.connect).to.throw("Provider not set!");
-        });
-
-        it("close()", () => {
-            expect(XCHModule.close).to.throw("Provider not set!");
-        });
-
-        it("getNetworkId()", () => {
-            expect(XCHModule.getNetworkId).to.throw("Provider not set!");
-        });
-
-        it("isConnected()", () => {
-            expect(XCHModule.isConnected).to.throw("Provider not set!");
-        });
-
-        it("getBlockNumber()", () => {
-            expect(XCHModule.getBlockNumber).to.throw("Provider not set!");
-        });
-
-        it("getBalance()", () => {
-            expect(
-                () => XCHModule.getBalance({
-                    address: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
-                    minHeight: 7
-                })
-            ).to.throw("Provider not set!");
-        });
-
-        it("subscribeToPuzzleHashUpdates()", () => {
-            let callbackCalled: boolean = false;
-            expect(
-                () => XCHModule.subscribeToPuzzleHashUpdates({
-                    puzzleHash: "testtest",
-                    callback: () => callbackCalled = true,
-                })
-            ).to.throw("Provider not set!");
-            expect(callbackCalled).to.be.false;
-        });
-
-        it("subscribeToCoinUpdates()", () => {
-            let callbackCalled: boolean = false;
-            expect(
-                () => XCHModule.subscribeToCoinUpdates({
-                    coinId: "testtest",
-                    callback: () => callbackCalled = true,
-                })
-            ).to.throw("Provider not set!");
-            expect(callbackCalled).to.be.false;
-        });
-
-        it("getPuzzleSolution()", () => {
-            expect(
-                () => XCHModule.getPuzzleSolution({
-                    coinId: "testtest",
-                    height: 5,
-                })
-            ).to.throw("Provider not set!");
-        });
-
-        it("getCoinChildren()", () => {
-            expect(
-                () => XCHModule.getCoinChildren({
-                    coinId: "testtest"
-                })
-            ).to.throw("Provider not set!");
-        });
-
-        it("getBlockHeader()", () => {
-            expect(
-                () => XCHModule.getBlockHeader({
-                    height: 42
-                })
-            ).to.throw("Provider not set!");
-        });
-
-        it("getBlocksHeaders()", () => {
-            expect(
-                () => XCHModule.getBlocksHeaders({
-                    startHeight: 7,
-                    endHeight: 42
-                })
-            ).to.throw("Provider not set!");
-        });
-
-        it("getCoinRemovals()", () => {
-            expect(
-                () => XCHModule.getCoinRemovals({
-                    height: 5,
-                    headerHash: "testtest"
-                })
-            ).to.throw("Provider not set!");
-        });
-
-        it("getCoinAdditions()", () => {
-            expect(
-                () => XCHModule.getCoinAdditions({
-                    height: 5,
-                    headerHash: "testtest"
-                })
-            ).to.throw("Provider not set!");
-        });
-
-        it("getAddress()", () => {
-            expect(
-                () => XCHModule.getAddress()
-            ).to.throw("Provider not set!");
-        });
-
-        it("transfer()", () => {
-            expect(
-                () => XCHModule.transfer({
-                    to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
-                    value: 5
-                })
-            ).to.throw("Provider not set!");
-        });
-
-        it("transferCAT()", () => {
-            expect(
-                () => XCHModule.transferCAT({
-                    to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
-                    assetId: "Kitty",
-                    value: 5
-                })
-            ).to.throw("Provider not set!");
-        });
-
-        it("acceptOffer()", () => {
-            expect(
-                () => XCHModule.acceptOffer({
-                    offer: "offer"
-                })
-            ).to.throw("Provider not set!");
-        });
-
-        it("subscribeToAddressChanges()", () => {
-            let callbackCalled: boolean = false;
-            expect(
-                () => XCHModule.subscribeToAddressChanges({
-                    callback: (addr) => callbackCalled = true
-                })
-            ).to.throw("Provider not set!");
-            expect(callbackCalled).to.be.false;
-        });
-
-        it("signCoinSpends()", () => {
-            expect(
-                () => XCHModule.signCoinSpends({
-                    coinSpends: []
-                })
-            ).to.throw("Provider not set!");
-        });
+        _throwsException("connect()", () => XCHModule.connect());
+        _throwsException("close()", () => XCHModule.close());
+        _throwsException("getNetworkId()", () => XCHModule.getNetworkId());
+        _throwsException("isConnected()", () => XCHModule.isConnected());
+        _throwsException("getBlockNumber()", () => XCHModule.getBlockNumber());
+        _throwsException("getBalance()", () => XCHModule.getBalance({
+            address: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+            minHeight: 7,
+        }));
+        _throwsException("subscribeToPuzzleHashUpdates()", () => XCHModule.subscribeToPuzzleHashUpdates({
+            puzzleHash: "testtest",
+            callback: () => { throw new Error("oops"); },
+        }));
+        _throwsException("subscribeToCoinUpdates()", () => XCHModule.subscribeToCoinUpdates({
+            coinId: "testtest",
+            callback: () => { throw new Error("oops"); },
+        }));
+        _throwsException("getPuzzleSolution()", () => XCHModule.getPuzzleSolution({
+            coinId: "testtest",
+            height: 5,
+        }));
+        _throwsException("getCoinChildren()", () => XCHModule.getCoinChildren({
+            coinId: "testtest",
+        }));
+        _throwsException("getBlockHeader()", () => XCHModule.getBlockHeader({
+            height: 42,
+        }));
+        _throwsException("getBlocksHeaders()", () => XCHModule.getBlocksHeaders({
+            startHeight: 7,
+            endHeight: 42,
+        }));
+        _throwsException("getCoinRemovals()", () => XCHModule.getCoinRemovals({
+            height: 5,
+            headerHash: "testtest",
+        }));
+        _throwsException("getCoinAdditions()", () => XCHModule.getCoinAdditions({
+            height: 5,
+            headerHash: "testtest",
+        }));
+        _throwsException("pushSpendBundle()", () => XCHModule.pushSpendBundle({
+            spendBundle: new SpendBundle(),
+        }));
+        _throwsException("getAddress()", () => XCHModule.getAddress());
+        _throwsException("transfer()", () => XCHModule.transfer({
+            to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+            value: 5,
+        }));
+        _throwsException("transferCAT()", () => XCHModule.transferCAT({
+            to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+            assetId: "Kitty",
+            value: 5,
+        }));
+        _throwsException("acceptOffer()", () => XCHModule.acceptOffer({
+            offer: "offer",
+        }));
+        _throwsException("subscribeToAddressChanges()", () => XCHModule.subscribeToAddressChanges({
+            callback: (addr) => { throw new Error("oops"); },
+        }));
+        _throwsException("signCoinSpends()", () => XCHModule.signCoinSpends({
+            coinSpends: [],
+        }));
+        _throwsException("changeNetwork()", () => XCHModule.changeNetwork({
+            network: Network.mainnet,
+        }));
     });
 
     describe("TestProvider", () => {
@@ -385,6 +315,14 @@ describe("XCHModule", () => {
             expect(res?.length).to.equal(0);
         });
 
+        it("pushSpendBundle()", async () => {
+            expect(
+                await XCHModule.pushSpendBundle({
+                    spendBundle: new SpendBundle(),
+                })
+            ).to.be.true;
+        });
+
         it("getAddress()", async () => {
             expect(
                 await XCHModule.getAddress()
@@ -433,6 +371,14 @@ describe("XCHModule", () => {
             });
 
             expect(res).to.be.null;
+        });
+
+        it("changeNetwork()", async () => {
+            const res = await XCHModule.changeNetwork({
+                network: Network.mainnet
+            });
+
+            expect(res).to.be.true;
         });
     });
 });

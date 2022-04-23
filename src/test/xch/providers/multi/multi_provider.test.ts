@@ -5,7 +5,7 @@ import { expect } from "chai";
 import { Network } from "../../../../util/network";
 import { SpendBundle } from "../../../../util/serializer/types/spend_bundle";
 import { MultiProvider } from "../../../../xch/providers/multi";
-import { acceptOfferArgs, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../../../xch/providers/provider";
+import { acceptOfferArgs, BlockHeader, changeNetworkArgs, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, pushSpendBundleArgs, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../../../xch/providers/provider";
 
 let calledMethods: Array<{id: number, methodName: string}> = [];
 let overwriteMethods: Map<string, (id: number) => any> = new Map<string, (id: number) => any>();
@@ -25,12 +25,14 @@ const METHODS: Array<Record<string, any>> = [
     ["getBlocksHeaders", (obj: Provider) => obj.getBlocksHeaders({ startHeight: 0, endHeight: 0 })],
     ["getCoinRemovals", (obj: Provider) => obj.getCoinRemovals({ height: 0, headerHash: "" })],
     ["getCoinAdditions", (obj: Provider) => obj.getCoinAdditions({ height: 0, headerHash: "" })],
+    ["pushSpendBundle", (obj: Provider) => obj.pushSpendBundle({ spendBundle: new SpendBundle() })],
     ["getAddress", (obj: Provider) => obj.getAddress()],
     ["transfer", (obj: Provider) => obj.transfer({ to: "", value: 0 })],
     ["transferCAT", (obj: Provider) => obj.transferCAT({ to: "", assetId: "", value: 5 })],
     ["acceptOffer", (obj: Provider) => obj.acceptOffer({ offer: "" })],
     ["subscribeToAddressChanges", (obj: Provider) => obj.subscribeToAddressChanges({ callback: () => { } })],
     ["signCoinSpends", (obj: Provider) => obj.signCoinSpends({ coinSpends: [] })],
+    ["changeNetwork", (obj: Provider) => obj.changeNetwork({ network: Network.mainnet })],
 ];
 
 const EXCEPTIONS = [0, 1, 3];
@@ -99,23 +101,29 @@ class ObservableProvider implements Provider {
     getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> {
         return this._processMethod(METHODS[13][0]);
     }
-    getAddress(): Promise<string> {
+    pushSpendBundle(args: pushSpendBundleArgs): Promise<boolean> {
         return this._processMethod(METHODS[14][0]);
     }
-    transfer(args: transferArgs): Promise<boolean> {
+    getAddress(): Promise<string> {
         return this._processMethod(METHODS[15][0]);
     }
-    transferCAT(args: transferCATArgs): Promise<boolean> {
+    transfer(args: transferArgs): Promise<boolean> {
         return this._processMethod(METHODS[16][0]);
     }
-    acceptOffer(args: acceptOfferArgs): Promise<boolean> {
+    transferCAT(args: transferCATArgs): Promise<boolean> {
         return this._processMethod(METHODS[17][0]);
     }
-    subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
+    acceptOffer(args: acceptOfferArgs): Promise<boolean> {
         return this._processMethod(METHODS[18][0]);
     }
-    signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
+    subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
         return this._processMethod(METHODS[19][0]);
+    }
+    signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
+        return this._processMethod(METHODS[20][0]);
+    }
+    changeNetwork(args: changeNetworkArgs): Promise<boolean> {
+        return this._processMethod(METHODS[21][0]);
     }
 }
 
@@ -125,8 +133,9 @@ describe("MultiProvider", () => {
         overwriteMethods = new Map<string, (id: number) => any>();
     });
 
+    const MASK = "0001111001011001010100";
+
     it("Calls fallbacks correctly (#1)", async () => {
-        const mask = "00011110010110010101";
         const provider1: ObservableProvider = new ObservableProvider(1);
         const provider2: ObservableProvider = new ObservableProvider(2);
 
@@ -138,7 +147,7 @@ describe("MultiProvider", () => {
         );
 
         for(let i = 0; i < METHODS.length; ++i) {
-            const willProvider1Fail: boolean = mask[i] === "0";
+            const willProvider1Fail: boolean = MASK[i] === "0";
             const methodName = METHODS[i][0];
             calledMethods = [];
 
@@ -168,7 +177,6 @@ describe("MultiProvider", () => {
     });
 
     it("Calls fallbacks correctly (#2)", async () => {
-        const mask = "00011110010110010101";
         const provider1: ObservableProvider = new ObservableProvider(1);
         const provider2: ObservableProvider = new ObservableProvider(2);
 
@@ -180,7 +188,7 @@ describe("MultiProvider", () => {
         );
 
         for(let i = 0; i < METHODS.length; ++i) {
-            const willProvider1Fail: boolean = mask[i] === "1";
+            const willProvider1Fail: boolean = MASK[i] === "1";
             const methodName = METHODS[i][0];
             calledMethods = [];
 

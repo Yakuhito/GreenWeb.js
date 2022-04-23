@@ -6,6 +6,7 @@ import { Util } from "../../../../util";
 import { Network } from "../../../../util/network";
 import { Serializer } from "../../../../util/serializer/serializer";
 import { CoinSpend } from "../../../../util/serializer/types/coin_spend";
+import { SpendBundle } from "../../../../util/serializer/types/spend_bundle";
 import { PrivateKeyProvider } from "../../../../xch/providers/private_key";
 import { SmartCoin } from "../../../../xch/smart_coin";
 import { _SExpFromSerialized } from "./sign_utils.test";
@@ -173,6 +174,14 @@ describe("PrivateKeyProvider", () => {
             (p: PrivateKeyProvider) => p.getCoinAdditions({
                 height: 5,
                 headerHash: "testtest"
+            })
+        );
+    });
+
+    describe("pushSpendBundle()", () => {
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.pushSpendBundle({
+                spendBundle: new SpendBundle(),
             })
         );
     });
@@ -562,6 +571,30 @@ describe("PrivateKeyProvider", () => {
             expect(
                 Buffer.from(AugSchemeMPL.aggregate([]).serialize()).toString("hex")
             ).to.equal(spendBundle?.aggregatedSignature);
+        });
+    });
+
+    describe("changeNetwork()", () => {
+        it("Works", async () => {
+            const provider = new PrivateKeyProvider("01".repeat(32));
+            await provider.connect();
+
+            expect(provider.getNetworkId()).to.equal(Network.mainnet);
+            await provider.changeNetwork({
+                network: Network.testnet7
+            });
+            expect(provider.getNetworkId()).to.equal(Network.testnet7);
+        });
+
+        it("Doesn't do anything if provided network id is invalid", async () => {
+            const provider = new PrivateKeyProvider("01".repeat(32));
+            await provider.connect();
+
+            expect(provider.getNetworkId()).to.equal(Network.mainnet);
+            await provider.changeNetwork({
+                network: "yakuhito" as Network
+            });
+            expect(provider.getNetworkId()).to.equal(Network.mainnet);
         });
     });
 });

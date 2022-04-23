@@ -18,8 +18,9 @@ import { ProofOfSpace } from "../../../../util/serializer/types/proof_of_space";
 import { ProtocolMessageTypes } from "../../../../util/serializer/types/protocol_message_types";
 import { RewardChainBlock } from "../../../../util/serializer/types/reward_chain_block";
 import { Capability, Handshake } from "../../../../util/serializer/types/shared_protocol";
+import { SpendBundle } from "../../../../util/serializer/types/spend_bundle";
 import { VDFInfo, VDFProof } from "../../../../util/serializer/types/vdf";
-import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RejectAdditionsRequest, RejectHeaderBlocks, RejectHeaderRequest, RejectPuzzleSolution, RejectRemovalsRequest, RespondAdditions, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondRemovals, RespondToCoinUpdates, RespondToPhUpdates } from "../../../../util/serializer/types/wallet_protocol";
+import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RejectAdditionsRequest, RejectHeaderBlocks, RejectHeaderRequest, RejectPuzzleSolution, RejectRemovalsRequest, RespondAdditions, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondRemovals, RespondToCoinUpdates, RespondToPhUpdates, TransactionAck } from "../../../../util/serializer/types/wallet_protocol";
 import { getSoftwareVersion } from "../../../../util/software_version";
 import { LeafletProvider } from "../../../../xch/providers/leaflet";
 import { IWebSocket } from "../../../../xch/providers/leaflet/chia_message_channel";
@@ -1579,6 +1580,71 @@ describe("LeafletProvider", () => {
         });
     };
 
+    describe("pushSpendBundle()", () => {
+        const tests = [
+            "Works when response says tx was successful",
+            "Works when response says tx is pending",
+            "Works when response says tx failed (no error)",
+            "Works when response says tx failed (with error)",
+        ];
+        const responseStatuses = [1, 2, 3, 3];
+        const responseErrors = [null, null, null, "error"];
+        const expectToFail = [false, false, true, true];
+
+        for(let i = 0; i < tests.length; i++) {
+            it(tests[i], async () => {
+                let lastMessage: Message;
+    
+                const [provider, sendMessage] = await _setup((msg) => {
+                    lastMessage = msg;
+                });
+    
+                const sb = new SpendBundle();
+                sb.aggregatedSignature = "00".repeat(96);
+                sb.coinSpends = [];
+                
+                const promise = provider.pushSpendBundle({ spendBundle: sb });
+    
+                while(
+                    BigNumber.from(lastMessage!.type).toNumber() !== ProtocolMessageTypes.send_transaction
+                ) {
+                    await sleep(10);
+                }
+    
+                const decoy = new TransactionAck();
+                decoy.txid = "11".repeat(32);
+                decoy.status = expectToFail[i] ? 1 : 3;
+                decoy.error = null;
+
+                const decoyPckt: Message = new Message();
+                decoyPckt.type = ProtocolMessageTypes.new_peak;
+                decoyPckt.id = null;
+                decoyPckt.data = Serializer.serialize(decoy).toString("hex");
+
+                const ack = new TransactionAck();
+                ack.txid = "00".repeat(32);
+                ack.status = responseStatuses[i];
+                ack.error = responseErrors[i];
+    
+                const respPckt: Message = new Message();
+                respPckt.type = ProtocolMessageTypes.transaction_ack;
+                respPckt.id = null;
+                respPckt.data = Serializer.serialize(ack).toString("hex");
+    
+                sendMessage(decoyPckt);
+                sendMessage(respPckt);
+    
+                const result = await promise;
+
+                if(expectToFail[i]) {
+                    expect(result).to.be.false;
+                } else {
+                    expect(result).to.be.true;
+                }
+            });
+        }
+    });
+
     describe("getAddress()", () => {
         _throwsNotImplemented(
             (p: LeafletProvider) => p.getAddress()
@@ -1624,6 +1690,14 @@ describe("LeafletProvider", () => {
         _throwsNotImplemented(
             (p: LeafletProvider) => p.signCoinSpends({
                 coinSpends: []
+            })
+        );
+    });
+
+    describe("changeNetwork()", () => {
+        _throwsNotImplemented(
+            (p: LeafletProvider) => p.changeNetwork({
+                network: Network.testnet10
             })
         );
     });

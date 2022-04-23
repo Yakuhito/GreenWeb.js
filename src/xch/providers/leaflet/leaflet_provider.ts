@@ -610,27 +610,31 @@ export class LeafletProvider implements Provider {
         return coins;
     }
 
-    public getAddress(): Promise<string> {
+    private _doesNotImplementError(): any {
         throw new Error("LeafletProvider does not implement this method.");
+    }
+
+    public getAddress(): Promise<string> {
+        return this._doesNotImplementError();
     }
 
     public transfer(args: transferArgs): Promise<boolean> {
-        throw new Error("LeafletProvider does not implement this method.");
+        return this._doesNotImplementError();
     }
 
     public transferCAT(args: transferCATArgs): Promise<boolean> {
-        throw new Error("LeafletProvider does not implement this method.");
+        return this._doesNotImplementError();
     }
 
     public acceptOffer(args: acceptOfferArgs): Promise<boolean> {
-        throw new Error("LeafletProvider does not implement this method.");
+        return this._doesNotImplementError();
     }
 
     public subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
-        throw new Error("LeafletProvider does not implement this method.");
+        return this._doesNotImplementError();
     }
 
     public async signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
-        throw new Error("LeafletProvider does not implement this method.");
+        return this._doesNotImplementError();
     }
 }

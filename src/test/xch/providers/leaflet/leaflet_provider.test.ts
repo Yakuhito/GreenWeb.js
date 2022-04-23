@@ -1564,75 +1564,67 @@ describe("LeafletProvider", () => {
         });
     });
 
-    describe("getAddress()", () => {
+    const _throwsNotImplemented = (func: any) => {
         it("Throws 'not implemented' error.", async () => {
             const [provider] = await _setup(() => { });
-            expect(
-                provider.getAddress
-            ).to.throw("LeafletProvider does not implement this method.");
+            let errOk: boolean = false;
+
+            try {
+                await func(provider);
+            } catch(e: any) {
+                errOk = e.message === "LeafletProvider does not implement this method.";
+            }
+            
+            expect(errOk).to.be.true;
         });
+    };
+
+    describe("getAddress()", () => {
+        _throwsNotImplemented(
+            (p: LeafletProvider) => p.getAddress()
+        );
     });
 
     describe("transfer()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const [provider] = await _setup(() => {});
-            expect(
-                () => provider.transfer({
-                    to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
-                    value: 1337
-                })
-            ).to.throw("LeafletProvider does not implement this method.");
-        });
+        _throwsNotImplemented(
+            (p: LeafletProvider) => p.transfer({
+                to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+                value: 1337
+            })
+        );
     });
 
     describe("transferCAT()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const [provider] = await _setup(() => { });
-            expect(
-                () => provider.transferCAT({
-                    to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
-                    assetId: "00".repeat(32),
-                    value: 1337
-                })
-            ).to.throw("LeafletProvider does not implement this method.");
-        });
+        _throwsNotImplemented(
+            (p: LeafletProvider) => p.transferCAT({
+                to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+                assetId: "00".repeat(32),
+                value: 1337
+            })
+        );
     });
     
     describe("acceptOffer()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const [provider] = await _setup(() => { });
-            expect(
-                () => provider.acceptOffer({
-                    offer: "offer12345"
-                })
-            ).to.throw("LeafletProvider does not implement this method.");
-        });
+        _throwsNotImplemented(
+            (p: LeafletProvider) => p.acceptOffer({
+                offer: "offer12345"
+            })
+        );
     });
 
     describe("subscribeToAddressChanges()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const [provider] = await _setup(() => { });
-            expect(
-                () => provider.subscribeToAddressChanges({
-                    callback: () => { }
-                })
-            ).to.throw("LeafletProvider does not implement this method.");
-        });
+        _throwsNotImplemented(
+            (p: LeafletProvider) => p.subscribeToAddressChanges({
+                callback: () => { }
+            })
+        );
     });
 
     describe("signCoinSpends()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const [provider] = await _setup(() => { });
-            let errorOk: boolean = false;
-            try {
-                await provider.signCoinSpends({
-                    coinSpends: []
-                });
-            } catch(e: any) {
-                errorOk = e.message === "LeafletProvider does not implement this method.";
-            }
-            
-            expect(errorOk).to.be.true;
-        });
+        _throwsNotImplemented(
+            (p: LeafletProvider) => p.signCoinSpends({
+                coinSpends: []
+            })
+        );
     });
 });

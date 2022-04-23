@@ -45,65 +45,25 @@ export class PrivateKeyProvider implements Provider {
         return this.connected;
     }
 
-    public async getBlockNumber(): Promise<Optional<number>> {
+    private _doesNotImplementError(): any {
         throw new Error("PrivateKeyProvider does not implement this method.");
     }
 
-    public async getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async getCoinChildren(args: getCoinChildrenArgs): Promise<CoinState[]> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<BlockHeader>> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async getAddress(): Promise<string> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async transfer(args: transferArgs): Promise<boolean> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async transferCAT(args: transferCATArgs): Promise<boolean> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public async acceptOffer(args: acceptOfferArgs): Promise<boolean> {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
-
-    public subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
-        throw new Error("PrivateKeyProvider does not implement this method.");
-    }
+    public async getBlockNumber(): Promise<Optional<number>> { return this._doesNotImplementError(); }
+    public async getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>> { return this._doesNotImplementError(); }
+    public subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void { return this._doesNotImplementError(); }
+    public subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void { return this._doesNotImplementError(); }
+    public async getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>> { return this._doesNotImplementError(); }
+    public async getCoinChildren(args: getCoinChildrenArgs): Promise<CoinState[]> { return this._doesNotImplementError(); }
+    public async getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<BlockHeader>> { return this._doesNotImplementError(); }
+    public async getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>> { return this._doesNotImplementError(); }
+    public async getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>> { return this._doesNotImplementError(); }
+    public async getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> { return this._doesNotImplementError(); }
+    public async getAddress(): Promise<string> { return this._doesNotImplementError(); }
+    public async transfer(args: transferArgs): Promise<boolean> { return this._doesNotImplementError(); }
+    public async transferCAT(args: transferCATArgs): Promise<boolean> { return this._doesNotImplementError(); }
+    public async acceptOffer(args: acceptOfferArgs): Promise<boolean> { return this._doesNotImplementError(); }
+    public subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void { return this._doesNotImplementError(); }
 
     public async signCoinSpends({ coinSpends }: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
         // todo

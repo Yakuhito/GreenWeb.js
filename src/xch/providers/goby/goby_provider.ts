@@ -111,44 +111,48 @@ export class GobyProvider implements Provider {
         return this._address !== "";
     }
 
-    public async getBlockNumber(): Promise<Optional<number>> {
+    private _doesNotImplementError(): any {
         throw new Error("GobyProvider does not implement this method.");
+    }
+
+    public async getBlockNumber(): Promise<Optional<number>> {
+        return this._doesNotImplementError();
     }
 
     public async getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>> {
-        throw new Error("GobyProvider does not implement this method.");
+        return this._doesNotImplementError();
     }
 
     public subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void {
-        throw new Error("GobyProvider does not implement this method.");
+        return this._doesNotImplementError();
     }
 
     public subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void {
-        throw new Error("GobyProvider does not implement this method.");
+        return this._doesNotImplementError();
     }
 
     public async getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>> {
-        throw new Error("GobyProvider does not implement this method.");
+        return this._doesNotImplementError();
     }
 
     public async getCoinChildren(args: getCoinChildrenArgs): Promise<CoinState[]> {
-        throw new Error("GobyProvider does not implement this method.");
+        return this._doesNotImplementError();
     }
 
     public async getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<BlockHeader>> {
-        throw new Error("GobyProvider does not implement this method.");
+        return this._doesNotImplementError();
     }
 
     public async getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>> {
-        throw new Error("GobyProvider does not implement this method.");
+        return this._doesNotImplementError();
     }
 
     public async getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>> {
-        throw new Error("GobyProvider does not implement this method.");
+        return this._doesNotImplementError();
     }
 
     public async getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> {
-        throw new Error("GobyProvider does not implement this method.");
+        return this._doesNotImplementError();
     }
 
     public async getAddress(): Promise<string> {
@@ -216,6 +220,6 @@ export class GobyProvider implements Provider {
 
     public async signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
         // hopefully soon
-        throw new Error("GobyProvider does not implement this method.");
+        return this._doesNotImplementError();
     }
 }

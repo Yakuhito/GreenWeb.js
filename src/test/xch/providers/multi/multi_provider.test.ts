@@ -232,10 +232,8 @@ describe("MultiProvider", () => {
 
             try {
                 await callFunc(p);
-            } catch(err) {
-                thrownOk =
-                    err instanceof Error &&
-                    err.message === "MultiProvider could not find an active Provider that implements this method.";
+            } catch(err: any) {
+                thrownOk = err.message === "MultiProvider could not find an active Provider that implements this method.";
             }
 
             expect(

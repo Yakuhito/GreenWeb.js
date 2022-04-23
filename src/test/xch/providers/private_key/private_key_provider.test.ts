@@ -78,205 +78,144 @@ describe("PrivateKeyProvider", () => {
     });
 
     const _expectNotImplementedError = async (func: any) => {
-        let errorOk = false;
-        try {
-            await func();
-        } catch(e: any) {
-            errorOk = e.message === NOT_IMPL_ERROR;
-        }
+        it("Throws 'not implemented' error.", async () => {
+            const provider = new PrivateKeyProvider("00".repeat(32));
 
-        expect(errorOk).to.be.true;
+            let errorOk = false;
+            try {
+                await func(provider);
+            } catch(e: any) {
+                errorOk = e.message === NOT_IMPL_ERROR;
+            }
+
+            expect(errorOk).to.be.true;
+        });
     };
 
     describe("getBlockNumber()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-
-            _expectNotImplementedError(
-                () => provider.getBlockNumber()
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getBlockNumber()
+        );
     });
 
     describe("getBalance()", () => {
-        it("Throws 'not implemented' error.", () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.getBalance({
-                    address: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
-                    minHeight: 7
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getBalance({
+                address: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+                minHeight: 7
+            })
+        );
     });
 
     describe("subscribeToPuzzleHashUpdates()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            let callbackCalled: boolean = false;
-
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.subscribeToPuzzleHashUpdates({
-                    puzzleHash: "testtest",
-                    callback: () => callbackCalled = true,
-                })
-            );
-            expect(callbackCalled).to.be.false;
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.subscribeToPuzzleHashUpdates({
+                puzzleHash: "testtest",
+                callback: () => { throw new Error("oops") },
+            })
+        );
     });
 
     describe("subscribeToCoinUpdates()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            let callbackCalled: boolean = false;
-
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.subscribeToCoinUpdates({
-                    coinId: "testtest",
-                    callback: () => callbackCalled = true,
-                })
-            );
-            expect(callbackCalled).to.be.false;
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.subscribeToCoinUpdates({
+                coinId: "testtest",
+                callback: () => { throw new Error("oops") },
+            })
+        );
     });
 
     describe("getPuzzleSolution()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.getPuzzleSolution({
-                    coinId: "testtest",
-                    height: 5,
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getPuzzleSolution({
+                coinId: "testtest",
+                height: 5,
+            })
+        );
     });
 
     describe("getCoinChildren()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.getCoinChildren({
-                    coinId: "testtest"
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getCoinChildren({
+                coinId: "testtest"
+            })
+        );
     });
 
     describe("getBlockHeader()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.getBlockHeader({
-                    height: 42
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getBlockHeader({
+                height: 42
+            })
+        );
     });
 
     describe("getBlocksHeaders()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.getBlocksHeaders({
-                    startHeight: 7,
-                    endHeight: 42
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getBlocksHeaders({
+                startHeight: 7,
+                endHeight: 42
+            })
+        );
     });
 
     describe("getCoinRemovals()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.getCoinRemovals({
-                    height: 5,
-                    headerHash: "testtest"
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getCoinRemovals({
+                height: 5,
+                headerHash: "testtest"
+            })
+        );
     });
 
     describe("getCoinAdditions()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.getCoinAdditions({
-                    height: 5,
-                    headerHash: "testtest"
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getCoinAdditions({
+                height: 5,
+                headerHash: "testtest"
+            })
+        );
     });
 
     describe("getAddress()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                provider.getAddress
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.getAddress()
+        );
     });
 
     describe("transfer()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.transfer({
-                    to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
-                    value: 5
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.transfer({
+                to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+                value: 5
+            })
+        );
     });
 
     describe("transferCAT()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.transferCAT({
-                    to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
-                    assetId: "Kitty",
-                    value: 5
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.transferCAT({
+                to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
+                assetId: "Kitty",
+                value: 5
+            })
+        );
     });
 
     describe("acceptOffer()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.acceptOffer({
-                    offer: "offer",
-                })
-            );
-        });
-    });
-
-    describe("acceptOffer()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.acceptOffer({
-                    offer: "offer",
-                })
-            );
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.acceptOffer({
+                offer: "offer",
+            })
+        );
     });
 
     describe("subscribeToAddressChanges()", () => {
-        it("Throws 'not implemented' error.", async () => {
-            let callbackCalled: boolean = false;
-            const provider = new PrivateKeyProvider("00".repeat(32));
-            _expectNotImplementedError(
-                () => provider.subscribeToAddressChanges({
-                    callback: (addr) => callbackCalled = true
-                })
-            );
-            expect(callbackCalled).to.be.false;
-        });
+        _expectNotImplementedError(
+            (p: PrivateKeyProvider) => p.subscribeToAddressChanges({
+                callback: (addr) => { throw new Error("oops"); },
+            })
+        );
     });
 
     describe("signCoinSpends()", () => {

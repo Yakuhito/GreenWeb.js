@@ -5,9 +5,6 @@ import { GobyProvider } from "./providers/goby";
 import { MultiProvider } from "./providers/multi";
 import { BigNumber } from "@ethersproject/bignumber";
 import { PrivateKeyProvider } from "./providers/private_key";
-import { SmartCoin } from "./smart_coin";
-import { Coin as serializerCoin } from "../util/serializer/types/coin";
-import { CoinSpend } from "../util/serializer/types/coin_spend";
 import { SpendBundle } from "../util/serializer/types/spend_bundle";
 import { Network } from "../util/network";
 
@@ -18,10 +15,6 @@ export class XCHModule {
         MultiProvider,
         PrivateKeyProvider
     };
-
-    public static Coin = serializerCoin;
-    public static SmartCoin = SmartCoin;
-    public static CoinSpend = CoinSpend;
 
     public static provider: Provider | null = null;
 

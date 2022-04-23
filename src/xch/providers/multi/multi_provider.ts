@@ -2,7 +2,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { Network } from "../../../util/network";
 import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Provider } from "../provider";
-import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs } from "../provider_args";
+import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, changeNetworkArgs, pushSpendBundleArgs } from "../provider_args";
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin } from "../provider_types";
 
 export class MultiProvider implements Provider {
@@ -247,6 +247,22 @@ export class MultiProvider implements Provider {
         return this._doesNotImplementError();
     }
 
+    public async pushSpendBundle(args: pushSpendBundleArgs): Promise<boolean> {
+        for(let i = 0; i < this.providers.length; ++i) {
+            try {
+                if(!this.providers[i].isConnected()) {
+                    continue;
+                }
+
+                return await this.providers[i].pushSpendBundle(args);
+            } catch (_) {
+                continue;
+            }
+        }
+
+        return this._doesNotImplementError();
+    }
+
     public async transfer(args: transferArgs): Promise<boolean> {
         for(let i = 0; i < this.providers.length; ++i) {
             try {
@@ -319,6 +335,22 @@ export class MultiProvider implements Provider {
                 }
 
                 return this.providers[i].signCoinSpends(args);
+            } catch(_) {
+                continue;
+            }
+        }
+
+        return this._doesNotImplementError();
+    }
+
+    public async changeNetwork(args: changeNetworkArgs): Promise<boolean> {
+        for(let i = 0; i < this.providers.length; ++i) {
+            try {
+                if(!this.providers[i].isConnected()) {
+                    continue;
+                }
+
+                return this.providers[i].changeNetwork(args);
             } catch(_) {
                 continue;
             }

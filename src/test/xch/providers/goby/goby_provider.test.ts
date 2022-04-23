@@ -493,25 +493,25 @@ describe("GobyProvider", () => {
 
             expect(p.getNetworkId()).to.equal(Network.mainnet);
 
-            await chainChangedCallback("0x2");
+            await chainChangedCallback("0x02");
             expect(p.getNetworkId()).to.equal(Network.testnet10);
 
-            await chainChangedCallback("0x1");
+            await chainChangedCallback("0x01");
             expect(p.getNetworkId()).to.equal(Network.mainnet);
 
-            await chainChangedCallback("0x2");
+            await chainChangedCallback("0x02");
             expect(p.getNetworkId()).to.equal(Network.testnet10);
 
-            await chainChangedCallback("0x1");
+            await chainChangedCallback("0x01");
             expect(p.getNetworkId()).to.equal(Network.mainnet);
 
-            await chainChangedCallback("0x1");
+            await chainChangedCallback("0x01");
             expect(p.getNetworkId()).to.equal(Network.mainnet);
 
-            await chainChangedCallback("0x2");
+            await chainChangedCallback("0x02");
             expect(p.getNetworkId()).to.equal(Network.testnet10);
 
-            await chainChangedCallback("0x1");
+            await chainChangedCallback("0x01");
             expect(p.getNetworkId()).to.equal(Network.mainnet);
         });
     });

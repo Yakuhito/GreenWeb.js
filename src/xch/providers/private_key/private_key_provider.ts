@@ -2,7 +2,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { getBLSModule, initialize, } from "clvm";
 import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Provider } from "../provider";
-import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs } from "../provider_args";
+import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, changeNetworkArgs, pushSpendBundleArgs } from "../provider_args";
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin, bytes } from "../provider_types";
 import { Util } from "../../../util";
 import { SignUtils } from "./sign_utils";
@@ -59,6 +59,7 @@ export class PrivateKeyProvider implements Provider {
     public async getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>> { return this._doesNotImplementError(); }
     public async getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>> { return this._doesNotImplementError(); }
     public async getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> { return this._doesNotImplementError(); }
+    public async pushSpendBundle(args: pushSpendBundleArgs): Promise<boolean> { return this._doesNotImplementError(); }
     public async getAddress(): Promise<string> { return this._doesNotImplementError(); }
     public async transfer(args: transferArgs): Promise<boolean> { return this._doesNotImplementError(); }
     public async transferCAT(args: transferCATArgs): Promise<boolean> { return this._doesNotImplementError(); }
@@ -120,5 +121,14 @@ export class PrivateKeyProvider implements Provider {
             AugSchemeMPL.aggregate(signatures).serialize()
         ).toString("hex");
         return sb;
+    }
+
+    public async changeNetwork(args: changeNetworkArgs): Promise<boolean> {
+        if(Util.network.networks.includes(args.network)) {
+            this.network = args.network;
+            return true;
+        }
+
+        return false;
     }
 }

@@ -1,5 +1,7 @@
 import { BigNumberish } from "@ethersproject/bignumber";
+import { Network } from "../../util/network";
 import { CoinSpend } from "../../util/serializer/types/coin_spend";
+import { SpendBundle } from "../../util/serializer/types/spend_bundle";
 import { CoinState } from "./provider_types";
 
 export type getBalanceArgs = {
@@ -50,6 +52,10 @@ export type getCoinAdditionsArgs = {
     puzzleHashes?: string[]
 };
 
+export type pushSpendBundleArgs = {
+    spendBundle: SpendBundle
+};
+
 export type transferArgs = {
     to: string,
     value: BigNumberish,
@@ -74,4 +80,8 @@ export type subscribeToAddressChangesArgs = {
 
 export type signCoinSpendsArgs = {
     coinSpends: CoinSpend[],
+};
+
+export type changeNetworkArgs = {
+    network: Network,
 };

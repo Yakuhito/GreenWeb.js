@@ -3,11 +3,11 @@ import * as providerTypes from "../provider_types";
 import { makeMsg, Message } from "../../../util/serializer/types/outbound_message";
 import { Serializer } from "../../../util/serializer/serializer";
 import { ProtocolMessageTypes } from "../../../util/serializer/types/protocol_message_types";
-import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdates, RegisterForPhUpdates, RejectAdditionsRequest, RejectHeaderBlocks, RejectHeaderRequest, RejectPuzzleSolution, RejectRemovalsRequest, RequestAdditions, RequestBlockHeader, RequestChildren, RequestHeaderBlocks, RequestPuzzleSolution, RequestRemovals, RespondAdditions, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondPuzzleSolution, RespondRemovals, RespondToCoinUpdates, RespondToPhUpdates } from "../../../util/serializer/types/wallet_protocol";
+import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdates, RegisterForPhUpdates, RejectAdditionsRequest, RejectHeaderBlocks, RejectHeaderRequest, RejectPuzzleSolution, RejectRemovalsRequest, RequestAdditions, RequestBlockHeader, RequestChildren, RequestHeaderBlocks, RequestPuzzleSolution, RequestRemovals, RespondAdditions, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondPuzzleSolution, RespondRemovals, RespondToCoinUpdates, RespondToPhUpdates, SendTransaction, TransactionAck } from "../../../util/serializer/types/wallet_protocol";
 import { HeaderBlock } from "../../../util/serializer/types/header_block";
 import { Coin } from "../../../util/serializer/types/coin";
 import { AddressUtil } from "../../../util/address";
-import { transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs } from "../provider_args";
+import { transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, changeNetworkArgs, pushSpendBundleArgs } from "../provider_args";
 import { BigNumber } from "@ethersproject/bignumber";
 import { MessageManager } from "./message_manager";
 import { ChiaMessageChannel, IWebSocket } from "./chia_message_channel";
@@ -610,6 +610,43 @@ export class LeafletProvider implements Provider {
         return coins;
     }
 
+    public async pushSpendBundle(args: pushSpendBundleArgs): Promise<boolean> {
+        const pckt: SendTransaction = new SendTransaction();
+        pckt.transaction = args.spendBundle;
+
+        const msgToSend: Buffer = makeMsg(
+            ProtocolMessageTypes.send_transaction,
+            pckt,
+        );
+
+        let respPckt: TransactionAck = new TransactionAck();
+        await this.messageManager.registerFilter({
+            messageToSend: msgToSend,
+            consumeMessage: (msg: Message) => {
+                if(msg.id === ProtocolMessageTypes.transaction_ack) {
+                    respPckt = Serializer.deserialize(
+                        TransactionAck,
+                        msg.data
+                    );
+
+                    return true; // txid, status, and error dont'r really help
+                }
+
+                return false;
+            },
+        });
+
+        // https://github.com/Chia-Network/chia-blockchain/blob/25ab0c90cb34cd048463082801c3cc26bfac389a/chia/types/mempool_inclusion_status.py#L4
+        if(
+            respPckt.error === null &&
+            [1, 2].includes(BigNumber.from(respPckt.status).toNumber())
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
     private _doesNotImplementError(): any {
         throw new Error("LeafletProvider does not implement this method.");
     }
@@ -635,6 +672,10 @@ export class LeafletProvider implements Provider {
     }
 
     public async signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
+        return this._doesNotImplementError();
+    }
+
+    public changeNetwork(args: changeNetworkArgs): Promise<boolean> {
         return this._doesNotImplementError();
     }
 }

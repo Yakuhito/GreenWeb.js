@@ -1,5 +1,5 @@
 import { Optional, Coin, CoinState, BlockHeader, PuzzleSolution } from "./provider_types";
-import { acceptOfferArgs, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "./provider_args";
+import { acceptOfferArgs, changeNetworkArgs, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, pushSpendBundleArgs, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "./provider_args";
 import { BigNumber } from "@ethersproject/bignumber";
 import { SpendBundle } from "../../util/serializer/types/spend_bundle";
 import { Network } from "../../util/network";
@@ -34,6 +34,9 @@ export interface Provider {
     getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>>;
     getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>>;
 
+    /* deserves its own category */
+    pushSpendBundle(args: pushSpendBundleArgs): Promise<boolean>;
+
     /* wallet */
     getAddress(): Promise<string>;
     transfer(args: transferArgs): Promise<boolean>;
@@ -41,4 +44,5 @@ export interface Provider {
     acceptOffer(args: acceptOfferArgs): Promise<boolean>;
     subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void;
     signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>>;
+    changeNetwork(args: changeNetworkArgs): Promise<boolean>;
 }

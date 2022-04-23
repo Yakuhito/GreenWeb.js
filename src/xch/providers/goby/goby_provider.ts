@@ -6,7 +6,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { Network } from "../../../util/network";
 import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Provider } from "../provider";
-import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, acceptOfferArgs, transferArgs, transferCATArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs } from "../provider_args";
+import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, acceptOfferArgs, transferArgs, transferCATArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, changeNetworkArgs, pushSpendBundleArgs } from "../provider_args";
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin } from "../provider_types";
 
 // https://stackoverflow.com/questions/56457935/typescript-error-property-x-does-not-exist-on-type-window
@@ -61,7 +61,7 @@ export class GobyProvider implements Provider {
                 this._changeAddress(accounts?.[0] ?? "");
             });
             this._getChia().on("chainChanged", (chainId: string) => {
-                if(chainId === "0x1") {
+                if(chainId === "0x01") {
                     this._network = Network.mainnet;
                 } else {
                     this._network = Network.testnet10;
@@ -159,6 +159,26 @@ export class GobyProvider implements Provider {
         return this._address;
     }
 
+    public async pushSpendBundle({ spendBundle }: pushSpendBundleArgs): Promise<boolean> {
+        // Seems like this feature isn't live yet
+        return this._doesNotImplementError();
+        // try {
+        //     const res = await this._getChia().request({
+        //         method: "pushTx",
+        //         params: {
+        //             spendBundle,
+        //         }
+        //     });
+
+        //     if([1, 2].includes(res.status) || ["success", "pending"].includes(res.status)) {
+        //         return true;
+        //     }
+        //     return false;
+        // } catch(_) {
+        //     return false;
+        // }
+    }
+
     public transfer({ to, value, fee = 0 }: transferArgs): Promise<boolean> {
         // you did not see this
         // kapische?
@@ -221,5 +241,32 @@ export class GobyProvider implements Provider {
     public async signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
         // hopefully soon
         return this._doesNotImplementError();
+    }
+
+    public async changeNetwork({ network }: changeNetworkArgs): Promise<boolean> {
+        let chainId: string = "";
+        switch (network) {
+            case Network.mainnet:
+                chainId = "0x01";
+                break;
+            case Network.testnet10:
+                chainId = "0x02";
+                break;
+            default:
+                return false;
+        }
+
+        try {
+            await this._getChia().request({
+                method: "walletSwitchChain",
+                params: {
+                    chainId,
+                }
+            });
+        } catch (_) {
+            return false;
+        }
+
+        return true;
     }
 }

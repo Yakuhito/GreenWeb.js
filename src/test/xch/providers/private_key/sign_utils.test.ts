@@ -1,20 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable max-len */
 import { expect } from "chai";
-import { Bytes, CLVMObject, SExp, sexp_from_stream, Stream, Tuple } from "clvm";
+import { Bytes, CLVMObject, SExp, Tuple } from "clvm";
+import { Util } from "../../../../util";
 import { ConditionOpcode } from "../../../../xch/providers/private_key/condition_opcodes";
 import { ConditionWithArgs } from "../../../../xch/providers/private_key/condition_with_args";
-import { MAX_BLOCK_COST_CLVM } from "../../../../xch/providers/private_key/private_key_provider";
 import { ConditionsDict, SignUtils } from "../../../../xch/providers/private_key/sign_utils";
 import { bytes } from "../../../../xch/providers/provider_types";
-
-export const _SExpFromSerialized = (serialized: bytes) => {
-    const s: Stream = new Stream(new Bytes(
-        Buffer.from(serialized, "hex")
-    ));
-    const sexp: SExp = sexp_from_stream(s, SExp.to);
-    return sexp;
-}
 
 describe("SignUtils", () => {
     describe("conditionsDictForSolution()", () => {
@@ -39,9 +31,9 @@ describe("SignUtils", () => {
             ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080
             */
 
-            const program: SExp = _SExpFromSerialized("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
-            const solution: SExp = _SExpFromSerialized("ff8080"); // (())
-            const res = SignUtils.conditionsDictForSolution(program, solution, MAX_BLOCK_COST_CLVM);
+            const program: SExp = Util.sexp.fromHex("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
+            const solution: SExp = Util.sexp.fromHex("ff8080"); // (())
+            const res = SignUtils.conditionsDictForSolution(program, solution, Util.sexp.MAX_BLOCK_COST_CLVM);
 
             expect(res[0]).to.be.false;
             expect(res[1]).to.not.be.null;
@@ -65,10 +57,10 @@ describe("SignUtils", () => {
         });
 
         it("Works if puzzle throws an exception", () => {
-            const program: SExp = _SExpFromSerialized("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
-            const solution: SExp = _SExpFromSerialized("ff0180"); // (1) => should throw exception
+            const program: SExp = Util.sexp.fromHex("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
+            const solution: SExp = Util.sexp.fromHex("ff0180"); // (1) => should throw exception
 
-            const res = SignUtils.conditionsDictForSolution(program, solution, MAX_BLOCK_COST_CLVM);
+            const res = SignUtils.conditionsDictForSolution(program, solution, Util.sexp.MAX_BLOCK_COST_CLVM);
             expect(res[0]).to.be.true;
             expect(res[1]).to.be.null;
             expect(res[2]).to.equal(0);
@@ -97,9 +89,9 @@ describe("SignUtils", () => {
             ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080
             */
 
-            const program: SExp = _SExpFromSerialized("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
-            const solution: SExp = _SExpFromSerialized("ff8080"); // (())
-            const res = SignUtils.conditionsForSolution(program, solution, MAX_BLOCK_COST_CLVM);
+            const program: SExp = Util.sexp.fromHex("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
+            const solution: SExp = Util.sexp.fromHex("ff8080"); // (())
+            const res = SignUtils.conditionsForSolution(program, solution, Util.sexp.MAX_BLOCK_COST_CLVM);
 
             expect(res[0]).to.be.false;
             expect(res[1]).to.not.be.null;
@@ -112,10 +104,10 @@ describe("SignUtils", () => {
         });
 
         it("Works if puzzle throws an exception", () => {
-            const program: SExp = _SExpFromSerialized("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
-            const solution: SExp = _SExpFromSerialized("ff0180"); // (1) => should throw exception
+            const program: SExp = Util.sexp.fromHex("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
+            const solution: SExp = Util.sexp.fromHex("ff0180"); // (1) => should throw exception
 
-            const res = SignUtils.conditionsForSolution(program, solution, MAX_BLOCK_COST_CLVM);
+            const res = SignUtils.conditionsForSolution(program, solution, Util.sexp.MAX_BLOCK_COST_CLVM);
             expect(res[0]).to.be.true;
             expect(res[1]).to.be.null;
             expect(res[2]).to.equal(0);
@@ -130,7 +122,7 @@ describe("SignUtils", () => {
             (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '((51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 1337) (73 0x0186a0))'
             ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ffff49ff830186a08080
             */
-            const sexp: SExp = _SExpFromSerialized("ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ffff49ff830186a08080"); // ()
+            const sexp: SExp = Util.sexp.fromHex("ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ffff49ff830186a08080"); // ()
             const res = SignUtils.parseSExpToConditions(sexp);
 
             expect(res[0]).to.be.false;
@@ -150,7 +142,7 @@ describe("SignUtils", () => {
             (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '((51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 1337) () (73 0x0186a0))'
             ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ff80ffff49ff830186a08080
             */
-            const sexp: SExp = _SExpFromSerialized("ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ff80ffff49ff830186a08080"); // ()
+            const sexp: SExp = Util.sexp.fromHex("ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ff80ffff49ff830186a08080"); // ()
             const res = SignUtils.parseSExpToConditions(sexp);
 
             expect(res[0]).to.be.true;
@@ -166,7 +158,7 @@ describe("SignUtils", () => {
                 (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 1337)'
                 ff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980
             */
-            const sexp: SExp = _SExpFromSerialized("ff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980");
+            const sexp: SExp = Util.sexp.fromHex("ff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980");
             const res = SignUtils.parseSExpToCondition(sexp);
 
             expect(res[0]).to.be.false;
@@ -178,7 +170,7 @@ describe("SignUtils", () => {
         });
 
         it("Works if given () as input", () => {
-            const sexp: SExp = _SExpFromSerialized("80"); // ()
+            const sexp: SExp = Util.sexp.fromHex("80"); // ()
             const res = SignUtils.parseSExpToCondition(sexp);
 
             expect(res[0]).to.be.true;
@@ -195,7 +187,7 @@ describe("SignUtils", () => {
             ff31ff33ff3780
             (venv) yakuhito@catstation:~/projects/clvm_tools$
             */
-            const sexp: SExp = _SExpFromSerialized("ff31ff33ff3780");
+            const sexp: SExp = Util.sexp.fromHex("ff31ff33ff3780");
             const res: bytes[] = SignUtils.asAtomList(sexp);
             
             expect(res.length).to.equal(3);

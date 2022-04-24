@@ -8,8 +8,6 @@ import { Util } from "../../../util";
 import { SignUtils } from "./sign_utils";
 import { Network } from "../../../util/network";
 
-export const MAX_BLOCK_COST_CLVM = 11000000000;
-
 export class PrivateKeyProvider implements Provider {
     private privateKey: string;
     private connected: boolean;
@@ -89,7 +87,7 @@ export class PrivateKeyProvider implements Provider {
             const [, conditions, ] = SignUtils.conditionsDictForSolution(
                 coinSpend.puzzleReveal,
                 coinSpend.solution,
-                MAX_BLOCK_COST_CLVM
+                Util.sexp.MAX_BLOCK_COST_CLVM
             );
 
             if(conditions !== null) {

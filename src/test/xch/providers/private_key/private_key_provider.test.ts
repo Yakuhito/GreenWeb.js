@@ -9,7 +9,6 @@ import { CoinSpend } from "../../../../util/serializer/types/coin_spend";
 import { SpendBundle } from "../../../../util/serializer/types/spend_bundle";
 import { PrivateKeyProvider } from "../../../../xch/providers/private_key";
 import { SmartCoin } from "../../../../smart_coin";
-import { _SExpFromSerialized } from "./sign_utils.test";
 
 const NOT_IMPL_ERROR: string = "PrivateKeyProvider does not implement this method.";
 
@@ -246,8 +245,8 @@ describe("PrivateKeyProvider", () => {
             */
             let puzz: string = "ff01ffff32ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f80ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff8304c7f98080";
             puzz = puzz.replace("a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37", pubKey);
-            const puzzle = _SExpFromSerialized(puzz);
-            const solution = _SExpFromSerialized("80"); // ()  
+            const puzzle = Util.sexp.fromHex(puzz);
+            const solution = Util.sexp.fromHex("80"); // ()  
 
             const c = new SmartCoin({
                 parentCoinInfo: "00".repeat(32),
@@ -304,8 +303,8 @@ describe("PrivateKeyProvider", () => {
             */
             let puzz: string = "ff01ffff32ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f80ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff8304c7f98080";
             puzz = puzz.replace("a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37", pubKey);
-            const puzzle = _SExpFromSerialized(puzz);
-            const solution = _SExpFromSerialized("80"); // ()  
+            const puzzle = Util.sexp.fromHex(puzz);
+            const solution = Util.sexp.fromHex("80"); // ()  
 
             const c = new SmartCoin({
                 parentCoinInfo: "00".repeat(32),
@@ -357,8 +356,8 @@ describe("PrivateKeyProvider", () => {
             */
             const puzz: string = "ff01ffff32ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f80ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff8304c7f98080";
             // no replace <-> keys won't match
-            const puzzle = _SExpFromSerialized(puzz);
-            const solution = _SExpFromSerialized("80"); // ()  
+            const puzzle = Util.sexp.fromHex(puzz);
+            const solution = Util.sexp.fromHex("80"); // ()  
 
             const c = new SmartCoin({
                 parentCoinInfo: "00".repeat(32),
@@ -406,8 +405,8 @@ describe("PrivateKeyProvider", () => {
             */
             let puzz: string = "ff01ffff31ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f80ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff8304c7f98080";
             puzz = puzz.replace("a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37", pubKey);
-            const puzzle = _SExpFromSerialized(puzz);
-            const solution = _SExpFromSerialized("80"); // ()  
+            const puzzle = Util.sexp.fromHex(puzz);
+            const solution = Util.sexp.fromHex("80"); // ()  
 
             const c = new SmartCoin({
                 parentCoinInfo: "00".repeat(32),
@@ -455,8 +454,8 @@ describe("PrivateKeyProvider", () => {
             */
             const puzz: string = "ff01ffff31ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f80ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff8304c7f98080";
             // no replace <-> keys won't match
-            const puzzle = _SExpFromSerialized(puzz);
-            const solution = _SExpFromSerialized("80"); // ()  
+            const puzzle = Util.sexp.fromHex(puzz);
+            const solution = Util.sexp.fromHex("80"); // ()  
 
             const c = new SmartCoin({
                 parentCoinInfo: "00".repeat(32),
@@ -498,8 +497,8 @@ describe("PrivateKeyProvider", () => {
             ff01ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff8304c7f98080
             */
             const puzz: string = "ff01ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff8304c7f98080";
-            const puzzle = _SExpFromSerialized(puzz);
-            const solution = _SExpFromSerialized("80"); // ()  
+            const puzzle = Util.sexp.fromHex(puzz);
+            const solution = Util.sexp.fromHex("80"); // ()  
 
             const c = new SmartCoin({
                 parentCoinInfo: "00".repeat(32),
@@ -542,8 +541,8 @@ describe("PrivateKeyProvider", () => {
             (venv) yakuhito@catstation:~/projects/clvm_tools$
             */
             const puzz: string = "ff08ffff01856572726f7280";
-            const puzzle = _SExpFromSerialized(puzz);
-            const solution = _SExpFromSerialized("80"); // ()  
+            const puzzle = Util.sexp.fromHex(puzz);
+            const solution = Util.sexp.fromHex("80"); // ()  
 
             const c = new SmartCoin({
                 parentCoinInfo: "00".repeat(32),

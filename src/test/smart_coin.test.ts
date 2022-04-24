@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
-import { op_sha256 } from "clvm";
 import { SmartCoin } from "../smart_coin";
 import { Util } from "../util";
 import { Coin } from "../xch/providers/provider_types";
-import { _SExpFromSerialized } from "./xch/providers/private_key/sign_utils.test";
 
 describe("SmartCoin", () => {
     /*
@@ -14,13 +12,13 @@ describe("SmartCoin", () => {
     (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(c 2 ())'
     ff04ff02ff8080
     */
-    const TEST_COIN_PUZZLE = _SExpFromSerialized("ff04ff02ff8080");
-    const TEST_COIN_SOLUTION = _SExpFromSerialized("80"); // ()
+    const TEST_COIN_PUZZLE = Util.sexp.fromHex("ff04ff02ff8080");
+    const TEST_COIN_SOLUTION = Util.sexp.fromHex("80"); // ()
 
     const TEST_COIN = new Coin();
     TEST_COIN.amount = 1337;
     TEST_COIN.parentCoinInfo = "01".repeat(32);
-    TEST_COIN.puzzleHash = "a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5"; //todo
+    TEST_COIN.puzzleHash = Util.sexp.sha256tree1(TEST_COIN_PUZZLE);
 
     describe("constructor", () => {
         for(let i = 0; i < 16; ++i) {

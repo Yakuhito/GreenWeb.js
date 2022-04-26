@@ -17,8 +17,8 @@ export class SExpUtil {
         return sexp;
     }
 
-    public toHex(sexp: SExp): bytes {
-        return sexp.as_bin().hex();
+    public toHex(sexp: SExp | null | undefined): bytes {
+        return sexp?.as_bin().hex() ?? "";
     }
 
     public run(program: SExp, solution: SExp, max_cost?: number): SExp {

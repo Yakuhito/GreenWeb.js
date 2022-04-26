@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
+import { SExp } from "clvm";
 import { SmartCoin } from "../smart_coin";
 import { Util } from "../util";
 import { Coin } from "../xch/providers/provider_types";
@@ -78,7 +79,7 @@ describe("SmartCoin", () => {
                     expect(sc.amount).to.be.null;
                 }
                 if(givePuzzle) {
-                    expect(sc.puzzle?.as_bin().hex()).to.equal(TEST_COIN_PUZZLE.as_bin().hex());
+                    expect(Util.sexp.toHex(sc.puzzle ?? SExp.to([]))).to.equal(Util.sexp.toHex(TEST_COIN_PUZZLE));
                 } else {
                     expect(sc.puzzle).to.be.null;
                 }
@@ -111,7 +112,7 @@ describe("SmartCoin", () => {
             expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
             expect(sc.parentCoinInfo).to.be.null;
             expect(sc.amount).to.be.null;
-            expect(sc.puzzle?.as_bin().hex()).to.equal(TEST_COIN_PUZZLE.as_bin().hex());
+            expect(Util.sexp.toHex(sc.puzzle)).to.equal(Util.sexp.toHex(TEST_COIN_PUZZLE));
         });
 
         it("Works if given a coin and a puzzle", () => {
@@ -120,7 +121,7 @@ describe("SmartCoin", () => {
             expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
             expect(sc.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
             expect(sc.amount?.toString()).to.equal(TEST_COIN.amount.toString());
-            expect(sc.puzzle?.as_bin().hex()).to.equal(TEST_COIN_PUZZLE.as_bin().hex());
+            expect(Util.sexp.toHex(sc.puzzle)).to.equal(Util.sexp.toHex(TEST_COIN_PUZZLE));
         });
 
         it("Correctly overwrites wrong puzzleHash if given puzzle", () => {
@@ -134,7 +135,7 @@ describe("SmartCoin", () => {
             expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
             expect(sc.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
             expect(sc.amount?.toString()).to.equal(TEST_COIN.amount.toString());
-            expect(sc.puzzle?.as_bin().hex()).to.equal(TEST_COIN_PUZZLE.as_bin().hex());
+            expect(Util.sexp.toHex(sc.puzzle)).to.equal(Util.sexp.toHex(TEST_COIN_PUZZLE));
         });
     });
 
@@ -200,7 +201,7 @@ describe("SmartCoin", () => {
             
             sc.setPuzzle(TEST_COIN_PUZZLE);
             expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
-            expect(sc.puzzle?.as_bin().hex()).to.equal(TEST_COIN_PUZZLE.as_bin().hex());
+            expect(Util.sexp.toHex(sc.puzzle)).to.equal(Util.sexp.toHex(TEST_COIN_PUZZLE));
         });
     });
 
@@ -239,8 +240,10 @@ describe("SmartCoin", () => {
 
             const spendBundle = sc.spend(TEST_COIN_SOLUTION);
             expect(spendBundle).to.not.be.null;
-            expect(spendBundle?.puzzleReveal.as_bin().hex()).to.equal(TEST_COIN_PUZZLE.as_bin().hex());
-            expect(spendBundle?.solution.as_bin().hex()).to.equal(TEST_COIN_SOLUTION.as_bin().hex());
+            expect(
+                Util.sexp.toHex(spendBundle?.puzzleReveal)
+            ).to.equal(Util.sexp.toHex(TEST_COIN_PUZZLE));
+            expect(Util.sexp.toHex(spendBundle?.solution)).to.equal(Util.sexp.toHex(TEST_COIN_SOLUTION));
 
             const c = spendBundle?.coin;
             expect(c?.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
@@ -269,6 +272,4 @@ describe("SmartCoin", () => {
             });
         });
     }
-
-    //todo: test with real coin
 });

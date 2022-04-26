@@ -45,6 +45,18 @@ describe("SExpUtil", () => {
                 sexpUtil.toHex(program)
             ).to.equal("ff10ff01ffff018200af80");
         });
+
+        it("Works with 'null'", () => {
+            expect(
+                sexpUtil.toHex(null)
+            ).to.equal("");
+        });
+
+        it("Works with 'undefined'", () => {
+            expect(
+                sexpUtil.toHex(undefined)
+            ).to.equal("");
+        });
     });
 
     describe("run()", () => {

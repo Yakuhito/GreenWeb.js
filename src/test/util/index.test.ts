@@ -5,6 +5,7 @@ import { AddressUtil } from "../../util/address";
 import { CoinUtil } from "../../util/coin";
 import { NetworkUtil } from "../../util/network";
 import { SerializerUtil } from "../../util/serializer";
+import { SExpUtil } from "../../util/sexp";
 
 describe("Util", function() {
     describe("parseToken", () => {
@@ -129,6 +130,10 @@ describe("Util", function() {
 
         it("Exposes NetworkUtil instance as .network", () => {
             expect(util.network instanceof NetworkUtil).to.be.true;
+        });
+
+        it("Exposes SExpUtil instance as .sexp", () => {
+            expect(util.sexp instanceof SExpUtil).to.be.true;
         });
     });
 

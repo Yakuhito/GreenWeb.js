@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { Bytes, CLVMObject, OPERATOR_LOOKUP, run_program, SExp, sexp_from_stream, Stream } from "clvm";
+import { Bytes, CLVMType, OPERATOR_LOOKUP, run_program, SExp, sexp_from_stream, Stream } from "clvm";
 import { bytes } from "../../xch/providers/provider_types";
 import { ConditionOpcode } from "./condition_opcodes";
 import { ConditionWithArgs } from "./condition_with_args";
@@ -18,21 +18,21 @@ export class SExpUtil {
     }
 
     public toHex(sexp: SExp): bytes {
-        return Buffer.from(
-            sexp.as_bin().hex()
-        ).toString("hex");
+        return sexp.as_bin().hex();
     }
 
-    public run(program: SExp, solution: SExp, max_cost?: number): CLVMObject {
-        return run_program(
+    public run(program: SExp, solution: SExp, max_cost?: number): SExp {
+        const res: CLVMType = run_program(
             program,
             solution,
             OPERATOR_LOOKUP,
             max_cost
         )[1];
+
+        return new SExp(res);
     }
 
-    public run_with_cost(program: SExp, solution: SExp, max_cost?: number): [CLVMObject, number] {
+    public runWithCost(program: SExp, solution: SExp, max_cost: number): [SExp, number] {
         const r = run_program(
             program,
             solution,
@@ -41,7 +41,7 @@ export class SExpUtil {
         );
 
         return [
-            r[1],
+            new SExp(r[1]),
             r[0]
         ];
     }
@@ -67,7 +67,7 @@ export class SExpUtil {
     */
     public readonly SHA256TREE1_PROGRAM = "ff02ffff01ff02ff02ffff04ff02ffff04ff05ff80808080ffff04ffff01ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff02ffff04ff02ffff04ff09ff80808080ffff02ff02ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080";
     public sha256tree1(program: SExp): bytes {
-        const result: CLVMObject = this.run(
+        const result: SExp = this.run(
             this.fromHex(this.SHA256TREE1_PROGRAM),
             program
         );

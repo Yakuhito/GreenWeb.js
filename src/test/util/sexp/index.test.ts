@@ -1,14 +1,187 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable max-len */
 import { expect } from "chai";
-import { Bytes, CLVMObject, SExp, Tuple } from "clvm";
-import { Util } from "../../../../util";
-import { ConditionOpcode } from "../../../../xch/providers/private_key/condition_opcodes";
-import { ConditionWithArgs } from "../../../../xch/providers/private_key/condition_with_args";
-import { ConditionsDict, SignUtils } from "../../../../xch/providers/private_key/sign_utils";
-import { bytes } from "../../../../xch/providers/provider_types";
+import { run_program, h, KEYWORD_TO_ATOM, OPERATOR_LOOKUP, SExp, t, CLVMObject, Tuple, Bytes } from "clvm";
+import { bytes } from "../../../util/serializer/basic_types";
+import { ConditionsDict, SExpUtil } from "../../../util/sexp";
+import { ConditionOpcode } from "../../../util/sexp/condition_opcodes";
+import { ConditionWithArgs } from "../../../util/sexp/condition_with_args";
 
-describe("SignUtils", () => {
+const sexpUtil = new SExpUtil();
+
+describe("SExpUtil", () => {
+    describe("fromHex()", () => {
+        it("Correctly converts a hex string to a SExp object", () => {
+            const plus = h(KEYWORD_TO_ATOM["+"]);
+            const q = h(KEYWORD_TO_ATOM["q"]);
+            const program1 = SExp.to([plus, 1, t(q, 175)]);
+            
+            /*
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ run '(mod a (+ a 175))'
+            (+ 1 (q . 175))
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(+ 1 (q . 175))'
+            ff10ff01ffff018200af80
+            */
+            const program2 = sexpUtil.fromHex("ff10ff01ffff018200af80");
+            expect(
+                program1.equal_to(program2)
+            ).to.be.true;
+        });
+    });
+
+    describe("toHex()", () => {
+        it("Correctly converts a SExp object to a hex string", () => {
+            const plus = h(KEYWORD_TO_ATOM["+"]);
+            const q = h(KEYWORD_TO_ATOM["q"]);
+            const program = SExp.to([plus, 1, t(q, 175)]);
+            
+            /*
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ run '(mod a (+ a 175))'
+            (+ 1 (q . 175))
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(+ 1 (q . 175))'
+            ff10ff01ffff018200af80
+            */
+            expect(
+                sexpUtil.toHex(program)
+            ).to.equal("ff10ff01ffff018200af80");
+        });
+    });
+
+    describe("run()", () => {
+        it("Correctly runs program without cost", () => {
+            const program = sexpUtil.fromHex("ff10ff01ffff018200af80");
+            const solution = SExp.to(25);
+
+            const result = sexpUtil.run(program, solution);
+            const expectedResult = SExp.to(25 + 175);
+            expect(
+                expectedResult.equal_to(result)
+            ).to.be.true;
+            expect(result.as_int()).to.equal(200);
+        });
+
+        it("Correctly runs program with cost", () => {
+            const program = sexpUtil.fromHex("ff10ff01ffff018200af80");
+            const solution = SExp.to(25);
+
+            const expectedCost = run_program(
+                program,
+                solution,
+                OPERATOR_LOOKUP,
+                sexpUtil.MAX_BLOCK_COST_CLVM
+            )[0];
+            const result = sexpUtil.run(program, solution, expectedCost + 1);
+            const expectedResult = SExp.to(25 + 175);
+            expect(
+                expectedResult.equal_to(result)
+            ).to.be.true;
+            expect(result.as_int()).to.equal(200);
+        });
+
+        it("Throws error if the cost is too low", () => {
+            const program = sexpUtil.fromHex("ff10ff01ffff018200af80");
+            const solution = SExp.to(25);
+
+            const expectedCost = run_program(
+                program,
+                solution,
+                OPERATOR_LOOKUP,
+                sexpUtil.MAX_BLOCK_COST_CLVM
+            )[0];
+            let failed: boolean = false;
+            let errOk: boolean = false;
+            try {
+                sexpUtil.run(program, solution, expectedCost - 1);
+            } catch(err: any) {
+                failed = true;
+                errOk = err.message === "cost exceeded";
+            }
+             
+            expect(failed).to.be.true;
+            expect(errOk).to.be.true;
+        });
+    });
+
+    describe("runWithCost()", () => {
+        it("Correctly runs program with cost", () => {
+            const program = sexpUtil.fromHex("ff10ff01ffff018200af80");
+            const solution = SExp.to(25);
+
+            const expectedCost = run_program(
+                program,
+                solution,
+                OPERATOR_LOOKUP,
+                sexpUtil.MAX_BLOCK_COST_CLVM
+            )[0];
+            const [result, cost] = sexpUtil.runWithCost(program, solution, expectedCost + 1);
+            const expectedResult = SExp.to(25 + 175);
+            expect(
+                expectedResult.equal_to(result)
+            ).to.be.true;
+            expect(result.as_int()).to.equal(200);
+            expect(cost).to.equal(expectedCost);
+        });
+
+        it("Throws error if the cost is too low", () => {
+            const program = sexpUtil.fromHex("ff10ff01ffff018200af80");
+            const solution = SExp.to(25);
+
+            const expectedCost = run_program(
+                program,
+                solution,
+                OPERATOR_LOOKUP,
+                sexpUtil.MAX_BLOCK_COST_CLVM
+            )[0];
+            let failed: boolean = false;
+            let errOk: boolean = false;
+            try {
+                sexpUtil.run(program, solution, expectedCost - 1);
+            } catch(err: any) {
+                failed = true;
+                errOk = err.message === "cost exceeded";
+            }
+             
+            expect(failed).to.be.true;
+            expect(errOk).to.be.true;
+        });
+    });
+
+    describe("sha256tree1()", () => {
+        it("Works correctly for string", () => {
+            /*
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ run hash.clvm 
+            (a (q 2 2 (c 2 (c 5 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ run '(mod () "yakuhito")'
+            (q . "yakuhito")
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ brun '(a (q 2 2 (c 2 (c 5 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))' '(q . "yakuhito")'
+            0x9dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(q . "yakuhito")'
+            ff018879616b756869746f
+            */
+            const toHash = sexpUtil.fromHex("ff018879616b756869746f");
+            const res = sexpUtil.sha256tree1(toHash);
+
+            expect(res).to.equal("9dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2");
+        });
+
+        it("Works correctly for a program", () => {
+            /*
+            # Hashes itself!
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ run hash.clvm 
+            (a (q 2 2 (c 2 (c 5 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(a (q 2 2 (c 2 (c 5 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))'
+            ff02ffff01ff02ff02ffff04ff02ffff04ff05ff80808080ffff04ffff01ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff02ffff04ff02ffff04ff09ff80808080ffff02ff02ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ brun '(a (q 2 2 (c 2 (c 5 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))' '(a (q 2 2 (c 2 (c 5 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))'
+            0xa12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222
+            (venv) yakuhito@catstation:~/projects/clvm_tools$
+            */
+            const toHash = sexpUtil.fromHex("ff02ffff01ff02ff02ffff04ff02ffff04ff05ff80808080ffff04ffff01ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff02ffff04ff02ffff04ff09ff80808080ffff02ff02ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080");
+            const res = sexpUtil.sha256tree1(toHash);
+
+            expect(res).to.equal("a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222");
+        });
+    });
+
     describe("conditionsDictForSolution()", () => {
         it("Works", () => {
             /*
@@ -31,9 +204,9 @@ describe("SignUtils", () => {
             ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080
             */
 
-            const program: SExp = Util.sexp.fromHex("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
-            const solution: SExp = Util.sexp.fromHex("ff8080"); // (())
-            const res = SignUtils.conditionsDictForSolution(program, solution, Util.sexp.MAX_BLOCK_COST_CLVM);
+            const program: SExp = sexpUtil.fromHex("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
+            const solution: SExp = sexpUtil.fromHex("ff8080"); // (())
+            const res = sexpUtil.conditionsDictForSolution(program, solution, sexpUtil.MAX_BLOCK_COST_CLVM);
 
             expect(res[0]).to.be.false;
             expect(res[1]).to.not.be.null;
@@ -57,10 +230,10 @@ describe("SignUtils", () => {
         });
 
         it("Works if puzzle throws an exception", () => {
-            const program: SExp = Util.sexp.fromHex("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
-            const solution: SExp = Util.sexp.fromHex("ff0180"); // (1) => should throw exception
+            const program: SExp = sexpUtil.fromHex("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
+            const solution: SExp = sexpUtil.fromHex("ff0180"); // (1) => should throw exception
 
-            const res = SignUtils.conditionsDictForSolution(program, solution, Util.sexp.MAX_BLOCK_COST_CLVM);
+            const res = sexpUtil.conditionsDictForSolution(program, solution, sexpUtil.MAX_BLOCK_COST_CLVM);
             expect(res[0]).to.be.true;
             expect(res[1]).to.be.null;
             expect(res[2]).to.equal(0);
@@ -89,9 +262,9 @@ describe("SignUtils", () => {
             ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080
             */
 
-            const program: SExp = Util.sexp.fromHex("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
-            const solution: SExp = Util.sexp.fromHex("ff8080"); // (())
-            const res = SignUtils.conditionsForSolution(program, solution, Util.sexp.MAX_BLOCK_COST_CLVM);
+            const program: SExp = sexpUtil.fromHex("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
+            const solution: SExp = sexpUtil.fromHex("ff8080"); // (())
+            const res = sexpUtil.conditionsForSolution(program, solution, sexpUtil.MAX_BLOCK_COST_CLVM);
 
             expect(res[0]).to.be.false;
             expect(res[1]).to.not.be.null;
@@ -104,10 +277,10 @@ describe("SignUtils", () => {
         });
 
         it("Works if puzzle throws an exception", () => {
-            const program: SExp = Util.sexp.fromHex("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
-            const solution: SExp = Util.sexp.fromHex("ff0180"); // (1) => should throw exception
+            const program: SExp = sexpUtil.fromHex("ff02ffff01ff02ffff03ffff09ff05ffff010180ffff01ff08ffff01854552524f5280ffff01ff04ffff04ff04ffff01ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f8080ffff04ffff04ff06ffff01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff0a8080ff80808080ff0180ffff04ffff01ff3233ff018080"); // ()
+            const solution: SExp = sexpUtil.fromHex("ff0180"); // (1) => should throw exception
 
-            const res = SignUtils.conditionsForSolution(program, solution, Util.sexp.MAX_BLOCK_COST_CLVM);
+            const res = sexpUtil.conditionsForSolution(program, solution, sexpUtil.MAX_BLOCK_COST_CLVM);
             expect(res[0]).to.be.true;
             expect(res[1]).to.be.null;
             expect(res[2]).to.equal(0);
@@ -122,8 +295,8 @@ describe("SignUtils", () => {
             (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '((51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 1337) (73 0x0186a0))'
             ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ffff49ff830186a08080
             */
-            const sexp: SExp = Util.sexp.fromHex("ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ffff49ff830186a08080"); // ()
-            const res = SignUtils.parseSExpToConditions(sexp);
+            const sexp: SExp = sexpUtil.fromHex("ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ffff49ff830186a08080"); // ()
+            const res = sexpUtil.parseSExpToConditions(sexp);
 
             expect(res[0]).to.be.false;
             expect(res[1]).to.not.be.null;
@@ -142,8 +315,8 @@ describe("SignUtils", () => {
             (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '((51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 1337) () (73 0x0186a0))'
             ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ff80ffff49ff830186a08080
             */
-            const sexp: SExp = Util.sexp.fromHex("ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ff80ffff49ff830186a08080"); // ()
-            const res = SignUtils.parseSExpToConditions(sexp);
+            const sexp: SExp = sexpUtil.fromHex("ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980ff80ffff49ff830186a08080"); // ()
+            const res = sexpUtil.parseSExpToConditions(sexp);
 
             expect(res[0]).to.be.true;
             expect(res[1]).to.be.null;
@@ -158,8 +331,8 @@ describe("SignUtils", () => {
                 (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 1337)'
                 ff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980
             */
-            const sexp: SExp = Util.sexp.fromHex("ff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980");
-            const res = SignUtils.parseSExpToCondition(sexp);
+            const sexp: SExp = sexpUtil.fromHex("ff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff82053980");
+            const res = sexpUtil.parseSExpToCondition(sexp);
 
             expect(res[0]).to.be.false;
             expect(res[1]).to.not.be.null;
@@ -170,8 +343,8 @@ describe("SignUtils", () => {
         });
 
         it("Works if given () as input", () => {
-            const sexp: SExp = Util.sexp.fromHex("80"); // ()
-            const res = SignUtils.parseSExpToCondition(sexp);
+            const sexp: SExp = sexpUtil.fromHex("80"); // ()
+            const res = sexpUtil.parseSExpToCondition(sexp);
 
             expect(res[0]).to.be.true;
             expect(res[1]).to.be.null;
@@ -187,8 +360,8 @@ describe("SignUtils", () => {
             ff31ff33ff3780
             (venv) yakuhito@catstation:~/projects/clvm_tools$
             */
-            const sexp: SExp = Util.sexp.fromHex("ff31ff33ff3780");
-            const res: bytes[] = SignUtils.asAtomList(sexp);
+            const sexp: SExp = sexpUtil.fromHex("ff31ff33ff3780");
+            const res: bytes[] = sexpUtil.asAtomList(sexp);
             
             expect(res.length).to.equal(3);
             expect(res.toString()).to.equal("31,33,37");
@@ -209,7 +382,7 @@ describe("SignUtils", () => {
                 ))
             );
             
-            const res: bytes[] = SignUtils.asAtomList(sexp);
+            const res: bytes[] = sexpUtil.asAtomList(sexp);
             expect(res.length).to.equal(1);
             expect(res[0]).to.equal("31");
         });
@@ -228,7 +401,7 @@ describe("SignUtils", () => {
             c3.vars = ["55", "66"];
 
             const conditions: ConditionWithArgs[] = [c1, c2, c3];
-            const res = SignUtils.conditionsByOpcode(conditions);
+            const res = sexpUtil.conditionsByOpcode(conditions);
 
             expect(res.get(ConditionOpcode.AGG_SIG_ME)?.length).to.equal(2);
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -263,7 +436,7 @@ describe("SignUtils", () => {
             conditionsDict.set(ConditionOpcode.AGG_SIG_UNSAFE, []);
             conditionsDict.set(ConditionOpcode.ASSERT_COIN_ANNOUNCEMENT, [cwa]);
 
-            const res = SignUtils.pkmPairsForConditionsDict(
+            const res = sexpUtil.pkmPairsForConditionsDict(
                 conditionsDict, "11", "22"
             );
 
@@ -283,7 +456,7 @@ describe("SignUtils", () => {
 
             conditionsDict.set(ConditionOpcode.AGG_SIG_UNSAFE, [cwa1, cwa2]);
 
-            const res = SignUtils.pkmPairsForConditionsDict(
+            const res = sexpUtil.pkmPairsForConditionsDict(
                 conditionsDict, "11", "22"
             );
 
@@ -307,7 +480,7 @@ describe("SignUtils", () => {
 
             conditionsDict.set(ConditionOpcode.AGG_SIG_ME, [cwa1, cwa2]);
 
-            const res = SignUtils.pkmPairsForConditionsDict(
+            const res = sexpUtil.pkmPairsForConditionsDict(
                 conditionsDict, "11", "22"
             );
 

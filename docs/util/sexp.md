@@ -55,6 +55,43 @@ console.log(cost);
 // 833
 ```
 
-## sha256tree1
+## sha256tree
 
 Returns the SHA256 treehash of a given puzzle.
+
+```js
+const {SExp, OPERATOR_LOOKUP, KEYWORD_TO_ATOM, h, t, run_program} = greenweb.clvm;
+const plus = h(KEYWORD_TO_ATOM["+"]);
+const q = h(KEYWORD_TO_ATOM["q"]);
+const program = SExp.to([plus, 1, t(q, 175)]);
+
+console.log(greenweb.util.sexp.sha256tree(program));
+```
+
+## conditionsDictForSolution
+
+TypeScript/JavaScript port of [this function](https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/util/condition_tools.py#L114).
+
+## conditionsForSolution
+
+TypeScript/JavaScript port of [this function](https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/util/condition_tools.py#L125).
+
+## parseSExpToConditions
+
+TypeScript/JavaScript port of [this function](https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/util/condition_tools.py#L33).
+
+## parseSExpToCondition
+
+TypeScript/JavaScript port of [this function](https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/util/condition_tools.py#L18).
+
+## asAtomList
+
+TypeScript/JavaScript port of [this function](https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/types/blockchain_format/program.py#L104).
+
+## conditionsByOpcode
+
+TypeScript/JavaScript port of [this function](https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/util/condition_tools.py#L52).
+
+## pkmPairsForConditionsDict
+
+TypeScript/JavaScript port of [this function](https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/util/condition_tools.py#L81).

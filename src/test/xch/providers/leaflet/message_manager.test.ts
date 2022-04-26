@@ -179,21 +179,21 @@ describe("MessageManager", () => {
             manager.registerFilter({
                 messageToSend: msgToSendSerialized,
                 consumeMessage: (msg: Message) => false,
-                expectedMaxRensponseWait: 50
+                expectedMaxRensponseWait: 1000
             });
 
-            await sleep(70);
+            await sleep(1100);
 
             expect(channelRestarts).to.equal(2);
             expect(sentMessages).to.equal(2);
             
-            await sleep(70);
+            await sleep(1100);
 
             expect(channelRestarts).to.equal(3);
             expect(sentMessages).to.equal(3);
 
             await manager.close();
-        });
+        }).timeout(5000);
 
         it("Doesn't delete filter if 'deleteAfterFirstMessageConsumed' is set to false", async () => {
             let sentMessages: number = 0;

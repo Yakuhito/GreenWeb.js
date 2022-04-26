@@ -5,8 +5,8 @@ import { Provider } from "../provider";
 import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, changeNetworkArgs, pushSpendBundleArgs } from "../provider_args";
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin, bytes } from "../provider_types";
 import { Util } from "../../../util";
-import { SignUtils } from "./sign_utils";
 import { Network } from "../../../util/network";
+import { util } from "../../..";
 
 export class PrivateKeyProvider implements Provider {
     private privateKey: string;
@@ -84,14 +84,14 @@ export class PrivateKeyProvider implements Provider {
         for(let i = 0; i < coinSpends.length; i++) {
             const coinSpend = coinSpends[i];
 
-            const [, conditions, ] = SignUtils.conditionsDictForSolution(
+            const [, conditions, ] = util.sexp.conditionsDictForSolution(
                 coinSpend.puzzleReveal,
                 coinSpend.solution,
                 Util.sexp.MAX_BLOCK_COST_CLVM
             );
 
             if(conditions !== null) {
-                const pk_msg_things = SignUtils.pkmPairsForConditionsDict(
+                const pk_msg_things = util.sexp.pkmPairsForConditionsDict(
                     conditions,
                     Util.coin.getId(coinSpend.coin),
                     networkData

@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { expect } from "chai";
 import * as GreenWeb from "..";
 
-describe("Module", () => {
+describe("GreenWeb.js module", () => {
     it("Exports 'xch'", () => {
         expect(GreenWeb.xch).to.not.be.undefined;
     });
@@ -16,5 +17,17 @@ describe("Module", () => {
 
     it("Exports 'BigNumber'", () => {
         expect(GreenWeb.BigNumber).to.not.be.undefined;
+    });
+
+    it("Exports 'Coin'", () => {
+        expect(GreenWeb.Coin).to.not.be.undefined;
+    });
+
+    it("Exports 'CoinSpend'", () => {
+        expect(GreenWeb.CoinSpend).to.not.be.undefined;
+    });
+
+    it("Exports 'SmartCoin'", () => {
+        expect(GreenWeb.SmartCoin).to.not.be.undefined;
     });
 });

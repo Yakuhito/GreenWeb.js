@@ -1,5 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { expect } from "chai";
 import { Util as util } from "../../util";
+import { AddressUtil } from "../../util/address";
+import { CoinUtil } from "../../util/coin";
+import { NetworkUtil } from "../../util/network";
+import { SerializerUtil } from "../../util/serializer";
+import { SExpUtil } from "../../util/sexp";
 
 describe("Util", function() {
     describe("parseToken", () => {
@@ -106,6 +112,36 @@ describe("Util", function() {
 
         it("Works correctly with NaN", () => {
             expect(util.formatChia(NaN)).to.equal("0.0");
+        });
+    });
+
+    describe("*Util", () => {
+        it("Exposes AddressUtil instance as .address", () => {
+            expect(util.address instanceof AddressUtil).to.be.true;
+        });
+
+        it("Exposes CoinUtil instance as .coin", () => {
+            expect(util.coin instanceof CoinUtil).to.be.true;
+        });
+
+        it("Exposes SerializerUtil instance as .serializer", () => {
+            expect(util.serializer instanceof SerializerUtil).to.be.true;
+        });
+
+        it("Exposes NetworkUtil instance as .network", () => {
+            expect(util.network instanceof NetworkUtil).to.be.true;
+        });
+
+        it("Exposes SExpUtil instance as .sexp", () => {
+            expect(util.sexp instanceof SExpUtil).to.be.true;
+        });
+    });
+
+    describe("Other exposed variables", () => {
+        it("mojoPerXCH", () => {
+            expect(
+                util.mojoPerXCH.eq(1000000000000)
+            ).to.be.true;
         });
     });
 });

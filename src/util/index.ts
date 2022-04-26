@@ -1,12 +1,16 @@
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { AddressUtil } from "./address";
 import { CoinUtil } from "./coin";
+import { NetworkUtil } from "./network";
 import { SerializerUtil } from "./serializer";
+import { SExpUtil } from "./sexp";
 
 export class Util {
     public static address: AddressUtil = new AddressUtil();
     public static coin: CoinUtil = new CoinUtil();
     public static serializer: SerializerUtil = new SerializerUtil();
+    public static network: NetworkUtil = new NetworkUtil();
+    public static sexp: SExpUtil = new SExpUtil();
     public static mojoPerXCH: BigNumber = BigNumber.from(1000000000000);
 
     public static formatToken(amount: BigNumberish, amountPerUnit: BigNumberish = 1000): string {

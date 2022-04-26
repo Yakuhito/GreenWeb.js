@@ -1,15 +1,12 @@
 import { BigNumberish } from "@ethersproject/bignumber";
 import { SExp } from "clvm";
+import { Coin } from "../../util/serializer/types/coin";
+
+export { Coin } from "../../util/serializer/types/coin";
 
 export type Optional<T> = T | null;
 export type bytes = string;
 export type uint = BigNumberish;
-
-export class Coin {
-    parentCoinInfo: bytes;
-    puzzleHash: bytes;
-    amount: uint;
-}
 
 export class CoinState {
     coin: Coin;

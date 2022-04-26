@@ -4,27 +4,30 @@ This page includes example usage for a provider. Note that methods that are not 
 
 # Available Providers
 
-| Function\Provider                                             |        [LeafletProvider](leaflet-provider.md)        |        [GobyProvider](goby-provider.md)        |        [MultiProvider](multi-provider.md)        |
-|---------------------------------------------------------------|:---------------:|:------------:|:-------------:|
-| [connect](#connect)                                           |        ✅        |       ✅      |       ✅       |
-| [close](#close)                                               |        ✅        |       ✅      |       ✅       |
-| [getNetworkId](#getnetworkid)                                 |        ✅        |       ✅      |       ✅       |
-| [isConnected](#isconnected)                                   |        ✅        |       ✅      |       ✅       |
-| [getBlockNumber](#getblocknumber)                             |        ✅        |       ❎      |       ❔       |
-| [getBalance](#getbalance)                                     |        ✅        |       ❎      |       ❔       |
-| [subscribeToPuzzleHashUpdates](#subscribetopuzzlehashupdates) |        ✅        |       ❎      |       ❔       |
-| [subscribeToCoinUpdates](#subscribetocoinupdates)             |        ✅        |       ❎      |       ❔       |
-| [getPuzzleSolution](#getpuzzlesolution)                       |        ✅        |       ❎      |       ❔       |
-| [getCoinChildren](#getcoinchildren)                           |        ✅        |       ❎      |       ❔       |
-| [getBlockHeader](#getblockheader)                             |        ✅        |       ❎      |       ❔       |
-| [getBlocksHeaders](#getblocksheaders)                         |        ✅        |       ❎      |       ❔       |
-| [getCoinRemovals](#getcoinremovals)                           |        ✅        |       ❎      |       ❔       |
-| [getCoinAdditions](#getcoinadditions)                         |        ✅        |       ❎      |       ❔       |
-| [getAddress](#getaddress)                                     |        ✅        |       ❎      |       ❔       |
-| [transfer](#transfer)                                         |        ❎        |       ✅      |       ❔       |
-| [transferCAT](#transfercat)                                   |        ❎        |       ✅      |       ❔       |
-| [acceptOffer](#acceptoffer)                                   |        ❎        |       ✅      |       ❔       |
-| [subscribeToAddressChanges](#subscribetoaddresschanges)       |        ❎        |       ✅      |       ❔       |
+| Function\Provider | [LeafletProvider](leaflet-provider.md) | [GobyProvider](goby-provider.md) | [MultiProvider](multi-provider.md) | [PrivateKeyProvider](private-key-provider) |
+|---|:---:|:---:|:---:|:---:|
+| [connect](#connect) | ✅ | ✅ | ✅ | ✅ |
+| [close](#close) | ✅ | ✅ | ✅ | ✅ |
+| [getNetworkId](#getnetworkid) | ✅ | ✅ | ✅ | ✅ |
+| [isConnected](#isconnected) | ✅ | ✅ | ✅ | ✅ |
+| [getBlockNumber](#getblocknumber) | ✅ | ❎ | ❔ | ❎ |
+| [getBalance](#getbalance) | ✅ | ❎ | ❔ | ❎ |
+| [subscribeToPuzzleHashUpdates](#subscribetopuzzlehashupdates) | ✅ | ❎ | ❔ | ❎ |
+| [subscribeToCoinUpdates](#subscribetocoinupdates) | ✅ | ❎ | ❔ | ❎ |
+| [getPuzzleSolution](#getpuzzlesolution) | ✅ | ❎ | ❔ | ❎ |
+| [getCoinChildren](#getcoinchildren) | ✅ | ❎ | ❔ | ❎ |
+| [getBlockHeader](#getblockheader) | ✅ | ❎ | ❔ | ❎ |
+| [getBlocksHeaders](#getblocksheaders) | ✅ | ❎ | ❔ | ❎ |
+| [getCoinRemovals](#getcoinremovals) | ✅ | ❎ | ❔ | ❎ |
+| [getCoinAdditions](#getcoinadditions) | ✅ | ❎ | ❔ | ❎ |
+| [pushSpendBundle](#pushspendbundle) | ✅ | ❎ | ❔ | ❎ |
+| [getAddress](#getaddress) | ✅ | ❎ | ❔ | ❎ |
+| [transfer](#transfer) | ❎ | ✅ | ❔ | ❎ |
+| [transferCAT](#transfercat) | ❎ | ✅ | ❔ | ❎ |
+| [acceptOffer](#acceptoffer) | ❎ | ✅ | ❔ | ❎ |
+| [subscribeToAddressChanges](#subscribetoaddresschanges) | ❎ | ✅ | ❔ | ❎ |
+| [signCoinSpends](#signcoinspends) | ❎ | ❎ | ❔ | ✅ |
+| [changeNetwork](#changenetwork) | ❎ | ✅ | ❔ | ✅ |
 
 # Custom Data Types
 
@@ -58,9 +61,9 @@ Used to represent a coin - to get its id/name, use `greenweb.utils.coin.getId(co
 
 ```js
 export class Coin {
-    parentCoinInfo: bytes;
-    puzzleHash: bytes;
-    amount: uint;
+    @fields.Bytes(32) parentCoinInfo: bytes;
+    @fields.Bytes(32) puzzleHash: bytes;
+    @fields.Uint(64) amount: uint;
 }
 ```
 
@@ -98,6 +101,42 @@ export class PuzzleSolution {
     height: uint;
     puzzle: SExp;
     solution: SExp;
+}
+```
+
+## CoinSpend
+
+```js
+export class CoinSpend {
+    @fields.Object(Coin) coin: Coin;
+    @fields.SExp() puzzleReveal: SExp;
+    @fields.SExp() solution: SExp;
+}
+```
+
+## SpendBundle
+
+```js
+export class SpendBundle {
+    @fields.List(fields.Object(CoinSpend)) coinSpends: CoinSpend[];
+    @fields.Bytes(96) aggregatedSignature: bytes;
+}
+```
+
+## Network
+
+`Network` is just a string enum - it can be viewed as a string in most cases.
+
+```js
+export enum Network {
+    mainnet = "mainnet",
+    testnet0 = "testnet0",
+    testnet2 = "testnet2",
+    testnet3 = "testnet3",
+    testnet4 = "testnet4",
+    testnet5 = "testnet5",
+    testnet7 = "testnet7",
+    testnet10 = "testnet10",
 }
 ```
 
@@ -171,7 +210,7 @@ provider.close().then(() => {
 
 ## getNetworkId
 
-Returns the current network id as a string.
+Returns the current network id as a `Network` enum member, which is a string.
 
 ### Arguments
 
@@ -179,7 +218,7 @@ None
 
 ### Returns
 
-`string` - `'mainnet'`
+`Network` / `string` - `'mainnet'`, `'testnet10'`, etc.
 
 ### Example
 
@@ -554,6 +593,34 @@ greenweb.xch.getAddress().then(console.log);
 
 ---
 
+## pushSpendBundle
+
+Pushes a `SpendBundle` to the Chia network.
+
+### Arguments
+
+```js
+export type pushSpendBundleArgs = {
+    spendBundle: SpendBundle
+};
+```
+
+### Returns
+
+`Promise<boolean>` - `true` if the transaction was submitted and is pending/successful, `false` otherwise (the transaction was not submitted or it failed)
+
+### Example
+
+```js
+greenweb.xch.pushSpendBundle({
+  spendBundle: mySpendBundle // set somewhere in the code
+}).then(console.log);
+
+// true
+```
+
+---
+
 ## transfer
 
 Send XCH to an address. Note that the user might be asked for confirmation.
@@ -668,4 +735,59 @@ None.
 greenweb.xch.subscribeToAddressChanges({
     callback: (address) => console.log(address);
 });
+```
+
+---
+
+## signCoinSpends
+
+Signs a list of `CoinSpend`s wth a given private key and returns a `SpendBundle`.
+
+### Arguments
+
+```js
+export type signCoinSpendsArgs = {
+    coinSpends: CoinSpend[],
+};
+```
+
+### Returns
+
+`Promise<Optional<SpendBundle>>` - `null` if the signing failed, `SpendBundle` otherwise
+
+### Example
+
+```js
+// please don't ask your users for their private keys - yaku
+const spendBundle = await greenweb.xch.signCoinSpends({
+  coinSpends: myCoinSpends // variable set somewhere else in the code
+});
+```
+
+---
+
+## changeNetwork
+
+Changes the network that a `Provider` operates on.
+
+### Arguments
+
+```js
+export type changeNetworkArgs = {
+    network: Network,
+};
+```
+
+### Returns
+
+`Promise<boolean>` - `true` if the network was changed, `false` otherwise
+
+### Example
+
+```js
+greenweb.xch.changeNetwork({
+  network: greenweb.util.network.networks[0] // "mainnet"
+}).then(console.log);
+
+// true
 ```

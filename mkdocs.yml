@@ -8,6 +8,7 @@ nav:
             - 'LeafletProvider': 'xch/leaflet-provider.md'
             - 'GobyProvider': 'xch/goby-provider.md'
             - 'MultiProvider': 'xch/multi-provider.md'
+            - 'PrivateKeyProvider': 'xch/private-key-provider.md'
         - 'clvm':
             - 'Module Overview': 'clvm/index.md'
         - 'util':
@@ -15,6 +16,8 @@ nav:
             - 'address': 'util/address.md'
             - 'coin': 'util/coin.md'
             - 'serializer': 'util/serializer.md'
+            - 'network': 'util/network.md'
+            - 'sexp': 'util/sexp.md'
     - License: 'license.md'
 
 markdown_extensions:

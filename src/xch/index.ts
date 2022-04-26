@@ -1,15 +1,19 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Provider, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, PuzzleSolution, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, acceptOfferArgs, transferCATArgs, transferArgs, subscribeToAddressChangesArgs } from "./providers/provider";
+import { Provider, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, PuzzleSolution, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, acceptOfferArgs, transferCATArgs, transferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, pushSpendBundleArgs, changeNetworkArgs } from "./providers/provider";
 import { LeafletProvider } from "./providers/leaflet";
 import { GobyProvider } from "./providers/goby";
 import { MultiProvider } from "./providers/multi";
 import { BigNumber } from "@ethersproject/bignumber";
+import { PrivateKeyProvider } from "./providers/private_key";
+import { SpendBundle } from "../util/serializer/types/spend_bundle";
+import { Network } from "../util/network";
 
 export class XCHModule {
     public static providers = {
         LeafletProvider,
         GobyProvider,
-        MultiProvider
+        MultiProvider,
+        PrivateKeyProvider
     };
 
     public static provider: Provider | null = null;
@@ -35,7 +39,7 @@ export class XCHModule {
 
         return XCHModule.provider!.close();
     }
-    static getNetworkId(): string {
+    static getNetworkId(): Network {
         if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
@@ -107,6 +111,12 @@ export class XCHModule {
 
         return XCHModule.provider!.getCoinAdditions(args);
     }
+    static pushSpendBundle(args: pushSpendBundleArgs): Promise<boolean> {
+        if(XCHModule.provider === null)
+            throw new Error("Provider not set!");
+
+        return XCHModule.provider!.pushSpendBundle(args);
+    }
     static getAddress(): Promise<string> {
         if(XCHModule.provider === null)
             throw new Error("Provider not set!");
@@ -131,11 +141,22 @@ export class XCHModule {
 
         return XCHModule.provider!.acceptOffer(args);
     }
-    
     static subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
         if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
         return XCHModule.provider!.subscribeToAddressChanges(args);
+    }
+    static signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
+        if(XCHModule.provider === null)
+            throw new Error("Provider not set!");
+
+        return XCHModule.provider!.signCoinSpends(args);
+    }
+    static changeNetwork(args: changeNetworkArgs): Promise<boolean> {
+        if(XCHModule.provider === null)
+            throw new Error("Provider not set!");
+
+        return XCHModule.provider!.changeNetwork(args);
     }
 }

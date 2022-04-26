@@ -82,6 +82,7 @@ export class SExpUtil {
     // 1: err (false if there wasno error)
     // 2: conditions dictionary
     // 3: cost
+    // https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/util/condition_tools.py#L114
     public conditionsDictForSolution(
         puzzleReveal: SExp,
         solution: SExp,
@@ -95,6 +96,7 @@ export class SExpUtil {
         return [false, this.conditionsByOpcode(result), cost];
     }
 
+    // https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/util/condition_tools.py#L125
     public conditionsForSolution(
         puzzleReveal: SExp,
         solution: SExp,
@@ -115,6 +117,7 @@ export class SExpUtil {
         }
     }
 
+    // https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/util/condition_tools.py#L33
     public parseSExpToConditions(
         sexp: SExp,
     ): [boolean, ConditionWithArgs[] | null] {
@@ -130,6 +133,7 @@ export class SExpUtil {
         return [false, results];
     }
 
+    // https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/util/condition_tools.py#L18
     public parseSExpToCondition(
         sexp: SExp,
     ): [boolean, ConditionWithArgs | null] {
@@ -146,6 +150,7 @@ export class SExpUtil {
         return [false, cwa];
     }
 
+    // https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/types/blockchain_format/program.py#L104
     public asAtomList(
         sexp: SExp,
     ): bytes[] {
@@ -168,6 +173,7 @@ export class SExpUtil {
         return items;
     }
 
+    // https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/util/condition_tools.py#L52
     public conditionsByOpcode(
         conditions: ConditionWithArgs[],
     ): ConditionsDict {
@@ -188,6 +194,7 @@ export class SExpUtil {
         return d;
     }
 
+    // https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/util/condition_tools.py#L81
     public pkmPairsForConditionsDict(
         conditionsDict: ConditionsDict,
         coinName: bytes,

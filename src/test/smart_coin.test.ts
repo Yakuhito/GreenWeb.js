@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
@@ -19,7 +20,7 @@ describe("SmartCoin", () => {
     const TEST_COIN = new Coin();
     TEST_COIN.amount = 1337;
     TEST_COIN.parentCoinInfo = "01".repeat(32);
-    TEST_COIN.puzzleHash = Util.sexp.sha256tree1(TEST_COIN_PUZZLE);
+    TEST_COIN.puzzleHash = Util.sexp.sha256tree(TEST_COIN_PUZZLE);
 
     describe("constructor", () => {
         for(let i = 0; i < 16; ++i) {
@@ -272,4 +273,31 @@ describe("SmartCoin", () => {
             });
         });
     }
+
+    // https://www.chiaexplorer.com/blockchain/coin/0x8679275b9b69a13a17343f877b13914974d0f834f612d9cfc2ebd79c9ea12dce
+    /*
+    (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(a (q 2 (q 2 (i 11 (q 2 (i (= 5 (point_add 11 (pubkey_for_exp (sha256 11 (a 6 (c 2 (c 23 ()))))))) (q 2 23 47) (q 8)) 1) (q 4 (c 4 (c 5 (c (a 6 (c 2 (c 23 ()))) ()))) (a 23 47))) 1) (c (q 50 2 (i (l 5) (q 11 (q . 2) (a 6 (c 2 (c 9 ()))) (a 6 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1)) (c (q . 0x8ea8d21d93ee454c302d0bb3865a819a04030697e4541ba4c6bce9ca35c6c3186b8286af2765c5f472cd53128c7b5af7) 1))'
+    ff02ffff01ff02ffff01ff02ffff03ff0bffff01ff02ffff03ffff09ff05ffff1dff0bffff1effff0bff0bffff02ff06ffff04ff02ffff04ff17ff8080808080808080ffff01ff02ff17ff2f80ffff01ff088080ff0180ffff01ff04ffff04ff04ffff04ff05ffff04ffff02ff06ffff04ff02ffff04ff17ff80808080ff80808080ffff02ff17ff2f808080ff0180ffff04ffff01ff32ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff06ffff04ff02ffff04ff09ff80808080ffff02ff06ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080ffff04ffff01b08ea8d21d93ee454c302d0bb3865a819a04030697e4541ba4c6bce9ca35c6c3186b8286af2765c5f472cd53128c7b5af7ff018080
+    */
+    describe("Real Coin", () => {
+        it("Correctly calculates puzzleHash given puzzle", () => {
+            const sc = SmartCoin.fromCoin(
+                null,
+                Util.sexp.fromHex("ff02ffff01ff02ffff01ff02ffff03ff0bffff01ff02ffff03ffff09ff05ffff1dff0bffff1effff0bff0bffff02ff06ffff04ff02ffff04ff17ff8080808080808080ffff01ff02ff17ff2f80ffff01ff088080ff0180ffff01ff04ffff04ff04ffff04ff05ffff04ffff02ff06ffff04ff02ffff04ff17ff80808080ff80808080ffff02ff17ff2f808080ff0180ffff04ffff01ff32ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff06ffff04ff02ffff04ff09ff80808080ffff02ff06ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080ffff04ffff01b08ea8d21d93ee454c302d0bb3865a819a04030697e4541ba4c6bce9ca35c6c3186b8286af2765c5f472cd53128c7b5af7ff018080")
+            );
+
+            expect(sc.puzzleHash).to.equal("ef08849a943832f633f472962b36ff0e949e27b044bd3b82a4c7ef3ec36435a7");
+        });
+
+        it("Correctly calculates the coin's id", () => {
+            const c = new Coin();
+            c.parentCoinInfo = "9a92bb8da325f91f5ba7e3a02cfe6a6793aae1e02cc806ab15abaa31e834ba84";
+            c.amount = 1394;
+            c.puzzleHash = "ef08849a943832f633f472962b36ff0e949e27b044bd3b82a4c7ef3ec36435a7";
+
+            const sc = SmartCoin.fromCoin(c);
+
+            expect(sc.getId()).to.equal("1cc5ca8441d8c37ef7be224cbc5b24acb83da17970a4652ad0788d6f29e0846e");
+        });
+    });
 });

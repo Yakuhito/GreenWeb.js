@@ -115,6 +115,25 @@ describe("SExpUtil", () => {
     });
 
     describe("runWithCost()", () => {
+        it("Correctly runs program without cost", () => {
+            const program = sexpUtil.fromHex("ff10ff01ffff018200af80");
+            const solution = SExp.to(25);
+
+            const expectedCost = run_program(
+                program,
+                solution,
+                OPERATOR_LOOKUP,
+                sexpUtil.MAX_BLOCK_COST_CLVM
+            )[0];
+            const [result, cost] = sexpUtil.runWithCost(program, solution);
+            const expectedResult = SExp.to(25 + 175);
+            expect(
+                expectedResult.equal_to(result)
+            ).to.be.true;
+            expect(result.as_int()).to.equal(200);
+            expect(cost).to.equal(expectedCost);
+        });
+
         it("Correctly runs program with cost", () => {
             const program = sexpUtil.fromHex("ff10ff01ffff018200af80");
             const solution = SExp.to(25);
@@ -158,39 +177,38 @@ describe("SExpUtil", () => {
         });
     });
 
-    describe("sha256tree1()", () => {
+    describe("sha256tree()", () => {
         it("Works correctly for string", () => {
             /*
             (venv) yakuhito@catstation:~/projects/clvm_tools$ run hash.clvm 
-            (a (q 2 2 (c 2 (c 5 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))
+            (a (q 2 2 (c 2 (c 3 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))
             (venv) yakuhito@catstation:~/projects/clvm_tools$ run '(mod () "yakuhito")'
             (q . "yakuhito")
-            (venv) yakuhito@catstation:~/projects/clvm_tools$ brun '(a (q 2 2 (c 2 (c 5 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))' '(q . "yakuhito")'
-            0x9dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2
             (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(q . "yakuhito")'
             ff018879616b756869746f
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ brun '(a (q 2 2 (c 2 (c 3 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))' '(q . "yakuhito")'
+            0x88c3d66266c96a7125bc21ec44f386a358f9658559a3699cd2cf0846d57a5e76
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ 
             */
             const toHash = sexpUtil.fromHex("ff018879616b756869746f");
-            const res = sexpUtil.sha256tree1(toHash);
+            const res = sexpUtil.sha256tree(toHash);
 
-            expect(res).to.equal("9dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2");
+            expect(res).to.equal("88c3d66266c96a7125bc21ec44f386a358f9658559a3699cd2cf0846d57a5e76");
         });
 
         it("Works correctly for a program", () => {
             /*
             # Hashes itself!
             (venv) yakuhito@catstation:~/projects/clvm_tools$ run hash.clvm 
-            (a (q 2 2 (c 2 (c 5 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))
-            (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(a (q 2 2 (c 2 (c 5 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))'
-            ff02ffff01ff02ff02ffff04ff02ffff04ff05ff80808080ffff04ffff01ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff02ffff04ff02ffff04ff09ff80808080ffff02ff02ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080
-            (venv) yakuhito@catstation:~/projects/clvm_tools$ brun '(a (q 2 2 (c 2 (c 5 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))' '(a (q 2 2 (c 2 (c 5 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))'
-            0xa12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222
+            (a (q 2 2 (c 2 (c 3 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ brun '(a (q 2 2 (c 2 (c 3 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))' '(a (q 2 2 (c 2 (c 3 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))'
+            0x6dba5ecde970b43b7d9366ee1a065ee6aa4478c9b765dad95ab3dec4c3544975
             (venv) yakuhito@catstation:~/projects/clvm_tools$
             */
-            const toHash = sexpUtil.fromHex("ff02ffff01ff02ff02ffff04ff02ffff04ff05ff80808080ffff04ffff01ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff02ffff04ff02ffff04ff09ff80808080ffff02ff02ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080");
-            const res = sexpUtil.sha256tree1(toHash);
+            const toHash = sexpUtil.fromHex(sexpUtil.SHA256TREE_PROGRAM);
+            const res = sexpUtil.sha256tree(toHash);
 
-            expect(res).to.equal("a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222");
+            expect(res).to.equal("6dba5ecde970b43b7d9366ee1a065ee6aa4478c9b765dad95ab3dec4c3544975");
         });
     });
 

@@ -137,7 +137,7 @@ export class GobyProvider implements Provider {
         //         }
         //     });
 
-        //     if([1, 2].includes(res.status) || ["success", "pending"].includes(res.status)) {
+        //     if(["success", "pending"].includes(res.status)) {
         //         return true;
         //     }
         //     return false;

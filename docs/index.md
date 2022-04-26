@@ -13,6 +13,13 @@ The main javascript files exports a single object, `greenweb`. It has the follow
  - [`greenweb.clvm`](clvm/index.md): Export of [https://github.com/Chia-Mine/clvm-js](https://github.com/Chia-Mine/clvm-js)
  - [`greenweb.util`](util/index.md): Some util functions that might come in handy
 
+The object also exports the following classes as properties:
+
+ - [`SmartCoin`](smart-coin.md): GreenWeb.js's `SmartCoin` class - click on the link for more info!
+ - [`BigNumber`](https://docs.ethers.io/v5/api/utils/bignumber/): Export of the class that GreenWeb.js uses to handle big numbers (thanks to the `ethers` project for publishing their solution as a package).
+ - `Coin`: The `Coin` class, as used by the Chia blockchain.
+ - `CoinSpend`: The `CoinSpend` class, as used by the Chia blockchain.
+
 ## Getting Started
 
 ### Browser - FireAcademy CDN
@@ -30,25 +37,6 @@ Or just use the latest version (not recommended):
 ```
 
 **WARNING**: GreenWeb.js is still a very young project. Expect breaking changes with every release.
-
-### Browser - npm
-
-This package can be added via npm:
-
-```
-npm install --save greenwebjs
-```
-
-For browser-based clients, you also need to install the `buffer` package and define the global `Buffer` class. For Vue.js 3, just add the following lines to `index.html`:
-
-```js
-<script setup lang="ts">
-import { Buffer } from "buffer";
-(window as any).Buffer = Buffer;
-</script>
-```
-
-Unfortunately, most setups have issues when GreenWeb.js is installed this way. If you're seeing an error that you cannot fix, just include the `greenweb.js` script from the FireAcademy CDN.
 
 ### Browser - Build it!
 To generate the latest `greenweb.js` file, clone the repository and use `npm` to build:
@@ -69,6 +57,32 @@ Use the following snippet to include GreenWeb.js on a page:
 ```html
 <script src="greenweb.js"></script>
 ```
+
+### Browser - npm
+
+This package can be added via npm:
+
+```
+npm install --save greenwebjs
+```
+
+For browser-based clients, you also need to install the `buffer` package and define the global `Buffer` class. For Vue.js 3, just add the following lines to `App.vue`:
+
+```js
+<script setup lang="ts">
+import { Buffer } from "buffer";
+(window as any).Buffer = Buffer;
+</script>
+```
+*OR*
+```js
+<script setup>
+import { Buffer } from "buffer";
+window.Buffer = Buffer;
+</script>
+```
+
+Unfortunately, most setups have issues when GreenWeb.js is installed this way. If you're seeing an error that you cannot fix, just include the `greenweb.js` script from the FireAcademy CDN and use `window.greenweb`.
 
 ### Node.js
 

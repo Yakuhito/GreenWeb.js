@@ -1,11 +1,11 @@
+/* eslint-disable max-len */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
-import { op_sha256 } from "clvm";
+import { SExp } from "clvm";
 import { SmartCoin } from "../smart_coin";
 import { Util } from "../util";
 import { Coin } from "../xch/providers/provider_types";
-import { _SExpFromSerialized } from "./xch/providers/private_key/sign_utils.test";
 
 describe("SmartCoin", () => {
     /*
@@ -14,13 +14,13 @@ describe("SmartCoin", () => {
     (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(c 2 ())'
     ff04ff02ff8080
     */
-    const TEST_COIN_PUZZLE = _SExpFromSerialized("ff04ff02ff8080");
-    const TEST_COIN_SOLUTION = _SExpFromSerialized("80"); // ()
+    const TEST_COIN_PUZZLE = Util.sexp.fromHex("ff04ff02ff8080");
+    const TEST_COIN_SOLUTION = Util.sexp.fromHex("80"); // ()
 
     const TEST_COIN = new Coin();
     TEST_COIN.amount = 1337;
     TEST_COIN.parentCoinInfo = "01".repeat(32);
-    TEST_COIN.puzzleHash = "a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5"; //todo
+    TEST_COIN.puzzleHash = Util.sexp.sha256tree(TEST_COIN_PUZZLE);
 
     describe("constructor", () => {
         for(let i = 0; i < 16; ++i) {
@@ -80,7 +80,7 @@ describe("SmartCoin", () => {
                     expect(sc.amount).to.be.null;
                 }
                 if(givePuzzle) {
-                    expect(sc.puzzle?.as_bin().hex()).to.equal(TEST_COIN_PUZZLE.as_bin().hex());
+                    expect(Util.sexp.toHex(sc.puzzle ?? SExp.to([]))).to.equal(Util.sexp.toHex(TEST_COIN_PUZZLE));
                 } else {
                     expect(sc.puzzle).to.be.null;
                 }
@@ -113,7 +113,7 @@ describe("SmartCoin", () => {
             expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
             expect(sc.parentCoinInfo).to.be.null;
             expect(sc.amount).to.be.null;
-            expect(sc.puzzle?.as_bin().hex()).to.equal(TEST_COIN_PUZZLE.as_bin().hex());
+            expect(Util.sexp.toHex(sc.puzzle)).to.equal(Util.sexp.toHex(TEST_COIN_PUZZLE));
         });
 
         it("Works if given a coin and a puzzle", () => {
@@ -122,7 +122,7 @@ describe("SmartCoin", () => {
             expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
             expect(sc.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
             expect(sc.amount?.toString()).to.equal(TEST_COIN.amount.toString());
-            expect(sc.puzzle?.as_bin().hex()).to.equal(TEST_COIN_PUZZLE.as_bin().hex());
+            expect(Util.sexp.toHex(sc.puzzle)).to.equal(Util.sexp.toHex(TEST_COIN_PUZZLE));
         });
 
         it("Correctly overwrites wrong puzzleHash if given puzzle", () => {
@@ -136,7 +136,7 @@ describe("SmartCoin", () => {
             expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
             expect(sc.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
             expect(sc.amount?.toString()).to.equal(TEST_COIN.amount.toString());
-            expect(sc.puzzle?.as_bin().hex()).to.equal(TEST_COIN_PUZZLE.as_bin().hex());
+            expect(Util.sexp.toHex(sc.puzzle)).to.equal(Util.sexp.toHex(TEST_COIN_PUZZLE));
         });
     });
 
@@ -202,7 +202,7 @@ describe("SmartCoin", () => {
             
             sc.setPuzzle(TEST_COIN_PUZZLE);
             expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
-            expect(sc.puzzle?.as_bin().hex()).to.equal(TEST_COIN_PUZZLE.as_bin().hex());
+            expect(Util.sexp.toHex(sc.puzzle)).to.equal(Util.sexp.toHex(TEST_COIN_PUZZLE));
         });
     });
 
@@ -241,8 +241,10 @@ describe("SmartCoin", () => {
 
             const spendBundle = sc.spend(TEST_COIN_SOLUTION);
             expect(spendBundle).to.not.be.null;
-            expect(spendBundle?.puzzleReveal.as_bin().hex()).to.equal(TEST_COIN_PUZZLE.as_bin().hex());
-            expect(spendBundle?.solution.as_bin().hex()).to.equal(TEST_COIN_SOLUTION.as_bin().hex());
+            expect(
+                Util.sexp.toHex(spendBundle?.puzzleReveal)
+            ).to.equal(Util.sexp.toHex(TEST_COIN_PUZZLE));
+            expect(Util.sexp.toHex(spendBundle?.solution)).to.equal(Util.sexp.toHex(TEST_COIN_SOLUTION));
 
             const c = spendBundle?.coin;
             expect(c?.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
@@ -272,5 +274,30 @@ describe("SmartCoin", () => {
         });
     }
 
-    //todo: test with real coin
+    // https://www.chiaexplorer.com/blockchain/coin/0x8679275b9b69a13a17343f877b13914974d0f834f612d9cfc2ebd79c9ea12dce
+    /*
+    (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(a (q 2 (q 2 (i 11 (q 2 (i (= 5 (point_add 11 (pubkey_for_exp (sha256 11 (a 6 (c 2 (c 23 ()))))))) (q 2 23 47) (q 8)) 1) (q 4 (c 4 (c 5 (c (a 6 (c 2 (c 23 ()))) ()))) (a 23 47))) 1) (c (q 50 2 (i (l 5) (q 11 (q . 2) (a 6 (c 2 (c 9 ()))) (a 6 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1)) (c (q . 0x8ea8d21d93ee454c302d0bb3865a819a04030697e4541ba4c6bce9ca35c6c3186b8286af2765c5f472cd53128c7b5af7) 1))'
+    ff02ffff01ff02ffff01ff02ffff03ff0bffff01ff02ffff03ffff09ff05ffff1dff0bffff1effff0bff0bffff02ff06ffff04ff02ffff04ff17ff8080808080808080ffff01ff02ff17ff2f80ffff01ff088080ff0180ffff01ff04ffff04ff04ffff04ff05ffff04ffff02ff06ffff04ff02ffff04ff17ff80808080ff80808080ffff02ff17ff2f808080ff0180ffff04ffff01ff32ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff06ffff04ff02ffff04ff09ff80808080ffff02ff06ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080ffff04ffff01b08ea8d21d93ee454c302d0bb3865a819a04030697e4541ba4c6bce9ca35c6c3186b8286af2765c5f472cd53128c7b5af7ff018080
+    */
+    describe("Real Coin", () => {
+        it("Correctly calculates puzzleHash given puzzle", () => {
+            const sc = SmartCoin.fromCoin(
+                null,
+                Util.sexp.fromHex("ff02ffff01ff02ffff01ff02ffff03ff0bffff01ff02ffff03ffff09ff05ffff1dff0bffff1effff0bff0bffff02ff06ffff04ff02ffff04ff17ff8080808080808080ffff01ff02ff17ff2f80ffff01ff088080ff0180ffff01ff04ffff04ff04ffff04ff05ffff04ffff02ff06ffff04ff02ffff04ff17ff80808080ff80808080ffff02ff17ff2f808080ff0180ffff04ffff01ff32ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff06ffff04ff02ffff04ff09ff80808080ffff02ff06ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080ffff04ffff01b08ea8d21d93ee454c302d0bb3865a819a04030697e4541ba4c6bce9ca35c6c3186b8286af2765c5f472cd53128c7b5af7ff018080")
+            );
+
+            expect(sc.puzzleHash).to.equal("ef08849a943832f633f472962b36ff0e949e27b044bd3b82a4c7ef3ec36435a7");
+        });
+
+        it("Correctly calculates the coin's id", () => {
+            const c = new Coin();
+            c.parentCoinInfo = "9a92bb8da325f91f5ba7e3a02cfe6a6793aae1e02cc806ab15abaa31e834ba84";
+            c.amount = 1394;
+            c.puzzleHash = "ef08849a943832f633f472962b36ff0e949e27b044bd3b82a4c7ef3ec36435a7";
+
+            const sc = SmartCoin.fromCoin(c);
+
+            expect(sc.getId()).to.equal("1cc5ca8441d8c37ef7be224cbc5b24acb83da17970a4652ad0788d6f29e0846e");
+        });
+    });
 });

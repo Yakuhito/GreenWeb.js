@@ -17,6 +17,7 @@ nav:
             - 'coin': 'util/coin.md'
             - 'serializer': 'util/serializer.md'
             - 'network': 'util/network.md'
+            - 'sexp': 'util/sexp.md'
     - License: 'license.md'
 
 markdown_extensions:

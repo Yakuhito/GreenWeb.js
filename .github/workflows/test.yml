@@ -1,4 +1,4 @@
-name: Node.js tests
+name: Tests
 on: pull_request
 jobs:
   tests:

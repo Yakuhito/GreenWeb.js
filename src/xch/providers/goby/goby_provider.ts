@@ -3,6 +3,7 @@ Special thanks to donate.goby.app and offerpool.io
 */
 
 import { BigNumber } from "@ethersproject/bignumber";
+import { Util } from "../../../util";
 import { Network } from "../../../util/network";
 import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Provider } from "../provider";
@@ -165,7 +166,7 @@ export class GobyProvider implements Provider {
         try {
             value = BigNumber.from(value);
             fee = BigNumber.from(fee);
-            await this._getChia().request({
+            const resp = await this._getChia().request({
                 method: "transfer",
                 params: {
                     to,
@@ -175,11 +176,13 @@ export class GobyProvider implements Provider {
                     fee: fee.toString()
                 }
             });
+
+            return Util.goby.parseGobySpendBundle(
+                resp["transaction"]
+            );
         } catch (_) {
             return null;
         }
-
-        return true;
     }
 
     public async acceptOffer({ offer, fee = 0 }: acceptOfferArgs): Promise<Optional<SpendBundle>> {
@@ -190,18 +193,20 @@ export class GobyProvider implements Provider {
         try {
             fee = BigNumber.from(fee);
 
-            await this._getChia().request({
+            const resp = await this._getChia().request({
                 method: "takeOffer",
                 params: {
                     offer,
                     fee: fee.toString()
                 }
             });
+
+            return Util.goby.parseGobySpendBundle(
+                resp["transaction"]
+            );
         } catch (_) {
             return null;
         }
-
-        return true;
     }
 
     public subscribeToAddressChanges({ callback }: subscribeToAddressChangesArgs): void {

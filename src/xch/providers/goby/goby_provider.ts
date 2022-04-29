@@ -150,16 +150,16 @@ export class GobyProvider implements Provider {
         return this._address;
     }
 
-    public transfer({ to, value, fee = 0 }: transferArgs): Promise<boolean> {
+    public transfer({ to, value, fee = 0 }: transferArgs): Promise<Optional<SpendBundle>> {
         // you did not see this
         // kapische?
 
         return this.transferCAT({ to, value, fee, assetId: "" });
     }
 
-    public async transferCAT({ to, value, assetId, fee = 0 }: transferCATArgs): Promise<boolean> {
+    public async transferCAT({ to, value, assetId, fee = 0 }: transferCATArgs): Promise<Optional<SpendBundle>> {
         if (!this.isConnected()) {
-            return false;
+            return null;
         }
 
         try {
@@ -176,15 +176,15 @@ export class GobyProvider implements Provider {
                 }
             });
         } catch (_) {
-            return false;
+            return null;
         }
 
         return true;
     }
 
-    public async acceptOffer({ offer, fee = 0 }: acceptOfferArgs): Promise<boolean> {
+    public async acceptOffer({ offer, fee = 0 }: acceptOfferArgs): Promise<Optional<SpendBundle>> {
         if (!this.isConnected()) {
-            return false;
+            return null;
         }
 
         try {
@@ -198,7 +198,7 @@ export class GobyProvider implements Provider {
                 }
             });
         } catch (_) {
-            return false;
+            return null;
         }
 
         return true;

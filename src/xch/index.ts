@@ -123,19 +123,19 @@ export class XCHModule {
 
         return XCHModule.provider!.getAddress();
     }
-    static transfer(args: transferArgs): Promise<boolean> {
+    static transfer(args: transferArgs): Promise<Optional<SpendBundle>> {
         if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
         return XCHModule.provider!.transfer(args);
     }
-    static transferCAT(args: transferCATArgs): Promise<boolean> {
+    static transferCAT(args: transferCATArgs): Promise<Optional<SpendBundle>> {
         if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
         return XCHModule.provider!.transferCAT(args);
     }
-    static acceptOffer(args: acceptOfferArgs): Promise<boolean> {
+    static acceptOffer(args: acceptOfferArgs): Promise<Optional<SpendBundle>> {
         if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 

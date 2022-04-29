@@ -128,4 +128,19 @@ export class SmartCoin {
     public getName(): bytes | null {
         return this.getId();
     }
+
+    public curry(args: SExp[]): SmartCoin | null {
+        if(this.puzzle === null) {
+            return null;
+        }
+
+        const c = this.toCoin();
+        const newPuzzle = Util.sexp.curry(
+            this.puzzle, args
+        );
+        return SmartCoin.fromCoin(
+            c,
+            newPuzzle
+        );
+    }
 }

@@ -3,6 +3,7 @@ import { expect } from "chai";
 import { Util as util } from "../../util";
 import { AddressUtil } from "../../util/address";
 import { CoinUtil } from "../../util/coin";
+import { GobyUtil } from "../../util/goby";
 import { NetworkUtil } from "../../util/network";
 import { SerializerUtil } from "../../util/serializer";
 import { SExpUtil } from "../../util/sexp";
@@ -134,6 +135,10 @@ describe("Util", function() {
 
         it("Exposes SExpUtil instance as .sexp", () => {
             expect(util.sexp instanceof SExpUtil).to.be.true;
+        });
+
+        it("Exposes GobyUtil instance as .goby", () => {
+            expect(util.goby instanceof GobyUtil).to.be.true;
         });
     });
 

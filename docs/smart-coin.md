@@ -150,3 +150,15 @@ Returns the coin's id/name. Returns null if `parentCoinInfo`, `puzzleHash` or `a
 ```js
 public getName(): bytes | null {
 ```
+
+---
+
+## curry
+
+Curries the given list of arguments into the coin's puzzle and returns a new `SmartCoin`. Returns null if puzzle is not set.
+
+### Definition
+
+```js
+public curry(args: SExp[]): SmartCoin | null {
+```

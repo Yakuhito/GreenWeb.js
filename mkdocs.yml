@@ -18,6 +18,7 @@ nav:
             - 'serializer': 'util/serializer.md'
             - 'network': 'util/network.md'
             - 'sexp': 'util/sexp.md'
+            - 'goby': 'util/goby.md'
     - License: 'license.md'
 
 markdown_extensions:

@@ -59,9 +59,9 @@ export class PrivateKeyProvider implements Provider {
     public async getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> { return this._doesNotImplementError(); }
     public async pushSpendBundle(args: pushSpendBundleArgs): Promise<boolean> { return this._doesNotImplementError(); }
     public async getAddress(): Promise<string> { return this._doesNotImplementError(); }
-    public async transfer(args: transferArgs): Promise<boolean> { return this._doesNotImplementError(); }
-    public async transferCAT(args: transferCATArgs): Promise<boolean> { return this._doesNotImplementError(); }
-    public async acceptOffer(args: acceptOfferArgs): Promise<boolean> { return this._doesNotImplementError(); }
+    public async transfer(args: transferArgs): Promise<Optional<SpendBundle>> { return this._doesNotImplementError(); }
+    public async transferCAT(args: transferCATArgs): Promise<Optional<SpendBundle>> { return this._doesNotImplementError(); }
+    public async acceptOffer(args: acceptOfferArgs): Promise<Optional<SpendBundle>> { return this._doesNotImplementError(); }
     public subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void { return this._doesNotImplementError(); }
 
     public async signCoinSpends({ coinSpends }: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {

@@ -263,7 +263,7 @@ export class MultiProvider implements Provider {
         return this._doesNotImplementError();
     }
 
-    public async transfer(args: transferArgs): Promise<boolean> {
+    public async transfer(args: transferArgs): Promise<Optional<SpendBundle>> {
         for(let i = 0; i < this.providers.length; ++i) {
             try {
                 if(!this.providers[i].isConnected()) {
@@ -279,7 +279,7 @@ export class MultiProvider implements Provider {
         return this._doesNotImplementError();
     }
 
-    public async transferCAT(args: transferCATArgs): Promise<boolean> {
+    public async transferCAT(args: transferCATArgs): Promise<Optional<SpendBundle>> {
         for(let i = 0; i < this.providers.length; ++i) {
             try {
                 if(!this.providers[i].isConnected()) {
@@ -295,7 +295,7 @@ export class MultiProvider implements Provider {
         return this._doesNotImplementError();
     }
 
-    public async acceptOffer(args: acceptOfferArgs): Promise<boolean> {
+    public async acceptOffer(args: acceptOfferArgs): Promise<Optional<SpendBundle>> {
         for(let i = 0; i < this.providers.length; ++i) {
             try {
                 if(!this.providers[i].isConnected()) {

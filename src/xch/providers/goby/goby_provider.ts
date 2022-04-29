@@ -3,6 +3,7 @@ Special thanks to donate.goby.app and offerpool.io
 */
 
 import { BigNumber } from "@ethersproject/bignumber";
+import { Util } from "../../../util";
 import { Network } from "../../../util/network";
 import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Provider } from "../provider";
@@ -150,22 +151,22 @@ export class GobyProvider implements Provider {
         return this._address;
     }
 
-    public transfer({ to, value, fee = 0 }: transferArgs): Promise<boolean> {
+    public transfer({ to, value, fee = 0 }: transferArgs): Promise<Optional<SpendBundle>> {
         // you did not see this
         // kapische?
 
         return this.transferCAT({ to, value, fee, assetId: "" });
     }
 
-    public async transferCAT({ to, value, assetId, fee = 0 }: transferCATArgs): Promise<boolean> {
+    public async transferCAT({ to, value, assetId, fee = 0 }: transferCATArgs): Promise<Optional<SpendBundle>> {
         if (!this.isConnected()) {
-            return false;
+            return null;
         }
 
         try {
             value = BigNumber.from(value);
             fee = BigNumber.from(fee);
-            await this._getChia().request({
+            const resp = await this._getChia().request({
                 method: "transfer",
                 params: {
                     to,
@@ -175,33 +176,37 @@ export class GobyProvider implements Provider {
                     fee: fee.toString()
                 }
             });
-        } catch (_) {
-            return false;
-        }
 
-        return true;
+            return Util.goby.parseGobySpendBundle(
+                resp["transaction"]
+            );
+        } catch (_) {
+            return null;
+        }
     }
 
-    public async acceptOffer({ offer, fee = 0 }: acceptOfferArgs): Promise<boolean> {
+    public async acceptOffer({ offer, fee = 0 }: acceptOfferArgs): Promise<Optional<SpendBundle>> {
         if (!this.isConnected()) {
-            return false;
+            return null;
         }
 
         try {
             fee = BigNumber.from(fee);
 
-            await this._getChia().request({
+            const resp = await this._getChia().request({
                 method: "takeOffer",
                 params: {
                     offer,
                     fee: fee.toString()
                 }
             });
-        } catch (_) {
-            return false;
-        }
 
-        return true;
+            return Util.goby.parseGobySpendBundle(
+                resp["transaction"]
+            );
+        } catch (_) {
+            return null;
+        }
     }
 
     public subscribeToAddressChanges({ callback }: subscribeToAddressChangesArgs): void {

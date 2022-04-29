@@ -55,14 +55,14 @@ class TestProvider implements Provider {
     async getAddress(): Promise<string> {
         return "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3";
     }
-    async transfer(args: transferArgs): Promise<boolean> {
-        return true;
+    async transfer(args: transferArgs): Promise<Optional<SpendBundle>> {
+        return null;
     }
-    async transferCAT(args: transferCATArgs): Promise<boolean> {
-        return true;
+    async transferCAT(args: transferCATArgs): Promise<Optional<SpendBundle>> {
+        return null;
     }
-    async acceptOffer(args: acceptOfferArgs): Promise<boolean> {
-        return true;
+    async acceptOffer(args: acceptOfferArgs): Promise<Optional<SpendBundle>> {
+        return null;
     }
     subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
         args.callback("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
@@ -335,7 +335,7 @@ describe("XCHModule", () => {
                     to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
                     value: 5
                 })
-            ).to.be.true;
+            ).to.be.null;
         });
 
         it("transferCAT()", async () => {
@@ -345,7 +345,7 @@ describe("XCHModule", () => {
                     assetId: "Kitty",
                     value: 5
                 })
-            ).to.be.true;
+            ).to.be.null;
         });
 
         it("acceptOffer()", async () => {
@@ -353,7 +353,7 @@ describe("XCHModule", () => {
                 await XCHModule.acceptOffer({
                     offer: "offer"
                 })
-            ).to.be.true;
+            ).to.be.null;
         });
 
         it("subscribeToAddressChanges()", async () => {

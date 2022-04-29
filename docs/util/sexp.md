@@ -95,3 +95,7 @@ TypeScript/JavaScript port of [this function](https://github.com/Chia-Network/ch
 ## pkmPairsForConditionsDict
 
 TypeScript/JavaScript port of [this function](https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/util/condition_tools.py#L81).
+
+## curry
+
+Curries a list of parameters into a given program.

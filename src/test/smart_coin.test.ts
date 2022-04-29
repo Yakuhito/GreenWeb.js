@@ -274,6 +274,47 @@ describe("SmartCoin", () => {
         });
     }
 
+    describe("curry", () => {
+        const PROGRAM = Util.sexp.fromHex("ff10ff02ff0580");
+        const ARGS = [ Util.sexp.fromHex("07") ];
+        const CURRIED_PROGRAM_HEX = "ff02ffff01ff10ff02ff0580ffff04ffff0107ff018080";
+
+        it("Works if coin info is not set", () => {
+            const sc = SmartCoin.fromCoin(null, PROGRAM);
+            const newSc = sc.curry(ARGS);
+
+            expect(newSc).to.not.be.null;
+            expect(newSc?.toCoin()).to.be.null;
+            expect(newSc?.parentCoinInfo).to.be.null;
+            expect(newSc?.amount).to.be.null;
+            expect(
+                Util.sexp.toHex(newSc?.puzzle)
+            ).to.equal(CURRIED_PROGRAM_HEX);
+        });
+
+        it("Works if coin info is set", () => {
+            const c = new Coin();
+            c.amount = 1337;
+            c.puzzleHash = "11".repeat(32);
+            c.parentCoinInfo = "22".repeat(32);
+
+            const sc = SmartCoin.fromCoin(c, PROGRAM);
+            const newSc = sc.curry(ARGS);
+
+            expect(newSc).to.not.be.null;
+            expect(newSc?.toCoin()).to.not.be.null;
+            expect(newSc?.parentCoinInfo).to.equal(c.parentCoinInfo);
+            expect(
+                BigNumber.from(newSc?.amount).eq(c.amount)
+            ).to.be.true;
+            expect(newSc?.puzzleHash).to.not.be.null;
+            expect(newSc?.puzzleHash).to.not.equal(c.puzzleHash);
+            expect(
+                Util.sexp.toHex(newSc?.puzzle)
+            ).to.equal(CURRIED_PROGRAM_HEX);
+        });
+    });
+
     // https://www.chiaexplorer.com/blockchain/coin/0x8679275b9b69a13a17343f877b13914974d0f834f612d9cfc2ebd79c9ea12dce
     /*
     (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(a (q 2 (q 2 (i 11 (q 2 (i (= 5 (point_add 11 (pubkey_for_exp (sha256 11 (a 6 (c 2 (c 23 ()))))))) (q 2 23 47) (q 8)) 1) (q 4 (c 4 (c 5 (c (a 6 (c 2 (c 23 ()))) ()))) (a 23 47))) 1) (c (q 50 2 (i (l 5) (q 11 (q . 2) (a 6 (c 2 (c 9 ()))) (a 6 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1)) (c (q . 0x8ea8d21d93ee454c302d0bb3865a819a04030697e4541ba4c6bce9ca35c6c3186b8286af2765c5f472cd53128c7b5af7) 1))'

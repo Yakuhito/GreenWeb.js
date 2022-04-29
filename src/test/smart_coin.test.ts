@@ -274,7 +274,7 @@ describe("SmartCoin", () => {
         });
     }
 
-    describe("curry", () => {
+    describe("curry()", () => {
         const PROGRAM = Util.sexp.fromHex("ff10ff02ff0580");
         const ARGS = [ Util.sexp.fromHex("07") ];
         const CURRIED_PROGRAM_HEX = "ff02ffff01ff10ff02ff0580ffff04ffff0107ff018080";
@@ -312,6 +312,18 @@ describe("SmartCoin", () => {
             expect(
                 Util.sexp.toHex(newSc?.puzzle)
             ).to.equal(CURRIED_PROGRAM_HEX);
+        });
+
+        it("Returns null if puzzle is not set", () => {
+            const c = new Coin();
+            c.amount = 1337;
+            c.puzzleHash = "11".repeat(32);
+            c.parentCoinInfo = "22".repeat(32);
+
+            const sc = SmartCoin.fromCoin(c);
+            const newSc = sc.curry(ARGS);
+
+            expect(newSc).to.be.null;
         });
     });
 

@@ -43,14 +43,14 @@ export class XCHModule {
     }: CreateProviderArgs): void {
         const providers: Provider[] = [];
 
-        if(leafletAPIKey) {
-            providers.push(
-                new LeafletProvider(leafletHost, leafletAPIKey, leafletPort, network)
-            );
-        }
         if(useGoby) {
             providers.push(
                 new GobyProvider(gobyTryNonInteractiveConnect)
+            );
+        }
+        if(leafletAPIKey) {
+            providers.push(
+                new LeafletProvider(leafletHost, leafletAPIKey, leafletPort, network)
             );
         }
         if(privateKey) {

@@ -212,4 +212,35 @@ export class SExpUtil {
 
         return ret;
     }
+
+    /*
+    Uses chialisp to curry arguments into program (is that how you say it?)
+    (venv) yakuhito@catstation:~/projects/clvm_tools$ cat curry.clvm 
+    ; https://chialisp.com/docs/common_functions
+    (mod (program args)
+        ;; utility function used by curry
+        (defun fix_curry_args (items core)
+            (if items
+                (qq (c (q . (unquote (f items))) (unquote (fix_curry_args (r items) core))))
+                core
+            )
+        )
+
+        ; (curry sum (list 50 60)) => returns a function that is like (sum 50 60 ...)
+        (defun curry (func list_of_args) (qq (a (q . (unquote func)) (unquote (fix_curry_args list_of_args (q . 1))))))
+
+        (curry program args)
+    )
+    (venv) yakuhito@catstation:~/projects/clvm_tools$ run curry.clvm 
+    (a (q 2 4 (c 2 (c 5 (c 11 ())))) (c (q (c (q . 2) (c (c (q . 1) 5) (c (a 6 (c 2 (c 11 (q 1)))) ()))) 2 (i 5 (q 4 (q . 4) (c (c (q . 1) 9) (c (a 6 (c 2 (c 13 (c 11 ())))) ()))) (q . 11)) 1) 1))
+    (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(a (q 2 4 (c 2 (c 5 (c 11 ())))) (c (q (c (q . 2) (c (c (q . 1) 5) (c (a 6 (c 2 (c 11 (q 1)))) ()))) 2 (i 5 (q 4 (q . 4) (c (c (q . 1) 9) (c (a 6 (c 2 (c 13 (c 11 ())))) ()))) (q . 11)) 1) 1))'
+    ff02ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bff8080808080ffff04ffff01ffff04ffff0102ffff04ffff04ffff0101ff0580ffff04ffff02ff06ffff04ff02ffff04ff0bffff01ff0180808080ff80808080ff02ffff03ff05ffff01ff04ffff0104ffff04ffff04ffff0101ff0980ffff04ffff02ff06ffff04ff02ffff04ff0dffff04ff0bff8080808080ff80808080ffff010b80ff0180ff018080
+    */
+    public readonly CURRY_PROGRAM = "ff02ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bff8080808080ffff04ffff01ffff04ffff0102ffff04ffff04ffff0101ff0580ffff04ffff02ff06ffff04ff02ffff04ff0bffff01ff0180808080ff80808080ff02ffff03ff05ffff01ff04ffff0104ffff04ffff04ffff0101ff0980ffff04ffff02ff06ffff04ff02ffff04ff0dffff04ff0bff8080808080ff80808080ffff010b80ff0180ff018080";
+    public curry(program: SExp, args: SExp): SExp {
+        return this.run(
+            this.fromHex(this.SHA256TREE_PROGRAM),
+            SExp.to([program, args])
+        );
+    }
 }

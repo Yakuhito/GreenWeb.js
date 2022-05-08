@@ -604,4 +604,16 @@ describe("SExpUtil", () => {
             ).to.equal(programHex);
         });
     });
+
+    describe.only("P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM", () => {
+        it("sha256trees to the correct value", () => {
+            const program: SExp = sexpUtil.fromHex(sexpUtil.P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM);
+            const hash = sexpUtil.sha256tree(program);
+
+            // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clvm.hex.sha256tree
+            const expectedHash = "e9aaa49f45bad5c889b86ee3341550c155cfdd10c3a6757de618d20612fffd52";
+
+            expect(hash).to.equal(expectedHash);
+        });
+    });
 });

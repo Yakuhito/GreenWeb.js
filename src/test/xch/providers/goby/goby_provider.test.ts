@@ -380,13 +380,14 @@ describe("GobyProvider", () => {
 
         it("Works if not connected, after connect", async () => {
             const p = new GobyProvider(
-                false,
+                true,
                 {
                     isGoby: true,
                     request: async ({ method, params }: { method: string, params?: any }) => {
                         if(method === "requestAccounts") {
                             throw new Error("User rejected the request.");
                         }
+                        return [];
                     },
                     on: (event: string, callback: any) => {
                         // do nothing
@@ -1165,7 +1166,7 @@ describe("GobyProvider", () => {
                 let walletSwitchChainRequests = 0;
                 let lastChainId = "0";
                 const p = new GobyProvider(
-                    true,
+                    false,
                     {
                         isGoby: true,
                         request: async ({ method, params }: { method: string, params?: any }) => {
@@ -1201,7 +1202,7 @@ describe("GobyProvider", () => {
             it(testTitle2, async () => {
                 let walletSwitchChainRequests = 0;
                 const p = new GobyProvider(
-                    true,
+                    false,
                     {
                         isGoby: true,
                         request: async ({ method, params }: { method: string, params?: any }) => {
@@ -1245,7 +1246,7 @@ describe("GobyProvider", () => {
                 let walletSwitchChainRequests = 0;
 
                 const p = new GobyProvider(
-                    true,
+                    false,
                     {
                         isGoby: true,
                         request: async ({ method, params }: { method: string, params?: any }) => {

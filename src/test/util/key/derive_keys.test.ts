@@ -4,7 +4,7 @@ import { initialize } from "clvm";
 import { Util } from "../../../util";
 import { DeriveKeysUtils } from "../../../util/key/derive_keys";
 
-describe.only("DeriveKeysUtils", () => {
+describe("DeriveKeysUtils", () => {
     let MASTER_SK: any;
 
     beforeEach(async () => {

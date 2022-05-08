@@ -1,4 +1,5 @@
 import { getBLSModule } from "clvm";
+import { util } from "../..";
 import { bytes } from "../../xch/providers/provider_types";
 import { DeriveKeysUtils } from "./derive_keys";
 
@@ -8,8 +9,13 @@ export class KeyUtil {
     public hexToPrivateKey(hex: bytes): any {
         const { PrivateKey } = getBLSModule();
 
+        const pkHex = util.address.validateHashString(hex);
+        if(pkHex === "") {
+            return null;
+        }
+
         return PrivateKey.from_bytes(
-            Buffer.from(hex, "hex"),
+            Buffer.from(pkHex, "hex"),
             false
         );
     }

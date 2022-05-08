@@ -1,7 +1,6 @@
 // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/derive_keys.py
 
 import { getBLSModule } from "clvm";
-import { Optional } from "../../xch/providers/provider_types";
 
 export class DeriveKeysUtils {
     static MAX_POOL_WALLETS = 100;
@@ -54,7 +53,7 @@ export class DeriveKeysUtils {
     }
 
     public static masterSkToWalletSkUnhardened(master: any, index: number): any {
-        const intermediate = this.masterSkToWalletSkIntermediate(master);
+        const intermediate = this.masterSkToWalletSkUnhardenedIntermediate(master);
         return this.derivePathUnhardened(intermediate, [index]);
     }
 
@@ -66,50 +65,51 @@ export class DeriveKeysUtils {
         return this.derivePath(master, [12381, 8444, 4, 0]);
     }
 
-    public static masterSkToSingletonOwnerSk(master: any, pool_wallet_index: number): any {
+    public static masterSkToSingletonOwnerSk(master: any, poolWalletIndex: number): any {
         // This key controls a singleton on the blockchain, allowing for dynamic pooling (changing pools)
-        return this.derivePath(master, [12381, 8444, 5, pool_wallet_index]);
+        return this.derivePath(master, [12381, 8444, 5, poolWalletIndex]);
     }
 
-    public static masterSkToPoolingAuthenticationSk(master: any, pool_wallet_index: number, index: number): any {
+    public static masterSkToPoolingAuthenticationSk(master: any, poolWalletIndex: number, index: number): any {
         // This key is used for the farmer to authenticate to the pool when sending partials
-        if(index >= 100000) {
+        if(index >= 10000) {
             throw new Error("assert index < 10000");
         }
-        if(pool_wallet_index >= 100000) {
+        if(poolWalletIndex >= 10000) {
             throw new Error("assert pool_wallet_index < 10000");
         }
-        return this.derivePath(master, [12381, 8444, 6, pool_wallet_index * 10000 + index]);
+
+        return this.derivePath(master, [12381, 8444, 6, poolWalletIndex * 10000 + index]);
     }
 
-    public static findOwnerSk(allSks: any[], ownerPk: any): Optional<[any, number]> {
-        for(let poolWalletIndex = 0; poolWalletIndex < this.MAX_POOL_WALLETS; ++poolWalletIndex) {
-            for(const sk of allSks) {
-                const tryOwnerSk = this.masterSkToSingletonOwnerSk(sk, poolWalletIndex);
-                if(tryOwnerSk.get_g1() === ownerPk) {
-                    return [tryOwnerSk, poolWalletIndex];
-                }
-            }
-        }
+    // public static findOwnerSk(allSks: any[], ownerPk: any): Optional<[any, number]> {
+    //     for(let poolWalletIndex = 0; poolWalletIndex < this.MAX_POOL_WALLETS; ++poolWalletIndex) {
+    //         for(const sk of allSks) {
+    //             const tryOwnerSk = this.masterSkToSingletonOwnerSk(sk, poolWalletIndex);
+    //             if(tryOwnerSk.get_g1() === ownerPk) {
+    //                 return [tryOwnerSk, poolWalletIndex];
+    //             }
+    //         }
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 
-    public static findAuthenticationSk(allSks: any[], ownerPk: any): Optional<any> {
-        // NOTE: might need to increase this if using a large number of wallets, or have switched authentication keys
-        // many times.
-        for(let poolWalletIndex = 0; poolWalletIndex < this.MAX_POOL_WALLETS; ++poolWalletIndex) {
-            for(const sk of allSks) {
-                const tryOwnerSk = this.masterSkToSingletonOwnerSk(sk, poolWalletIndex);
-                if(tryOwnerSk.get_g1() === ownerPk) {
-                    // NOTE: ONLY use 0 for authentication key index to ensure compatibility
-                    return this.masterSkToPoolingAuthenticationSk(sk, poolWalletIndex, 0);
-                }
-            }
-        }
+    // public static findAuthenticationSk(allSks: any[], ownerPk: any): Optional<any> {
+    //     // NOTE: might need to increase this if using a large number of wallets, or have switched authentication keys
+    //     // many times.
+    //     for(let poolWalletIndex = 0; poolWalletIndex < this.MAX_POOL_WALLETS; ++poolWalletIndex) {
+    //         for(const sk of allSks) {
+    //             const tryOwnerSk = this.masterSkToSingletonOwnerSk(sk, poolWalletIndex);
+    //             if(tryOwnerSk.get_g1() === ownerPk) {
+    //                 // NOTE: ONLY use 0 for authentication key index to ensure compatibility
+    //                 return this.masterSkToPoolingAuthenticationSk(sk, poolWalletIndex, 0);
+    //             }
+    //         }
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 
     // public static matchAddressToSk(
     //     sk: PrivateKey,

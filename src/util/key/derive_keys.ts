@@ -1,7 +1,7 @@
 // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/derive_keys.py
 
 import { AugSchemeMPL, G1Element, PrivateKey } from "@chiamine/bls-signatures";
-import { Optional } from "../../../xch/providers/provider_types";
+import { Optional } from "../../xch/providers/provider_types";
 
 export class DeriveKeysUtils {
     static MAX_POOL_WALLETS = 100;

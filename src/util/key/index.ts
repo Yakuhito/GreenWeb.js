@@ -26,6 +26,20 @@ export class KeyUtil {
         ).toString("hex");
     }
 
+    public masterSkToWalletSkUnhardened(sk: any | string, index: number): any {
+        const { PrivateKey } = getBLSModule();
+
+        if(typeof sk === "string") {
+            sk = this.hexToPrivateKey(sk);
+        }
+
+        if(!(sk instanceof PrivateKey)) {
+            return null;
+        }
+
+        return DeriveKeysUtils.masterSkToWalletSkUnhardened(sk, index);
+    }
+
     public hexToPublicKey(hex: bytes): any {
         const { G1Element } = getBLSModule();
 
@@ -63,20 +77,6 @@ export class KeyUtil {
         }
 
         return DeriveKeysUtils.masterSkToWalletSk(sk, index);
-    }
-
-    public masterSkToWalletSkUnhardened(sk: any | string, index: number): any {
-        const { PrivateKey } = getBLSModule();
-
-        if(typeof sk === "string") {
-            sk = this.hexToPrivateKey(sk);
-        }
-
-        if(!(sk instanceof PrivateKey)) {
-            return null;
-        }
-
-        return DeriveKeysUtils.masterSkToWalletSkUnhardened(sk, index);
     }
 
     //todo: pk to mnemonic and mnemonic to pk

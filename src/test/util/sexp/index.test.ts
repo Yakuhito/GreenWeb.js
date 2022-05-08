@@ -605,15 +605,41 @@ describe("SExpUtil", () => {
         });
     });
 
-    describe.only("P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM", () => {
-        it("sha256trees to the correct value", () => {
-            const program: SExp = sexpUtil.fromHex(sexpUtil.P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM);
-            const hash = sexpUtil.sha256tree(program);
+    describe("Puzzles", () => {
+        const sha256Correct = (programName: string, program: string, expectedHash: string) => {
+            const testName = `The sha256 tree of ${programName} is correct.`;
 
+            it(testName, () => {
+                const hash = sexpUtil.sha256tree(sexpUtil.fromHex(program));
+
+                expect(hash).to.equal(expectedHash);
+            });
+        };
+
+        sha256Correct(
+            "P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM",
+            sexpUtil.P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM,
             // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clvm.hex.sha256tree
-            const expectedHash = "e9aaa49f45bad5c889b86ee3341550c155cfdd10c3a6757de618d20612fffd52";
+            "e9aaa49f45bad5c889b86ee3341550c155cfdd10c3a6757de618d20612fffd52"
+        );
+        sha256Correct(
+            "DEFAULT_HIDDEN_PUZZLE_PROGRAM",
+            sexpUtil.DEFAULT_HIDDEN_PUZZLE_PROGRAM,
+            "711d6c4e32c92e53179b199484cf8c897542bc57f2b22582799f9d657eec4699"
+        );
+        sha256Correct(
+            "CALCULATE_SYNTHETIC_PUBLIC_KEY_PROGRAM",
+            sexpUtil.CALCULATE_SYNTHETIC_PUBLIC_KEY_PROGRAM,
+            // https://github.com/Chia-Network/chia-blockchain/blob/5f4e39480e2312dc93a7b3609bcea576a9a758f9/chia/wallet/puzzles/calculate_synthetic_public_key.clvm.hex.sha256tree
+            "624c5d5704d0decadfc0503e71bbffb6cdfe45025bce7cf3e6864d1eafe8f65e"
+        );
+    });
 
-            expect(hash).to.equal(expectedHash);
+    describe("DEFAULT_HIDDEN_PUZZLE_HASH", () => {
+        it("Is equal to the sha256tree hash of DEFAULT_HIDDEN_PUZZLE_PROGRAM", () => {
+            const hash = sexpUtil.sha256tree(sexpUtil.fromHex(sexpUtil.DEFAULT_HIDDEN_PUZZLE_PROGRAM));
+
+            expect(hash).to.equal(sexpUtil.DEFAULT_HIDDEN_PUZZLE_HASH);
         });
     });
 });

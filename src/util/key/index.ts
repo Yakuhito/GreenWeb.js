@@ -26,6 +26,20 @@ export class KeyUtil {
         ).toString("hex");
     }
 
+    public masterSkToWalletSk(sk: any | string, index: number): any {
+        const { PrivateKey } = getBLSModule();
+
+        if(typeof sk === "string") {
+            sk = this.hexToPrivateKey(sk);
+        }
+
+        if(!(sk instanceof PrivateKey)) {
+            return null;
+        }
+
+        return DeriveKeysUtils.masterSkToWalletSk(sk, index);
+    }
+
     public masterSkToWalletSkUnhardened(sk: any | string, index: number): any {
         const { PrivateKey } = getBLSModule();
 
@@ -43,9 +57,9 @@ export class KeyUtil {
     public hexToPublicKey(hex: bytes): any {
         const { G1Element } = getBLSModule();
 
-        let ok: boolean = hex.length === 48;
+        let ok: boolean = hex.length === 96;
         for(let i = 0; i < hex.length && ok; ++i) {
-            if(!"abdef0123456789".includes(hex[i].toLowerCase())) {
+            if(!"abcdef0123456789".includes(hex[i].toLowerCase())) {
                 ok = false;
             }
         }
@@ -63,20 +77,6 @@ export class KeyUtil {
         return Buffer.from(
             pk.serialize()
         ).toString("hex");
-    }
-
-    public masterSkToWalletSk(sk: any | string, index: number): any {
-        const { PrivateKey } = getBLSModule();
-
-        if(typeof sk === "string") {
-            sk = this.hexToPrivateKey(sk);
-        }
-
-        if(!(sk instanceof PrivateKey)) {
-            return null;
-        }
-
-        return DeriveKeysUtils.masterSkToWalletSk(sk, index);
     }
 
     public masterPkToWalletPk(pk: any | string, index: number): any {

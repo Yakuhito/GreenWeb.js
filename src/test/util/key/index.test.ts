@@ -2,12 +2,20 @@
 import { expect } from "chai";
 import { initialize } from "clvm";
 import { KeyUtil } from "../../../util/key";
+import { DeriveKeysUtils } from "../../../util/key/derive_keys";
 
 const keyUtil = new KeyUtil();
 const SK_HEX = "42".repeat(32);
+const PK_HEX = "b5b99c967e4c69822f427db1f6871dd119afb95ab9646ba2e707990a3db31777a59b66f69e89c2055699b0ade7357eae";
 
-describe.only("KeyUtil", () => {
+describe("KeyUtil", () => {
     beforeEach(initialize);
+
+    describe("impl", () => {
+        it("Is exposed and instance of DeriveKeysUtils", () => {
+            expect(keyUtil.impl === DeriveKeysUtils).to.be.true;
+        });
+    });
 
     describe("hexToPrivateKey()", () => {
         it("Works", () => {
@@ -119,6 +127,86 @@ describe.only("KeyUtil", () => {
 
             expect(
                 keyUtil.masterSkToWalletSkUnhardened(42, 7)
+            ).to.be.null;
+        });
+    });
+
+    describe("hexToPublicKey()", () => {
+        it("Works", () => {
+            const res = keyUtil.hexToPublicKey(PK_HEX);
+
+            expect(
+                Buffer.from(res.serialize()).toString("hex")
+            ).to.equal(PK_HEX);
+        });
+
+        it("Returns 'null' if given an invalid hex string", () => {
+            expect(
+                keyUtil.hexToPublicKey("42".repeat(47))
+            ).to.be.null;
+
+            expect(
+                keyUtil.hexToPublicKey("42".repeat(47) + "4y")
+            ).to.be.null;
+        });
+    });
+
+    describe("publicKeyToHex()", () => {
+        it("Works", () => {
+            const pk = keyUtil.hexToPublicKey(PK_HEX);
+
+            expect(
+                keyUtil.publicKeyToHex(pk)
+            ).to.equal(PK_HEX);
+        });
+    });
+
+    describe("masterPkToWalletPk()", () => {
+        it("Works wken pk is a string", () => {
+            const walletSk = keyUtil.masterSkToWalletSkUnhardened(
+                SK_HEX,
+                7
+            );
+            const walletPubKey = walletSk.get_g1();
+
+            const res = keyUtil.masterPkToWalletPk(
+                PK_HEX,
+                7
+            );
+
+            expect(
+                keyUtil.publicKeyToHex(res)
+            ).to.equal(
+                keyUtil.publicKeyToHex(walletPubKey)
+            );
+        });
+
+        it("Works wken pk is a G1Element object", () => {
+            const walletSk = keyUtil.masterSkToWalletSkUnhardened(
+                SK_HEX,
+                7
+            );
+            const walletPubKey = walletSk.get_g1();
+
+            const res = keyUtil.masterPkToWalletPk(
+                keyUtil.hexToPublicKey(PK_HEX),
+                7
+            );
+
+            expect(
+                keyUtil.publicKeyToHex(res)
+            ).to.equal(
+                keyUtil.publicKeyToHex(walletPubKey)
+            );
+        });
+
+        it("Returns 'null' when pk is neither a string nor a G1Element object", () => {
+            expect(
+                keyUtil.masterPkToWalletPk([1, 2, 3], 7)
+            ).to.be.null;
+
+            expect(
+                keyUtil.masterPkToWalletPk(42, 7)
             ).to.be.null;
         });
     });

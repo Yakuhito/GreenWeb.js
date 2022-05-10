@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+import { G1Element } from "@chiamine/bls-signatures";
 import { expect } from "chai";
 import { initialize } from "clvm";
 import { Util } from "../../../util";
@@ -288,7 +289,32 @@ describe("DeriveKeysUtils", () => {
         ));
     });
 
-    describe.only("Real case", () => {
+    describe("masterPkToWalletPkUnhardened()", () => {
+        /*
+        >>> from blspy import PrivateKey, AugSchemeMPL
+        >>> pk = PrivateKey.from_bytes(bytes.fromhex("4242424242424242424242424242424242424242424242424242424242424242"))
+        >>> pubkey = pk.get_g1()
+        >>> derivation_path = [12381, 8444, 2, 7]
+        >>> key = pubkey
+        >>> for i in derivation_path:
+        ...  key = AugSchemeMPL.derive_child_pk_unhardened(key, i)
+        ... 
+        >>> key
+        <G1Element ad19a8fa73a3266e827a5a3211570648a2e12c1a0ffb36ee4b48d02082ba47be6f1f5389cfd9b8184e21bf1f4c2b7c58>
+        >>>
+        */
+        it("Works", () => {
+            const pubKey: G1Element = MASTER_SK.get_g1();
+
+            expect(
+                Util.key.publicKeyToHex(
+                    DeriveKeysUtils.masterPkToWalletPkUnhardened(pubKey, 7)
+                )
+            ).to.equal("ad19a8fa73a3266e827a5a3211570648a2e12c1a0ffb36ee4b48d02082ba47be6f1f5389cfd9b8184e21bf1f4c2b7c58");
+        });
+    });
+
+    describe("Real case", () => {
         /*
         root@cae4577fa6cf:/chia-blockchain# chia keys show --show-mnemonic-seed
         [...]

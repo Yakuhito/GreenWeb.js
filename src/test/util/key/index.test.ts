@@ -6,7 +6,7 @@ import { KeyUtil } from "../../../util/key";
 const keyUtil = new KeyUtil();
 const SK_HEX = "42".repeat(32);
 
-describe("KeyUtil", () => {
+describe.only("KeyUtil", () => {
     beforeEach(initialize);
 
     describe("hexToPrivateKey()", () => {

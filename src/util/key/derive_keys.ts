@@ -82,6 +82,18 @@ export class DeriveKeysUtils {
         return this.derivePath(master, [12381, 8444, 6, poolWalletIndex * 10000 + index]);
     }
 
+    public static masterPkToWalletPkUnhardened(master: any, index: number): any {
+        const { AugSchemeMPL } = getBLSModule();
+        const derivationPath = [12381, 8444, 2, index];
+        let key: any = master;
+
+        for(const i of derivationPath) {
+            key = AugSchemeMPL.derive_child_pk_unhardened(key, i);
+        }
+
+        return key;
+    }
+
     // public static findOwnerSk(allSks: any[], ownerPk: any): Optional<[any, number]> {
     //     for(let poolWalletIndex = 0; poolWalletIndex < this.MAX_POOL_WALLETS; ++poolWalletIndex) {
     //         for(const sk of allSks) {

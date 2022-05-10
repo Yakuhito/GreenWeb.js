@@ -79,5 +79,19 @@ export class KeyUtil {
         return DeriveKeysUtils.masterSkToWalletSk(sk, index);
     }
 
+    public masterPkToWalletPk(pk: any | string, index: number): any {
+        const { G1Element } = getBLSModule();
+
+        if(typeof pk === "string") {
+            pk = this.hexToPublicKey(pk);
+        }
+
+        if(!(pk instanceof G1Element)) {
+            return null;
+        }
+
+        return DeriveKeysUtils.masterPkToWalletPkUnhardened(pk, index);
+    }
+
     //todo: pk to mnemonic and mnemonic to pk
 }

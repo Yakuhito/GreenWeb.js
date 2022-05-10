@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable max-len */
+import { G1Element, PrivateKey } from "@chiamine/bls-signatures";
 import { expect } from "chai";
-import { run_program, h, KEYWORD_TO_ATOM, OPERATOR_LOOKUP, SExp, t, CLVMObject, Tuple, Bytes } from "clvm";
+import { run_program, h, KEYWORD_TO_ATOM, OPERATOR_LOOKUP, SExp, t, CLVMObject, Tuple, Bytes, initializeBLS } from "clvm";
+import { Util } from "../../../util";
 import { bytes } from "../../../util/serializer/basic_types";
 import { ConditionsDict, SExpUtil } from "../../../util/sexp";
 import { ConditionOpcode } from "../../../util/sexp/condition_opcodes";
@@ -9,7 +11,7 @@ import { ConditionWithArgs } from "../../../util/sexp/condition_with_args";
 
 const sexpUtil = new SExpUtil();
 
-describe.only("SExpUtil", () => {
+describe("SExpUtil", () => {
     describe("fromHex()", () => {
         it("Correctly converts a hex string to a SExp object", () => {
             const plus = h(KEYWORD_TO_ATOM["+"]);
@@ -199,16 +201,14 @@ describe.only("SExpUtil", () => {
         it("Works correctly for a program", () => {
             /*
             # Hashes itself!
-            (venv) yakuhito@catstation:~/projects/clvm_tools$ run hash.clvm 
-            (a (q 2 2 (c 2 (c 3 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))
-            (venv) yakuhito@catstation:~/projects/clvm_tools$ brun '(a (q 2 2 (c 2 (c 3 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))' '(a (q 2 2 (c 2 (c 3 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))'
-            0x6dba5ecde970b43b7d9366ee1a065ee6aa4478c9b765dad95ab3dec4c3544975
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ brun -x ff02ffff01ff02ff02ffff04ff02ffff04ff05ff80808080ffff04ffff01ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff02ffff04ff02ffff04ff09ff80808080ffff02ff02ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080 ff02ffff01ff02ff02ffff04ff02ffff04ff05ff80808080ffff04ffff01ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff02ffff04ff02ffff04ff09ff80808080ffff02ff02ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080
+            0xa12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222
             (venv) yakuhito@catstation:~/projects/clvm_tools$
             */
-            const toHash = sexpUtil.fromHex(sexpUtil.SHA256TREE_PROGRAM);
+            const toHash = sexpUtil.fromHex(sexpUtil.SHA256TREE_MODULE_PROGRAM);
             const res = sexpUtil.sha256tree(toHash);
 
-            expect(res).to.equal("6dba5ecde970b43b7d9366ee1a065ee6aa4478c9b765dad95ab3dec4c3544975");
+            expect(res).to.equal("a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222");
         });
     });
 
@@ -617,6 +617,12 @@ describe.only("SExpUtil", () => {
         };
 
         sha256Correct(
+            "SHA256TREE_MODULE_PROGRAM",
+            sexpUtil.SHA256TREE_MODULE_PROGRAM,
+            // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/puzzles/sha256tree_module.clvm.hex.sha256tree
+            "eb4ead6576048c9d730b5ced00646c7fdd390649cfdf48a00de1590cdd8ee18f"
+        );
+        sha256Correct(
             "P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM",
             sexpUtil.P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM,
             // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clvm.hex.sha256tree
@@ -643,27 +649,69 @@ describe.only("SExpUtil", () => {
         });
     });
 
-    describe.only("calculateSyntheticPublicKey()", () => {
+    describe("calculateSyntheticPublicKey()", () => {
+        /*
+        (venv) yakuhito@catstation:~/projects/clvm_tools$ cat calculate_synthetic_public_key.clvm 
+        (mod
+          (public_key hidden_puzzle_hash)
+
+          (point_add public_key (pubkey_for_exp (sha256 public_key hidden_puzzle_hash)))
+        )
+        (venv) yakuhito@catstation:~/projects/clvm_tools$ run calculate_synthetic_public_key.clvm 
+        (point_add 2 (pubkey_for_exp (sha256 2 5)))
+        (venv) yakuhito@catstation:~/projects/clvm_tools$ brun '(point_add 2 (pubkey_for_exp (sha256 2 5)))' '(0xb5b99c967e4c69822f427db1f6871dd119afb95ab9646ba2e707990a3db31777a59b66f69e89c2055699b0ade7357eae 0x711d6c4e32c92e53179b199484cf8c897542bc57f2b22582799f9d657eec4699)'
+        0x97d665fea5042789583ca580a5c5bc8da921387811aca72fa9395489ef0d3cc5b18d9a7c86e8bd277049ca4b7bfe0945
+        (venv) yakuhito@catstation:~/projects/clvm_tools$
+        */
         it("Works", () => {
-            /*
-            */
+            const skStr: string = "42".repeat(32);
+            const sk: PrivateKey = Util.key.hexToPrivateKey(skStr);
+            const pk: G1Element = sk.get_g1(); // b5b99c967e4c69822f427db1f6871dd119afb95ab9646ba2e707990a3db31777a59b66f69e89c2055699b0ade7357eae
+            const hiddenPuzzleHash = sexpUtil.DEFAULT_HIDDEN_PUZZLE_HASH; // 711d6c4e32c92e53179b199484cf8c897542bc57f2b22582799f9d657eec4699
+            
+            const res: G1Element = sexpUtil.calculateSyntheticPublicKey(pk, hiddenPuzzleHash);
+            expect(
+                Util.key.publicKeyToHex(res)
+            ).to.equal("97d665fea5042789583ca580a5c5bc8da921387811aca72fa9395489ef0d3cc5b18d9a7c86e8bd277049ca4b7bfe0945");
         });
     });
 
-    describe.only("standardCoinPuzzleForPublicKey()", () => {
+    // todo: these still fail
+    describe("standardCoinPuzzleForPublicKey()", () => {
         /*
-            root@cae4577fa6cf:/chia-blockchain# chia keys show
+            root@cae4577fa6cf:/chia-blockchain# chia keys show --show-mnemonic-seed
             [...]
-            Master public key (m): 9133ee8339b6c8d251e7072763761a90bed5b5133be6f64ece61a3a5364a1c343e8e25da827bc07329ece464dace4841
+            First wallet address (non-observer): txch1muve8rlzfg4t79dheurrtqunhkp7vk34sp8yr7zfqrqhzp3drnhs5dt6xt
             [...]
-            First wallet address: txch1s75279xcn0pg6gn5qn955gg588ycz2l4023lqe5nkw9a9jrxt90syzly75
-            [...]
+            First wallet secret key (m/12381/8444/2/0): <PrivateKey 5625f4c8086cdb022e5e2e399f06ebe1da45c095928ea3a91d0fc4bbfd635e16>
+        */
+        it("Works - Real case (non-observer / hardened key)", async () => {
+            await initializeBLS();
+            const sk: PrivateKey = Util.key.hexToPrivateKey("5625f4c8086cdb022e5e2e399f06ebe1da45c095928ea3a91d0fc4bbfd635e16");
+            const puzzle: SExp = sexpUtil.standardCoinPuzzleForPublicKey(
+                sk.get_g1()
+            );
 
+            const puzzleHash: string = sexpUtil.sha256tree(puzzle);
+            expect(puzzleHash).to.equal(
+                Util.address.addressToPuzzleHash("txch1muve8rlzfg4t79dheurrtqunhkp7vk34sp8yr7zfqrqhzp3drnhs5dt6xt")
+            );
+        });
+
+        /*
             root@cae4577fa6cf:/chia-blockchain# chia keys show -d
             [...]
             Master public key (m): 9133ee8339b6c8d251e7072763761a90bed5b5133be6f64ece61a3a5364a1c343e8e25da827bc07329ece464dace4841
             [...]
-            First wallet address (non-observer): txch1muve8rlzfg4t79dheurrtqunhkp7vk34sp8yr7zfqrqhzp3drnhs5dt6xt
+            First wallet address: txch1s75279xcn0pg6gn5qn955gg588ycz2l4023lqe5nkw9a9jrxt90syzly75
         */
+        it("Works - Real case (observer / unhardened key)", async () => {
+            await initializeBLS();
+
+            const masterPublicKey: G1Element = Util.key.hexToPublicKey("9133ee8339b6c8d251e7072763761a90bed5b5133be6f64ece61a3a5364a1c343e8e25da827bc07329ece464dace4841");
+            const walletPublicKey: G1Element = Util.key.masterPkToWalletPk(masterPublicKey, 0);
+
+            console.log({pk: Util.key.publicKeyToHex(masterPublicKey)})
+        });
     });
 });

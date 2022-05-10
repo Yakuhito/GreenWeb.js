@@ -8,6 +8,10 @@ import { bytes } from "../../xch/providers/provider_types";
 export class SyntheticKeyUtil {
     public static readonly GROUP_ORDER = BigNumber.from("0x73EDA753299D7D483339D80809A1D80553BDA402FFFE5BFEFFFFFFFF00000001");
 
+    private static intToBytes(b: bytes): BigNumber {
+        return BigNumber.from("0x" + b).fromTwos(256);
+    }
+
     private static calculateSyntheticOffset(publicKey: any, hiddenPuzzleHash: bytes): BigNumber {
         const toHash = Util.key.publicKeyToHex(publicKey) + hiddenPuzzleHash;
         const hash = CryptoJS.enc.Hex.stringify(
@@ -16,7 +20,7 @@ export class SyntheticKeyUtil {
             )
         );
 
-        const blob = BigNumber.from("0x" + hash);
+        const blob = this.intToBytes(hash);
         return blob.mod(this.GROUP_ORDER);
     }
 
@@ -25,12 +29,12 @@ export class SyntheticKeyUtil {
         const pubKey = secretKey.get_g1();
         const syntheticOffset: BigNumber = this.calculateSyntheticOffset(pubKey, hiddenPuzzleHash);
         const syntheticSecretExponent: BigNumber = privKeyNum.add(syntheticOffset).mod(this.GROUP_ORDER);
-        
+
         let blob: string = syntheticSecretExponent.toHexString();
         if(blob.length < 64) {
             blob = "0".repeat(64 - blob.length) + blob;
         }
-        
+
         return Util.key.hexToPrivateKey(blob);
     }
 }

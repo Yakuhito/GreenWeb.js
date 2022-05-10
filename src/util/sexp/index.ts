@@ -254,7 +254,8 @@ export class SExpUtil {
         );
 
         return G1Element.from_bytes(
-            r.atom?.data() ?? new Uint8Array()
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            r.atom!.data()
         );
     }
 
@@ -265,9 +266,7 @@ export class SExpUtil {
         return this.curry(
             this.fromHex(this.P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM),
             [
-                SExp.to([
-                    Bytes.from(Util.key.publicKeyToHex(syntheticPublicKey), "hex"),
-                ]),
+                SExp.to(Bytes.from(Util.key.publicKeyToHex(syntheticPublicKey), "hex")),
             ]
         );
     }

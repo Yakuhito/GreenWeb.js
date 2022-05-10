@@ -199,16 +199,13 @@ describe("SExpUtil", () => {
         });
 
         it("Works correctly for a program", () => {
-            /*
-            # Hashes itself!
-            (venv) yakuhito@catstation:~/projects/clvm_tools$ brun -x ff02ffff01ff02ff02ffff04ff02ffff04ff05ff80808080ffff04ffff01ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff02ffff04ff02ffff04ff09ff80808080ffff02ff02ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080 ff02ffff01ff02ff02ffff04ff02ffff04ff05ff80808080ffff04ffff01ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff02ffff04ff02ffff04ff09ff80808080ffff02ff02ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080
-            0xa12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222
-            (venv) yakuhito@catstation:~/projects/clvm_tools$
-            */
+            // hashes itself!
+            // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/puzzles/sha256tree_module.clvm.hex.sha256tree
+
             const toHash = sexpUtil.fromHex(sexpUtil.SHA256TREE_MODULE_PROGRAM);
             const res = sexpUtil.sha256tree(toHash);
 
-            expect(res).to.equal("a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222");
+            expect(res).to.equal("eb4ead6576048c9d730b5ced00646c7fdd390649cfdf48a00de1590cdd8ee18f");
         });
     });
 
@@ -663,20 +660,45 @@ describe("SExpUtil", () => {
         0x97d665fea5042789583ca580a5c5bc8da921387811aca72fa9395489ef0d3cc5b18d9a7c86e8bd277049ca4b7bfe0945
         (venv) yakuhito@catstation:~/projects/clvm_tools$
         */
-        it("Works", () => {
+        it("Works for the default hidden puzzle hash", async () => {
+            await initializeBLS();
             const skStr: string = "42".repeat(32);
             const sk: PrivateKey = Util.key.hexToPrivateKey(skStr);
             const pk: G1Element = sk.get_g1(); // b5b99c967e4c69822f427db1f6871dd119afb95ab9646ba2e707990a3db31777a59b66f69e89c2055699b0ade7357eae
-            const hiddenPuzzleHash = sexpUtil.DEFAULT_HIDDEN_PUZZLE_HASH; // 711d6c4e32c92e53179b199484cf8c897542bc57f2b22582799f9d657eec4699
             
-            const res: G1Element = sexpUtil.calculateSyntheticPublicKey(pk, hiddenPuzzleHash);
+            const res: G1Element = sexpUtil.calculateSyntheticPublicKey(pk);
             expect(
                 Util.key.publicKeyToHex(res)
             ).to.equal("97d665fea5042789583ca580a5c5bc8da921387811aca72fa9395489ef0d3cc5b18d9a7c86e8bd277049ca4b7bfe0945");
         });
+
+        /*
+        (venv) yakuhito@catstation:~/projects/clvm_tools$ cat calculate_synthetic_public_key.clvm 
+        (mod
+          (public_key hidden_puzzle_hash)
+
+          (point_add public_key (pubkey_for_exp (sha256 public_key hidden_puzzle_hash)))
+        )
+        (venv) yakuhito@catstation:~/projects/clvm_tools$ run calculate_synthetic_public_key.clvm 
+        (point_add 2 (pubkey_for_exp (sha256 2 5)))
+        (venv) yakuhito@catstation:~/projects/clvm_tools$ brun '(point_add 2 (pubkey_for_exp (sha256 2 5)))' '(0xb5b99c967e4c69822f427db1f6871dd119afb95ab9646ba2e707990a3db31777a59b66f69e89c2055699b0ade7357eae 0x4242424242424242424242424242424242424242424242424242424242424242)'
+        0x8b96059ce6285a203bfbc840eb5cce52925f8d361e2b2c0294084d61f1c23970185d8c91b7d82178777ffb8d4bcd6e2a
+        (venv) yakuhito@catstation:~/projects/clvm_tools$
+        */
+        it("Works for a custom hidden puzzle hash", async () => {
+            await initializeBLS();
+            const skStr: string = "42".repeat(32);
+            const sk: PrivateKey = Util.key.hexToPrivateKey(skStr);
+            const pk: G1Element = sk.get_g1(); // b5b99c967e4c69822f427db1f6871dd119afb95ab9646ba2e707990a3db31777a59b66f69e89c2055699b0ade7357eae
+            const hiddenPuzzleHash = "4242424242424242424242424242424242424242424242424242424242424242";
+            
+            const res: G1Element = sexpUtil.calculateSyntheticPublicKey(pk, hiddenPuzzleHash);
+            expect(
+                Util.key.publicKeyToHex(res)
+            ).to.equal("8b96059ce6285a203bfbc840eb5cce52925f8d361e2b2c0294084d61f1c23970185d8c91b7d82178777ffb8d4bcd6e2a");
+        });
     });
 
-    // todo: these still fail
     describe("standardCoinPuzzleForPublicKey()", () => {
         /*
             root@cae4577fa6cf:/chia-blockchain# chia keys show --show-mnemonic-seed
@@ -711,7 +733,12 @@ describe("SExpUtil", () => {
             const masterPublicKey: G1Element = Util.key.hexToPublicKey("9133ee8339b6c8d251e7072763761a90bed5b5133be6f64ece61a3a5364a1c343e8e25da827bc07329ece464dace4841");
             const walletPublicKey: G1Element = Util.key.masterPkToWalletPk(masterPublicKey, 0);
 
-            console.log({pk: Util.key.publicKeyToHex(masterPublicKey)})
+            const puzzle: SExp = sexpUtil.standardCoinPuzzleForPublicKey(walletPublicKey);
+            
+            const puzzleHash: string = sexpUtil.sha256tree(puzzle);
+            expect(puzzleHash).to.equal(
+                Util.address.addressToPuzzleHash("txch1s75279xcn0pg6gn5qn955gg588ycz2l4023lqe5nkw9a9jrxt90syzly75")
+            );
         });
     });
 });

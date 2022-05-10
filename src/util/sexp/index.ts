@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 import { Bytes, CLVMType, getBLSModule, OPERATOR_LOOKUP, run_program, SExp, sexp_from_stream, Stream } from "clvm";
-import { Util } from "..";
 import { bytes } from "../../xch/providers/provider_types";
 import { ConditionOpcode } from "./condition_opcodes";
 import { ConditionWithArgs } from "./condition_with_args";
@@ -258,14 +257,16 @@ export class SExpUtil {
     public readonly DEFAULT_HIDDEN_PUZZLE_HASH = "711d6c4e32c92e53179b199484cf8c897542bc57f2b22582799f9d657eec4699";
     // https://github.com/Chia-Network/chia-blockchain/blob/5f4e39480e2312dc93a7b3609bcea576a9a758f9/chia/wallet/puzzles/calculate_synthetic_public_key.clvm.hex
     public readonly CALCULATE_SYNTHETIC_PUBLIC_KEY_PROGRAM = "ff1dff02ffff1effff0bff02ff05808080";
-    public calculateSyntheticPublicKey(publicKey: any, hiddenPuzzleHash: bytes): any {
+
+    // https://github.com/Chia-Network/chia-blockchain/blob/5f4e39480e2312dc93a7b3609bcea576a9a758f9/chia/wallet/puzzles/p2_delegated_puzzle_or_hidden_puzzle.py
+    public calculateSyntheticPublicKey(publicKey: any, hiddenPuzzleHash = this.DEFAULT_HIDDEN_PUZZLE_HASH): any {
         const { G1Element } = getBLSModule();
 
         const r = this.run(
             this.fromHex(this.CALCULATE_SYNTHETIC_PUBLIC_KEY_PROGRAM),
             SExp.to([
-                Util.key.publicKeyToHex(publicKey),
-                hiddenPuzzleHash
+                Bytes.from(publicKey),
+                Bytes.from(hiddenPuzzleHash, "hex")
             ]),
         );
 
@@ -274,13 +275,16 @@ export class SExpUtil {
         );
     }
 
+    // https://github.com/Chia-Network/chia-blockchain/blob/5f4e39480e2312dc93a7b3609bcea576a9a758f9/chia/wallet/puzzles/p2_delegated_puzzle_or_hidden_puzzle.py
     public standardCoinPuzzleForPublicKey(publicKey: any): any {
         const syntheticPublicKey = this.calculateSyntheticPublicKey(publicKey, this.DEFAULT_HIDDEN_PUZZLE_HASH);
 
         return this.curry(
             this.fromHex(this.P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM),
             [
-                SExp.to([syntheticPublicKey]),
+                SExp.to([
+                    Bytes.from(syntheticPublicKey, "hex"),
+                ]),
             ]
         );
     }

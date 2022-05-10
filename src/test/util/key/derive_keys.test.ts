@@ -287,4 +287,23 @@ describe("DeriveKeysUtils", () => {
             "assert pool_wallet_index < 10000"
         ));
     });
+
+    describe.only("Real case", () => {
+        /*
+        root@cae4577fa6cf:/chia-blockchain# chia keys show --show-mnemonic-seed
+        [...]
+        Master private key (m): 3a7a6077fa27676f5d1d965f357f653f344abe58ee6dc45668191ad27c565b93
+        First wallet secret key (m/12381/8444/2/0): <PrivateKey 5625f4c8086cdb022e5e2e399f06ebe1da45c095928ea3a91d0fc4bbfd635e16>
+        [...]
+        */
+
+        it("master_sk_to_wallet_sk()", () => {
+            const pk = Util.key.hexToPrivateKey("3a7a6077fa27676f5d1d965f357f653f344abe58ee6dc45668191ad27c565b93");
+            const walletSk = DeriveKeysUtils.masterSkToWalletSk(pk, 0);
+
+            expect(
+                Util.key.privateKeyToHex(walletSk)
+            ).to.equal("5625f4c8086cdb022e5e2e399f06ebe1da45c095928ea3a91d0fc4bbfd635e16");
+        });
+    });
 });

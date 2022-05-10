@@ -9,7 +9,7 @@ import { ConditionWithArgs } from "../../../util/sexp/condition_with_args";
 
 const sexpUtil = new SExpUtil();
 
-describe("SExpUtil", () => {
+describe.only("SExpUtil", () => {
     describe("fromHex()", () => {
         it("Correctly converts a hex string to a SExp object", () => {
             const plus = h(KEYWORD_TO_ATOM["+"]);
@@ -641,5 +641,29 @@ describe("SExpUtil", () => {
 
             expect(hash).to.equal(sexpUtil.DEFAULT_HIDDEN_PUZZLE_HASH);
         });
+    });
+
+    describe.only("calculateSyntheticPublicKey()", () => {
+        it("Works", () => {
+            /*
+            */
+        });
+    });
+
+    describe.only("standardCoinPuzzleForPublicKey()", () => {
+        /*
+            root@cae4577fa6cf:/chia-blockchain# chia keys show
+            [...]
+            Master public key (m): 9133ee8339b6c8d251e7072763761a90bed5b5133be6f64ece61a3a5364a1c343e8e25da827bc07329ece464dace4841
+            [...]
+            First wallet address: txch1s75279xcn0pg6gn5qn955gg588ycz2l4023lqe5nkw9a9jrxt90syzly75
+            [...]
+
+            root@cae4577fa6cf:/chia-blockchain# chia keys show -d
+            [...]
+            Master public key (m): 9133ee8339b6c8d251e7072763761a90bed5b5133be6f64ece61a3a5364a1c343e8e25da827bc07329ece464dace4841
+            [...]
+            First wallet address (non-observer): txch1muve8rlzfg4t79dheurrtqunhkp7vk34sp8yr7zfqrqhzp3drnhs5dt6xt
+        */
     });
 });

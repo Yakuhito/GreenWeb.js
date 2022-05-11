@@ -30,7 +30,7 @@ export class SyntheticKeyUtil {
         const syntheticOffset: BigNumber = this.calculateSyntheticOffset(pubKey, hiddenPuzzleHash);
         const syntheticSecretExponent: BigNumber = privKeyNum.add(syntheticOffset).mod(this.GROUP_ORDER);
 
-        let blob: string = syntheticSecretExponent.toHexString();
+        let blob: string = syntheticSecretExponent.toHexString().slice(2);
         if(blob.length < 64) {
             blob = "0".repeat(64 - blob.length) + blob;
         }

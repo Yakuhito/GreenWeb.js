@@ -94,6 +94,4 @@ export class KeyUtil {
 
         return DeriveKeysUtils.masterPkToWalletPkUnhardened(pk, index);
     }
-
-    //todo: pk to mnemonic and mnemonic to pk
 }

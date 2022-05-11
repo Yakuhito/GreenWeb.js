@@ -14,21 +14,48 @@ export class MnemonicUtils {
         );
     }
 
+    // https://stackoverflow.com/questions/45053624/convert-hex-to-binary-in-javascript
+    private static hex2bin(hex: bytes): string {
+        hex = hex.replace("0x", "").toLowerCase();
+        let out = "";
+        for(const c of hex) {
+            let b = parseInt(c, 16).toString(2);
+            if(b.length < 4) {
+                b = "0".repeat(4 - b.length) + b;
+            }
+            out += b;
+        }
+
+        return out;
+    }
+
+    private static bin2hex(bin: string): bytes {
+        let out = "";
+        let x = "";
+        for(const c of bin) {
+            x += c;
+            if(x.length === 4) {
+                out += parseInt(x, 2).toString(16);
+                x = "";
+            }
+        }
+
+        return out;
+    }
+
     // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/util/keychain.py#L147
     public static bytesToMnemonic(mnemonicBytes: bytes): string {
         if(![16, 20, 24, 28, 32].includes(mnemonicBytes.length / 2)) {
             throw new Error(`Data length should be one of the following: [16, 20, 24, 28, 32], but it is ${mnemonicBytes.length / 2}.`);
         }
 
-        // word_list = BIP39_WORD_LIST
-        const CS = Math.floor(mnemonicBytes.length / 4);
-        const checksum = this.stdHash(mnemonicBytes).slice(0, CS * 2);
-        const bitarray = Buffer.from(mnemonicBytes + checksum, "hex").toString("binary");
-        console.log({bitarray}) //a
-        console.log({assertion: bitarray.length % 11, shouldEqual: 0}) //b
+        const CS = Math.floor(mnemonicBytes.length / 8);
+        const checksum = this.hex2bin(this.stdHash(mnemonicBytes)).slice(0, CS);
+        const bitarray = this.hex2bin(mnemonicBytes) + checksum;
 
         const mnemonics = [];
-        for(let i = 0; i < Math.floor(bitarray.length / 11); i += 11) {
+        const lim = Math.floor(bitarray.length / 11);
+        for(let i = 0; i < lim; ++i) {
             const start = i * 11;
             const end = start + 11;
             const bits = bitarray.slice(start, end);
@@ -54,22 +81,25 @@ export class MnemonicUtils {
         let bitArray: bytes =  "";
         for(let i = 0; i < mnemonic.length; ++i) {
             const word = mnemonic[i];
-            if(!wordList.has(word)) {
+            const value = wordList.get(word);
+
+            let toAdd = value?.toString(2);
+            if(toAdd === undefined) {
                 throw new Error(`'${word}' is not in the mnemonic dictionary; may be misspelled`);
             }
-            const value = wordList.get(word);
-            bitArray += value?.toString(2);
+            if(toAdd.length < 11) {
+                toAdd = "0".repeat(11 - toAdd.length) + toAdd;
+            }
+            bitArray += toAdd;
         }
 
         const CS = Math.floor(mnemonic.length / 3);
         const ENT = mnemonic.length * 11 - CS;
-        console.log({assert: bitArray.length, equalTo: mnemonic.length *11}); //a
-        console.log({assert: ENT % 32, equalTo: 0}); //b
+        
+        const entropyBytes = this.bin2hex(bitArray.slice(0, ENT));
+        const checksumBytes = bitArray.slice(ENT);
 
-        const entropyBytes = Buffer.from(bitArray.slice(0, ENT), "binary").toString("hex");
-        const checksumBytes = Buffer.from(bitArray.slice(ENT), "binary").toString("hex");
-
-        const checksum = this.stdHash(entropyBytes).slice(0, CS * 2);
+        const checksum = this.hex2bin(this.stdHash(entropyBytes)).slice(0, CS);
 
         if(checksum !== checksumBytes) {
             throw new Error("Invalid order of mnemonic words");
@@ -86,21 +116,21 @@ export class MnemonicUtils {
         const mnemonicNormalized = mnemonic.normalize("NFKD");
 
         const res =  CryptoJS.enc.Hex.stringify(
-            CryptoJS.PBKDF2(salt, mnemonicNormalized, {
+            CryptoJS.PBKDF2(mnemonicNormalized, salt, {
                 iterations: 2048,
-                hasher: CryptoJS.algo.SHA512
+                hasher: CryptoJS.algo.SHA512,
+                keySize: 16
             })
         );
         
-        console.log({assert: res.length, equalTo: 64}) //c
         return res;
     }
 
     // https://github.com/Chia-Network/chia-blockchain/blob/a4ec7e7cb8d8ecfa2a50c038e5dd94ef3e620c6c/chia/cmds/keys_funcs.py#L644
-    public static privateKeyFromMnemonic(mnemonic: string): any {
+    public static privateKeyFromMnemonic(mnemonic: string, passphrase?: string): any {
         const { AugSchemeMPL } = getBLSModule();
 
-        const seed = this.mnemonicToSeed(mnemonic, "");
+        const seed = this.mnemonicToSeed(mnemonic, passphrase ?? "");
         return AugSchemeMPL.key_gen(
             Buffer.from(seed, "hex")
         );

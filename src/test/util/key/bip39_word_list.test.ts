@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { BIP39_WORD_LIST } from "../../../util/key/bip39_word_list";
 import CryptoJS from "crypto-js";
 
-describe.only("BIP39 Word List", () => {
+describe("BIP39 Word List", () => {
     it("Hashes to the correct checksum", () => {
         // curl -s https://raw.githubusercontent.com/Chia-Network/chia-blockchain/main/chia/util/english.txt | sha256sum
         expect(

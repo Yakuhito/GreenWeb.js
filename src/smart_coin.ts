@@ -76,7 +76,7 @@ export class SmartCoin {
         this.calculatePuzzleHash();
     }
 
-    private hasCoinInfo(): boolean {
+    protected hasCoinInfo(): boolean {
         return this.parentCoinInfo !== null &&
             this.puzzleHash !== null &&
             this.amount !== null;

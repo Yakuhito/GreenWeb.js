@@ -27,7 +27,7 @@ const MNEMONICS = [
     "drastic bamboo mountain loyal category cancel animal embark drastic bamboo mountain loyal category cancel animal embark drastic bamboo mountain loyal category cancel animal embark",
 ];
 
-describe.only("MnemonicUtils", () => {
+describe("MnemonicUtils", () => {
     beforeEach(initialize);
 
     const _expectToThrow = async (func: any, err: string) => {

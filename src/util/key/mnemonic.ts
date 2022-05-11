@@ -37,4 +37,41 @@ export class MnemonicUtils {
 
         return mnemonics.join(" ");
     }
+
+    public static bytesFromMnemonic(mnemonicStr: string): bytes {
+        const mnemonic: string[] = mnemonicStr.split(" ");
+        if(![12, 15, 18, 21, 24].includes(mnemonic.length)) {
+            throw new Error("Invalid mnemonic length");
+        }
+
+        const wordList: Map<string, number> = new Map<string, number>();
+        for(let i = 0; i < BIP39_WORD_LIST.length; ++i) {
+            wordList.set(BIP39_WORD_LIST[i], i);
+        }
+        let bitArray: bytes =  "";
+        for(let i = 0; i < mnemonic.length; ++i) {
+            const word = mnemonic[i];
+            if(!wordList.has(word)) {
+                throw new Error(`'${word}' is not in the mnemonic dictionary; may be misspelled`);
+            }
+            const value = wordList.get(word);
+            bitArray += value?.toString(2);
+        }
+
+        const CS = Math.floor(mnemonic.length / 3);
+        const ENT = mnemonic.length * 11 - CS;
+        console.log({assert: bitArray.length, equalTo: mnemonic.length *11}); //a
+        console.log({assert: ENT % 32, equalTo: 0}); //b
+
+        const entropyBytes = Buffer.from(bitArray.slice(0, ENT), "binary").toString("hex");
+        const checksumBytes = Buffer.from(bitArray.slice(ENT), "binary").toString("hex");
+
+        const checksum = this.stdHash(entropyBytes).slice(0, CS * 2);
+
+        if(checksum !== checksumBytes) {
+            throw new Error("Invalid order of mnemonic words");
+        }
+
+        return entropyBytes;
+    }
 }

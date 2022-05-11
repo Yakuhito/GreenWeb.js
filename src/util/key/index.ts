@@ -2,9 +2,11 @@ import { getBLSModule } from "clvm";
 import { util } from "../..";
 import { bytes } from "../../xch/providers/provider_types";
 import { DeriveKeysUtils } from "./derive_keys";
+import { MnemonicUtils } from "./mnemonic";
 
 export class KeyUtil {
     public impl = DeriveKeysUtils;
+    public mnemonic = MnemonicUtils;
 
     public hexToPrivateKey(hex: bytes): any {
         const { PrivateKey } = getBLSModule();

@@ -2046,4 +2046,4 @@ youth
 zebra
 zero
 zone
-zoo`;
+zoo`.split("\n");

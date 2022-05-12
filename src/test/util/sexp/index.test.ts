@@ -202,7 +202,7 @@ describe("SExpUtil", () => {
             // hashes itself!
             // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/puzzles/sha256tree_module.clvm.hex.sha256tree
 
-            const toHash = sexpUtil.fromHex(sexpUtil.SHA256TREE_MODULE_PROGRAM);
+            const toHash = sexpUtil.SHA256TREE_MODULE_PROGRAM;
             const res = sexpUtil.sha256tree(toHash);
 
             expect(res).to.equal("eb4ead6576048c9d730b5ced00646c7fdd390649cfdf48a00de1590cdd8ee18f");
@@ -603,11 +603,11 @@ describe("SExpUtil", () => {
     });
 
     describe("Puzzles", () => {
-        const sha256Correct = (programName: string, program: string, expectedHash: string) => {
+        const sha256Correct = (programName: string, program: SExp, expectedHash: string) => {
             const testName = `The sha256 tree of ${programName} is correct.`;
 
             it(testName, () => {
-                const hash = sexpUtil.sha256tree(sexpUtil.fromHex(program));
+                const hash = sexpUtil.sha256tree(program);
 
                 expect(hash).to.equal(expectedHash);
             });
@@ -640,7 +640,7 @@ describe("SExpUtil", () => {
 
     describe("DEFAULT_HIDDEN_PUZZLE_HASH", () => {
         it("Is equal to the sha256tree hash of DEFAULT_HIDDEN_PUZZLE_PROGRAM", () => {
-            const hash = sexpUtil.sha256tree(sexpUtil.fromHex(sexpUtil.DEFAULT_HIDDEN_PUZZLE_PROGRAM));
+            const hash = sexpUtil.sha256tree(sexpUtil.DEFAULT_HIDDEN_PUZZLE_PROGRAM);
 
             expect(hash).to.equal(sexpUtil.DEFAULT_HIDDEN_PUZZLE_HASH);
         });

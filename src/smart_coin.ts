@@ -39,8 +39,9 @@ export class SmartCoin {
 
         if(puzzle !== null && puzzle !== undefined) {
             this.puzzle = puzzle;
-            this.calculatePuzzleHash();
         }
+
+        this.calculatePuzzleHash();
     }
 
     private calculatePuzzleHash(): void {
@@ -53,13 +54,19 @@ export class SmartCoin {
         parentCoinInfo = null,
         puzzleHash = null,
         amount = null,
+        coin = null,
         puzzle = null,
-    }: SmartCoinConstructorArgs = {}): SmartCoin {
+    }: SmartCoinConstructorArgs): SmartCoin {
+        const puzzleSupplied = puzzle !== undefined && puzzle !== null;
+        const puzzleHashSupplied = puzzleHash !== undefined && puzzleHash !== null;
+        const givePuzzle = puzzleSupplied || (puzzleHashSupplied && this.puzzleHash !== puzzleHash);
+
         return new SmartCoin({
             parentCoinInfo: parentCoinInfo !== undefined && parentCoinInfo !== null ? parentCoinInfo : this.parentCoinInfo,
-            puzzleHash: puzzleHash !== undefined && puzzleHash !== null ? puzzleHash : this.puzzleHash,
+            puzzleHash: puzzleHashSupplied ? puzzleHash : this.puzzleHash,
             amount: amount !== undefined && amount !== null ? amount : this.amount,
-            puzzle: puzzle !== undefined && puzzle !== null ? puzzle : this.puzzle,
+            puzzle: givePuzzle ? puzzle : this.puzzle,
+            coin: coin !== undefined && coin !== null ? coin : null,
         });
     }
 

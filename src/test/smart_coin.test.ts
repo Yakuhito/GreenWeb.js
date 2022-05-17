@@ -13,7 +13,8 @@ describe.only("SmartCoin", () => {
     (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(c 2 ())'
     ff04ff02ff8080
     */
-    const TEST_COIN_PUZZLE = Util.sexp.fromHex("ff04ff02ff8080");
+    const TEST_COIN_PUZZLE_STR = "ff04ff02ff8080";
+    const TEST_COIN_PUZZLE = Util.sexp.fromHex(TEST_COIN_PUZZLE_STR);
     const TEST_COIN_SOLUTION = Util.sexp.fromHex("80"); // ()
 
     const TEST_COIN = new Coin();
@@ -21,12 +22,13 @@ describe.only("SmartCoin", () => {
     TEST_COIN.parentCoinInfo = "01".repeat(32);
     TEST_COIN.puzzleHash = Util.sexp.sha256tree(TEST_COIN_PUZZLE);
 
-    describe.only("constructor", () => {
+    describe("constructor", () => {
         it("Works", () => {
             const sc = new SmartCoin({
                 amount: TEST_COIN.amount,
                 parentCoinInfo: TEST_COIN.parentCoinInfo,
-                puzzleHash: TEST_COIN.puzzleHash
+                puzzleHash: TEST_COIN.puzzleHash,
+                puzzle: TEST_COIN_PUZZLE
             });
 
             expect(
@@ -34,6 +36,9 @@ describe.only("SmartCoin", () => {
             ).to.be.true;
             expect(sc.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
             expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
+            expect(
+                Util.sexp.toHex(sc.puzzle)
+            ).to.equal(TEST_COIN_PUZZLE_STR);
         });
 
         it("Correctly sets values if given no arguments", () => {
@@ -94,74 +99,159 @@ describe.only("SmartCoin", () => {
         });
     });
 
-    describe("setParentCoinInfo()", () => {
-        // it("Correctly sets parentCoinInfo", () => {
-        //     const sc = new SmartCoin({coin: TEST_COIN});
-        //     const TEST_VAL = "42".repeat(32);
+    describe("copyWith()", () => {
+        it("Works", () => {
+            const sc = new SmartCoin().copyWith({
+                amount: TEST_COIN.amount,
+                puzzleHash: TEST_COIN.puzzleHash,
+                parentCoinInfo: TEST_COIN.parentCoinInfo,
+                puzzle: TEST_COIN_PUZZLE
+            });
 
-        //     expect(TEST_VAL).to.not.equal(TEST_COIN.parentCoinInfo);
-        //     expect(sc.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
-        //     sc.setParentCoinInfo(TEST_VAL);
-        //     expect(sc.parentCoinInfo).to.equal(TEST_VAL);
-        // });
+            expect(
+                sc.amount?.eq(TEST_COIN.amount)
+            ).to.be.true;
+            expect(sc.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
+            expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
+            expect(
+                Util.sexp.toHex(sc.puzzle)
+            ).to.equal(TEST_COIN_PUZZLE_STR);
+        });
+
+        it("Correctly sets values if given no arguments", () => {
+            const sc = new SmartCoin().copyWith({});
+
+            expect(sc.parentCoinInfo).to.be.null;
+            expect(sc.puzzleHash).to.be.null;
+            expect(sc.amount).to.be.null;
+            expect(sc.puzzle).to.be.null;
+        });
+
+        it("Correctly sets values if all arguments are 'undefined'", () => {
+            const sc = new SmartCoin().copyWith({
+                parentCoinInfo: undefined,
+                puzzleHash: undefined,
+                amount: undefined,
+                puzzle: undefined
+            });
+
+            expect(sc.parentCoinInfo).to.be.null;
+            expect(sc.puzzleHash).to.be.null;
+            expect(sc.amount).to.be.null;
+            expect(sc.puzzle).to.be.null;
+        });
+
+        it("Prefers coin to parentCoinInfo / puzzleHash / amount", () => {
+            const sc = new SmartCoin().copyWith({
+                coin: TEST_COIN,
+                amount: 31337,
+                parentCoinInfo: "02".repeat(32),
+                puzzleHash: "00".repeat(32),
+            });
+
+            expect(sc.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
+            expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
+            expect(
+                sc.amount?.eq(TEST_COIN.amount)
+            ).to.be.true;
+        });
     });
 
-    // describe("setPuzzleHash()", () => {
-    //     it("Correctly sets puzzleHash if puzzle is not set", () => {
-    //         const sc = new SmartCoin({coin: TEST_COIN});
-    //         const TEST_VAL = "42".repeat(32);
+    describe("withParentCoinInfo()", () => {
+        it("Correctly creates a new SmartCoin with modified parentCoinInfo", () => {
+            const sc = new SmartCoin({coin: TEST_COIN});
+            const TEST_VAL = "42".repeat(32);
 
-    //         expect(TEST_VAL).to.not.equal(TEST_COIN.puzzleHash);
-    //         expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
-    //         sc.setPuzzleHash(TEST_VAL);
-    //         expect(sc.puzzleHash).to.equal(TEST_VAL);
-    //     });
+            expect(TEST_VAL).to.not.equal(TEST_COIN.parentCoinInfo);
+            const sc2 = sc.withParentCoinInfo(TEST_VAL);
+            expect(sc2.parentCoinInfo).to.equal(TEST_VAL);
+        });
 
-    //     it("Doesn't overwrite puzzleHash if puzzle is set", () => {
-    //         const sc = new SmartCoin({
-    //             coin: TEST_COIN,
-    //             puzzle: TEST_COIN_PUZZLE
-    //         });
-    //         const TEST_VAL = "42".repeat(32);
+        it("Does not modify the initial SmartCoin", () => {
+            const sc = new SmartCoin({coin: TEST_COIN});
+            const TEST_VAL = "42".repeat(32);
 
-    //         expect(TEST_VAL).to.not.equal(TEST_COIN.puzzleHash);
-    //         expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
-    //         sc.setPuzzleHash(TEST_VAL);
-    //         expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
-    //     });
-    // });
+            expect(TEST_VAL).to.not.equal(TEST_COIN.parentCoinInfo);
+            sc.withParentCoinInfo(TEST_VAL);
+            expect(sc.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
+        });
+    });
 
-    // describe("setAmount()", () => {
-    //     it("Correctly sets amount", () => {
-    //         const sc = new SmartCoin({coin: TEST_COIN});
-    //         const TEST_VAL = BigNumber.from(TEST_COIN.amount).add(7);
+    describe("withPuzzleHash()", () => {
+        it("Correctly creates a new SmartCoin with modified puzzleHash and no puzzle", () => {
+            const sc = new SmartCoin({
+                coin: TEST_COIN,
+                puzzle: TEST_COIN_PUZZLE
+            });
+            const TEST_VAL = "42".repeat(32);
 
-    //         expect(
-    //             TEST_VAL.eq(TEST_COIN.amount)
-    //         ).to.be.false;
-    //         expect(sc.amount?.toString()).to.equal(TEST_COIN.amount.toString());
-    //         sc.setAmount(TEST_VAL);
-    //         expect(sc.amount?.toString()).to.equal(TEST_VAL.toString());
-    //     });
-    // });
+            expect(TEST_VAL).to.not.equal(TEST_COIN.puzzleHash);
+            const sc2 = sc.withPuzzleHash(TEST_VAL);
+            expect(sc2.puzzleHash).to.equal(TEST_VAL);
+            expect(sc2.puzzle).to.be.null;
+        });
 
-    // describe("setPuzzle()", () => {
-    //     it("Correctly sets puzzle and updates puzzleHash", () => {
-    //         const c = new Coin();
-    //         c.amount = TEST_COIN.amount;
-    //         c.parentCoinInfo = TEST_COIN.parentCoinInfo;
-    //         c.puzzleHash = "00".repeat(32);
+        it("Does not modify the initial SmartCoin", () => {
+            const sc = new SmartCoin({
+                coin: TEST_COIN,
+                puzzle: TEST_COIN_PUZZLE
+            });
+            const TEST_VAL = "42".repeat(32);
 
-    //         const sc = new SmartCoin({coin: c});
+            expect(TEST_VAL).to.not.equal(TEST_COIN.puzzleHash);
+            sc.withPuzzleHash(TEST_VAL);
+            expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
+            expect(
+                Util.sexp.toHex(sc.puzzle)
+            ).to.equal(TEST_COIN_PUZZLE_STR);
+        });
+    });
 
-    //         expect(sc.puzzleHash).to.equal("00".repeat(32));
-    //         expect(sc.puzzle).to.be.null;
-            
-    //         sc.setPuzzle(TEST_COIN_PUZZLE);
-    //         expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
-    //         expect(Util.sexp.toHex(sc.puzzle)).to.equal(Util.sexp.toHex(TEST_COIN_PUZZLE));
-    //     });
-    // });
+    describe("withAmount()", () => {
+        it("Correctly creates a new SmartCoin with modified amount", () => {
+            const sc = new SmartCoin({coin: TEST_COIN});
+            const TEST_VAL = BigNumber.from(1338);
+
+            expect(TEST_VAL.eq(TEST_COIN.amount)).to.be.false;
+            const sc2 = sc.withAmount(TEST_VAL);
+            expect(sc2.amount?.eq(TEST_VAL)).to.be.true;
+        });
+
+        it("Does not modify the initial SmartCoin", () => {
+            const sc = new SmartCoin({coin: TEST_COIN});
+            const TEST_VAL = BigNumber.from(1338);
+
+            expect(TEST_VAL.eq(TEST_COIN.amount)).to.be.false;
+            sc.withAmount(TEST_VAL);
+            expect(sc.amount?.eq(TEST_VAL)).to.be.false;
+        });
+    });
+
+    describe("withPuzzle()", () => {
+        it("Correctly creates a new SmartCoin with modified puzzle and puzzleHash", () => {
+            const sc = new SmartCoin({
+                puzzleHash: "00".repeat(32)
+            });
+
+            expect(sc.puzzleHash).to.not.equal(TEST_COIN.puzzleHash);
+            const sc2 = sc.withPuzzle(TEST_COIN_PUZZLE);
+            expect(sc2.puzzleHash).to.equal(TEST_COIN.puzzleHash);
+            expect(
+                Util.sexp.toHex(sc2.puzzle)
+            ).to.equal(TEST_COIN_PUZZLE_STR);
+        });
+
+        it("Does not modify the initial SmartCoin", () => {
+            const sc = new SmartCoin({
+                puzzleHash: "00".repeat(32)
+            });
+
+            expect(sc.puzzleHash).to.not.equal(TEST_COIN.puzzleHash);
+            sc.withPuzzle(TEST_COIN_PUZZLE);
+            expect(sc.puzzleHash).to.not.equal(TEST_COIN.puzzleHash);
+            expect(sc.puzzle).to.be.null;
+        });
+    });
 
     describe("toCoin()", () => {
         it("Returns null if SmartCoin doesn't have coin info", () => {

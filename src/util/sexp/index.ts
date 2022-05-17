@@ -260,8 +260,9 @@ export class SExpUtil {
     }
 
     // https://github.com/Chia-Network/chia-blockchain/blob/5f4e39480e2312dc93a7b3609bcea576a9a758f9/chia/wallet/puzzles/p2_delegated_puzzle_or_hidden_puzzle.py
-    public standardCoinPuzzleForPublicKey(publicKey: any): SExp {
-        const syntheticPublicKey = this.calculateSyntheticPublicKey(publicKey, this.DEFAULT_HIDDEN_PUZZLE_HASH);
+    public standardCoinPuzzle(key: any, isSyntheticKey: boolean = false): SExp {
+        const syntheticPublicKey = isSyntheticKey ?
+            key : this.calculateSyntheticPublicKey(key, this.DEFAULT_HIDDEN_PUZZLE_HASH);
 
         return this.curry(
             this.P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM,

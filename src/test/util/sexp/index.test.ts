@@ -699,7 +699,7 @@ describe("SExpUtil", () => {
         });
     });
 
-    describe("standardCoinPuzzleForPublicKey()", () => {
+    describe("standardCoinPuzzle()", () => {
         /*
             root@cae4577fa6cf:/chia-blockchain# chia keys show --show-mnemonic-seed
             [...]
@@ -710,7 +710,7 @@ describe("SExpUtil", () => {
         it("Works - Real case (non-observer / hardened key)", async () => {
             await initializeBLS();
             const sk: PrivateKey = Util.key.hexToPrivateKey("5625f4c8086cdb022e5e2e399f06ebe1da45c095928ea3a91d0fc4bbfd635e16");
-            const puzzle: SExp = sexpUtil.standardCoinPuzzleForPublicKey(
+            const puzzle: SExp = sexpUtil.standardCoinPuzzle(
                 sk.get_g1()
             );
 
@@ -733,12 +733,26 @@ describe("SExpUtil", () => {
             const masterPublicKey: G1Element = Util.key.hexToPublicKey("9133ee8339b6c8d251e7072763761a90bed5b5133be6f64ece61a3a5364a1c343e8e25da827bc07329ece464dace4841");
             const walletPublicKey: G1Element = Util.key.masterPkToWalletPk(masterPublicKey, 0);
 
-            const puzzle: SExp = sexpUtil.standardCoinPuzzleForPublicKey(walletPublicKey);
+            const puzzle: SExp = sexpUtil.standardCoinPuzzle(walletPublicKey);
             
             const puzzleHash: string = sexpUtil.sha256tree(puzzle);
             expect(puzzleHash).to.equal(
                 Util.address.addressToPuzzleHash("txch1s75279xcn0pg6gn5qn955gg588ycz2l4023lqe5nkw9a9jrxt90syzly75")
             );
+        });
+
+        it("Skips synthetic key validation when isSyntheticKey is true", async () => {
+            await initializeBLS();
+            const sk: PrivateKey = Util.key.hexToPrivateKey("5625f4c8086cdb022e5e2e399f06ebe1da45c095928ea3a91d0fc4bbfd635e16");
+            const pk: G1Element = sk.get_g1();
+            const puzzle1: SExp = sexpUtil.standardCoinPuzzle(pk);
+            const synthKey: G1Element = sexpUtil.calculateSyntheticPublicKey(pk);
+            const puzzle2: SExp = sexpUtil.standardCoinPuzzle(synthKey, true);
+
+            const puzzleHash1: string = sexpUtil.sha256tree(puzzle1);
+            const puzzleHash2: string = sexpUtil.sha256tree(puzzle2);
+
+            expect(puzzleHash1).to.equal(puzzleHash2);
         });
     });
 });

@@ -380,13 +380,14 @@ describe("GobyProvider", () => {
 
         it("Works if not connected, after connect", async () => {
             const p = new GobyProvider(
-                false,
+                true,
                 {
                     isGoby: true,
                     request: async ({ method, params }: { method: string, params?: any }) => {
                         if(method === "requestAccounts") {
                             throw new Error("User rejected the request.");
                         }
+                        return [];
                     },
                     on: (event: string, callback: any) => {
                         // do nothing
@@ -767,7 +768,7 @@ describe("GobyProvider", () => {
                 value: 31337
             });
 
-            expect(result).to.be.false;
+            expect(result).to.be.null;
             expect(requestedTransfer).to.be.false;
         });
 
@@ -785,6 +786,7 @@ describe("GobyProvider", () => {
                         } else if(method === "transfer") {
                             requestedTransfer = true;
                             transferArgs = params;
+                            return { transaction: { coin_spends: [], aggregated_signature: "aggsig" } };
                         }
                         return [];
                     },
@@ -803,7 +805,9 @@ describe("GobyProvider", () => {
                 value: 31337
             });
 
-            expect(result).to.be.true;
+            expect(result).to.not.be.null;
+            expect(result?.coinSpends.length).to.equal(0);
+            expect(result?.aggregatedSignature).to.equal("aggsig");
             expect(requestedTransfer).to.be.true;
 
             expect(transferArgs.to).to.equal("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
@@ -846,7 +850,7 @@ describe("GobyProvider", () => {
                 value: 31337
             });
 
-            expect(result).to.be.false;
+            expect(result).to.be.null;
             expect(requestedTransfer).to.be.true;
 
             expect(transferArgs.to).to.equal("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
@@ -870,6 +874,7 @@ describe("GobyProvider", () => {
                             return ["xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3"];
                         } else if(method === "transfer") {
                             requestedTransfer = true;
+                            return { transaction: { coin_spends: [], aggregated_signature: "aggsig" } };
                         }
                         return [];
                     },
@@ -887,7 +892,7 @@ describe("GobyProvider", () => {
                 assetId: "f7245be4cc6c44e146bfe18c5fb34d70b8e048b1da2916a88e48deb7f6c05efe" // CryptoShibe Platinum
             });
 
-            expect(result).to.be.false;
+            expect(result).to.be.null;
             expect(requestedTransfer).to.be.false;
         });
 
@@ -905,6 +910,7 @@ describe("GobyProvider", () => {
                         } else if(method === "transfer") {
                             requestedTransfer = true;
                             transferArgs = params;
+                            return { transaction: { coin_spends: [], aggregated_signature: "aggsig" } };
                         }
                         return [];
                     },
@@ -924,7 +930,9 @@ describe("GobyProvider", () => {
                 assetId: "f7245be4cc6c44e146bfe18c5fb34d70b8e048b1da2916a88e48deb7f6c05efe" // CryptoShibe Platinum
             });
 
-            expect(result).to.be.true;
+            expect(result).to.not.be.null;
+            expect(result?.coinSpends.length).to.equal(0);
+            expect(result?.aggregatedSignature).to.equal("aggsig");
             expect(requestedTransfer).to.be.true;
 
             expect(transferArgs.to).to.equal("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
@@ -968,7 +976,7 @@ describe("GobyProvider", () => {
                 assetId: "f7245be4cc6c44e146bfe18c5fb34d70b8e048b1da2916a88e48deb7f6c05efe", // CryptoShibe Platinum
             });
 
-            expect(result).to.be.false;
+            expect(result).to.be.null;
             expect(requestedTransfer).to.be.true;
 
             expect(transferArgs.to).to.equal("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
@@ -1007,7 +1015,7 @@ describe("GobyProvider", () => {
                 offer: THE_OFFER
             });
 
-            expect(result).to.be.false;
+            expect(result).to.be.null;
             expect(requestedTakeOffer).to.be.false;
         });
 
@@ -1025,6 +1033,7 @@ describe("GobyProvider", () => {
                         } else if(method === "takeOffer") {
                             requestedTakeOffer = true;
                             takeOfferArgs = params;
+                            return { transaction: { coin_spends: [], aggregated_signature: "aggsig" } };
                         }
                         return [];
                     },
@@ -1042,7 +1051,9 @@ describe("GobyProvider", () => {
                 offer: THE_OFFER
             });
 
-            expect(result).to.be.true;
+            expect(result).to.not.be.null;
+            expect(result?.coinSpends.length).to.equal(0);
+            expect(result?.aggregatedSignature).to.equal("aggsig");
             expect(requestedTakeOffer).to.be.true;
 
             expect(takeOfferArgs.offer).to.equal(THE_OFFER);
@@ -1081,7 +1092,7 @@ describe("GobyProvider", () => {
                 offer: THE_OFFER
             });
 
-            expect(result).to.be.false;
+            expect(result).to.be.null;
             expect(requestedTakeOffer).to.be.true;
 
             expect(takeOfferArgs.offer).to.equal(THE_OFFER);
@@ -1155,7 +1166,7 @@ describe("GobyProvider", () => {
                 let walletSwitchChainRequests = 0;
                 let lastChainId = "0";
                 const p = new GobyProvider(
-                    true,
+                    false,
                     {
                         isGoby: true,
                         request: async ({ method, params }: { method: string, params?: any }) => {
@@ -1191,7 +1202,7 @@ describe("GobyProvider", () => {
             it(testTitle2, async () => {
                 let walletSwitchChainRequests = 0;
                 const p = new GobyProvider(
-                    true,
+                    false,
                     {
                         isGoby: true,
                         request: async ({ method, params }: { method: string, params?: any }) => {
@@ -1235,7 +1246,7 @@ describe("GobyProvider", () => {
                 let walletSwitchChainRequests = 0;
 
                 const p = new GobyProvider(
-                    true,
+                    false,
                     {
                         isGoby: true,
                         request: async ({ method, params }: { method: string, params?: any }) => {

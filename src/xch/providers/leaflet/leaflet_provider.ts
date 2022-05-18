@@ -655,15 +655,15 @@ export class LeafletProvider implements Provider {
         return this._doesNotImplementError();
     }
 
-    public transfer(args: transferArgs): Promise<boolean> {
+    public transfer(args: transferArgs): Promise<Optional<SpendBundle>> {
         return this._doesNotImplementError();
     }
 
-    public transferCAT(args: transferCATArgs): Promise<boolean> {
+    public transferCAT(args: transferCATArgs): Promise<Optional<SpendBundle>> {
         return this._doesNotImplementError();
     }
 
-    public acceptOffer(args: acceptOfferArgs): Promise<boolean> {
+    public acceptOffer(args: acceptOfferArgs): Promise<Optional<SpendBundle>> {
         return this._doesNotImplementError();
     }
 

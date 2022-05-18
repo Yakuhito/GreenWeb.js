@@ -95,3 +95,32 @@ TypeScript/JavaScript port of [this function](https://github.com/Chia-Network/ch
 ## pkmPairsForConditionsDict
 
 TypeScript/JavaScript port of [this function](https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/util/condition_tools.py#L81).
+
+## curry
+
+Curries a list of parameters into a given program.
+
+## calculateSyntheticPublicKey
+
+A wrapper for `CALCULATE_SYNTHETIC_PUBLIC_KEY_PROGRAM`.
+
+```js
+public calculateSyntheticPublicKey(publicKey: any, hiddenPuzzleHash = this.DEFAULT_HIDDEN_PUZZLE_HASH): any {
+```
+
+## standardCoinPuzzle
+
+A wrapper for `P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM`.
+
+```js
+public standardCoinPuzzle(key: any, isSyntheticKey: boolean = false): SExp {
+```
+
+# Programs
+This class also exposes the following 'standard' programs as `SExp` objects:
+
+ - `SHA256TREE_MODULE_PROGRAM`
+ - `CURRY_PROGRAM`
+ - `P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM`
+ - `DEFAULT_HIDDEN_PUZZLE_PROGRAM`
+ - `CALCULATE_SYNTHETIC_PUBLIC_KEY_PROGRAM`

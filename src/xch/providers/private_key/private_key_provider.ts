@@ -59,9 +59,9 @@ export class PrivateKeyProvider implements Provider {
     public async getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> { return this._doesNotImplementError(); }
     public async pushSpendBundle(args: pushSpendBundleArgs): Promise<boolean> { return this._doesNotImplementError(); }
     public async getAddress(): Promise<string> { return this._doesNotImplementError(); }
-    public async transfer(args: transferArgs): Promise<boolean> { return this._doesNotImplementError(); }
-    public async transferCAT(args: transferCATArgs): Promise<boolean> { return this._doesNotImplementError(); }
-    public async acceptOffer(args: acceptOfferArgs): Promise<boolean> { return this._doesNotImplementError(); }
+    public async transfer(args: transferArgs): Promise<Optional<SpendBundle>> { return this._doesNotImplementError(); }
+    public async transferCAT(args: transferCATArgs): Promise<Optional<SpendBundle>> { return this._doesNotImplementError(); }
+    public async acceptOffer(args: acceptOfferArgs): Promise<Optional<SpendBundle>> { return this._doesNotImplementError(); }
     public subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void { return this._doesNotImplementError(); }
 
     public async signCoinSpends({ coinSpends }: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
@@ -69,16 +69,13 @@ export class PrivateKeyProvider implements Provider {
         // network genesis challenge
         const networkData: string = Util.network.getGenesisChallenge(this.network);
 
-        const { PrivateKey, AugSchemeMPL } = getBLSModule();
+        const { AugSchemeMPL } = getBLSModule();
 
         const emptySig = AugSchemeMPL.aggregate([]);
         const signatures: Array<typeof emptySig> = [
             AugSchemeMPL.aggregate([]),
         ];
-        const sk = PrivateKey.from_bytes(
-            Buffer.from(this.privateKey, "hex"),
-            false
-        );
+        const sk= Util.key.hexToPrivateKey(this.privateKey);
         const publicKey = Buffer.from(sk.get_g1().serialize()).toString("hex");
 
         for(let i = 0; i < coinSpends.length; i++) {

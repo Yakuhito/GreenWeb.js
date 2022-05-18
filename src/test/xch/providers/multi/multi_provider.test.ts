@@ -107,13 +107,13 @@ class ObservableProvider implements Provider {
     getAddress(): Promise<string> {
         return this._processMethod(METHODS[15][0]);
     }
-    transfer(args: transferArgs): Promise<boolean> {
+    transfer(args: transferArgs): Promise<Optional<SpendBundle>> {
         return this._processMethod(METHODS[16][0]);
     }
-    transferCAT(args: transferCATArgs): Promise<boolean> {
+    transferCAT(args: transferCATArgs): Promise<Optional<SpendBundle>> {
         return this._processMethod(METHODS[17][0]);
     }
-    acceptOffer(args: acceptOfferArgs): Promise<boolean> {
+    acceptOffer(args: acceptOfferArgs): Promise<Optional<SpendBundle>> {
         return this._processMethod(METHODS[18][0]);
     }
     subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {

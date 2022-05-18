@@ -637,7 +637,7 @@ export type transferArgs = {
 
 ### Returns
 
-`Promise<boolean>` - `true` if the transaction was submitted to the network, `false` otherwise.
+`Promise<Optional<SpendBundle>` - `SpendBundle` if the transaction was submitted to the network, `null` otherwise.
 
 ### Example
 
@@ -647,7 +647,7 @@ greenweb.xch.transfer({
     value: greenweb.util.parseChia("1")
 }).then(console.log);
 
-// true
+// null
 ```
 ---
 
@@ -668,7 +668,7 @@ export type transferCATArgs = {
 
 ### Returns
 
-`Promise<boolean>` - `true` if the transaction was submitted to the network, `false` otherwise.
+`Promise<Optional<SpendBundle>` - `SpendBundle` if the transaction was submitted to the network, `null` otherwise.
 
 ### Example
 
@@ -679,7 +679,7 @@ greenweb.xch.transferCAT({
     value: greenweb.util.parseToken("1")
 }).then(console.log);
 
-// true
+// null
 ```
 
 ---
@@ -699,7 +699,7 @@ export type acceptOfferArgs = {
 
 ### Returns
 
-`Promise<boolean>` - `true` if the transaction was submitted to the network, `false` otherwise.
+`Promise<Optional<SpendBundle>` - `SpendBundle` if the transaction was submitted to the network, `null` otherwise.
 
 ### Example
 
@@ -708,7 +708,7 @@ greenweb.xch.acceptOffer({
     offer: "offer1[...]"
 }).then(console.log);
 
-// true
+// nll
 ```
 
 ---

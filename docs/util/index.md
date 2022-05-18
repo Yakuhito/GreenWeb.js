@@ -6,7 +6,9 @@ See page for:
  - [`greenweb.util.coin`](coin.md): Coin-related utilities (getId, getName).
  - [`greenweb.util.serializer`](serializer.md): Export of the internal `Serializer` object, which (de)serializes objects for the official wallet protocol.
  - [`greenweb.util.network`](network.md): Network-related utilities (`mainnet` and `testnet`s - ids, genesis challenges, and address prefixes).
- - [`greenweb.util.sexp`](sexp.md): CLVM-related utilities - run programs, convert hex to `SExp` and `SExp` to hex, and ports of some Chia util functions such as `Program.as_atom.list()`.
+ - [`greenweb.util.sexp`](sexp.md): CLVM-related utilities - run programs, convert hex to `SExp` and `SExp` to hex. This also includes ports of some puzzle drivers, such as `standardCoinPuzzle()`, a wrapper for `P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM`, which is also exported by this class.
+ - [`greenweb.util.goby`](goby.md): Functions used for converting goby-returned data to GreenWeb.js objects.
+ - [`greenweb.util.key`](key.md): Exports methods used to parse public and private keys, as well as functions for handling mnemonics and key derivation.
 
 # Functions
 

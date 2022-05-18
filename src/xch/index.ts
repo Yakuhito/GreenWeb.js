@@ -8,6 +8,16 @@ import { PrivateKeyProvider } from "./providers/private_key";
 import { SpendBundle } from "../util/serializer/types/spend_bundle";
 import { Network } from "../util/network";
 
+export type CreateProviderArgs = {
+    leafletHost?: string,
+    leafletAPIKey?: string,
+    leafletPort?: number,
+    useGoby?: boolean,
+    gobyTryNonInteractiveConnect?: boolean,
+    network?: Network,
+    privateKey?: string,
+};
+
 export class XCHModule {
     public static providers = {
         LeafletProvider,
@@ -20,6 +30,36 @@ export class XCHModule {
 
     static setProvider(p: Provider): void {
         this.provider = p;
+    }
+
+    static createProvider({
+        leafletHost = "leaflet.fireacademy.io",
+        leafletAPIKey,
+        leafletPort = 18444,
+        useGoby = false,
+        gobyTryNonInteractiveConnect = true,
+        network = Network.mainnet,
+        privateKey,
+    }: CreateProviderArgs): void {
+        const providers: Provider[] = [];
+
+        if(useGoby) {
+            providers.push(
+                new GobyProvider(gobyTryNonInteractiveConnect)
+            );
+        }
+        if(leafletAPIKey) {
+            providers.push(
+                new LeafletProvider(leafletHost, leafletAPIKey, leafletPort, network)
+            );
+        }
+        if(privateKey) {
+            providers.push(
+                new PrivateKeyProvider(privateKey, network)
+            );
+        }
+
+        this.setProvider(new MultiProvider(providers));
     }
 
     static clearProvider(): void {
@@ -123,19 +163,19 @@ export class XCHModule {
 
         return XCHModule.provider!.getAddress();
     }
-    static transfer(args: transferArgs): Promise<boolean> {
+    static transfer(args: transferArgs): Promise<Optional<SpendBundle>> {
         if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
         return XCHModule.provider!.transfer(args);
     }
-    static transferCAT(args: transferCATArgs): Promise<boolean> {
+    static transferCAT(args: transferCATArgs): Promise<Optional<SpendBundle>> {
         if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 
         return XCHModule.provider!.transferCAT(args);
     }
-    static acceptOffer(args: acceptOfferArgs): Promise<boolean> {
+    static acceptOffer(args: acceptOfferArgs): Promise<Optional<SpendBundle>> {
         if(XCHModule.provider === null)
             throw new Error("Provider not set!");
 

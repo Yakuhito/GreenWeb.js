@@ -22,6 +22,40 @@ To see the functions implemented by each provider, please see [this page](provid
 ## Available functions
 Please see [this page](provider.md).
 
+## createProvider
+If you want to use multiple providers, you can use the `createProvider` helper function.
+
+```js
+export type CreateProviderArgs = {
+    leafletHost?: string,
+    leafletAPIKey?: string,
+    leafletPort?: number,
+    useGoby?: boolean,
+    gobyTryNonInteractiveConnect?: boolean,
+    network?: Network,
+    privateKey?: string,
+};
+
+// Function definition:
+static createProvider({
+  leafletHost = "leaflet.fireacademy.io",
+  leafletAPIKey,
+  leafletPort = 18444,
+  useGoby = false,
+  gobyTryNonInteractiveConnect = true,
+  network = Network.mainnet,
+  privateKey,
+}: CreateProviderArgs): void {
+```
+
+```js
+// example usage:
+greenweb.xch.createProvider({
+  leafletAPIKey: 'TEST-API-KEY',
+  useGoby: true,
+});
+```
+
 ## Wrapper
 The sub-module is also provides a wrapper around [`Provider`](provider.md): simply call its `setProvider` function with the desired provider instance as an argument and you'll be able to call any function on `greenweb.xch` instead of the instance:
 

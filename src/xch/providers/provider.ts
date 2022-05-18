@@ -39,9 +39,9 @@ export interface Provider {
 
     /* wallet */
     getAddress(): Promise<string>;
-    transfer(args: transferArgs): Promise<boolean>;
-    transferCAT(args: transferCATArgs): Promise<boolean>;
-    acceptOffer(args: acceptOfferArgs): Promise<boolean>;
+    transfer(args: transferArgs): Promise<Optional<SpendBundle>>;
+    transferCAT(args: transferCATArgs): Promise<Optional<SpendBundle>>;
+    acceptOffer(args: acceptOfferArgs): Promise<Optional<SpendBundle>>;
     subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void;
     signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>>;
     changeNetwork(args: changeNetworkArgs): Promise<boolean>;

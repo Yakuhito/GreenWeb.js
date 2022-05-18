@@ -31,7 +31,7 @@ export class MultiProvider implements Provider {
                     continue;
                 }
 
-                await this.providers[i].close();
+                await await this.providers[i].close();
             } catch (_) {
                 continue;
             }
@@ -263,7 +263,7 @@ export class MultiProvider implements Provider {
         return this._doesNotImplementError();
     }
 
-    public async transfer(args: transferArgs): Promise<boolean> {
+    public async transfer(args: transferArgs): Promise<Optional<SpendBundle>> {
         for(let i = 0; i < this.providers.length; ++i) {
             try {
                 if(!this.providers[i].isConnected()) {
@@ -279,7 +279,7 @@ export class MultiProvider implements Provider {
         return this._doesNotImplementError();
     }
 
-    public async transferCAT(args: transferCATArgs): Promise<boolean> {
+    public async transferCAT(args: transferCATArgs): Promise<Optional<SpendBundle>> {
         for(let i = 0; i < this.providers.length; ++i) {
             try {
                 if(!this.providers[i].isConnected()) {
@@ -295,7 +295,7 @@ export class MultiProvider implements Provider {
         return this._doesNotImplementError();
     }
 
-    public async acceptOffer(args: acceptOfferArgs): Promise<boolean> {
+    public async acceptOffer(args: acceptOfferArgs): Promise<Optional<SpendBundle>> {
         for(let i = 0; i < this.providers.length; ++i) {
             try {
                 if(!this.providers[i].isConnected()) {
@@ -334,7 +334,7 @@ export class MultiProvider implements Provider {
                     continue;
                 }
 
-                return this.providers[i].signCoinSpends(args);
+                return await this.providers[i].signCoinSpends(args);
             } catch(_) {
                 continue;
             }
@@ -350,7 +350,7 @@ export class MultiProvider implements Provider {
                     continue;
                 }
 
-                return this.providers[i].changeNetwork(args);
+                return await this.providers[i].changeNetwork(args);
             } catch(_) {
                 continue;
             }

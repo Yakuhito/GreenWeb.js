@@ -4,6 +4,7 @@ import { expect } from "chai";
 import { Network } from "../../util/network";
 import { SpendBundle } from "../../util/serializer/types/spend_bundle";
 import { XCHModule } from "../../xch";
+import { MultiProvider } from "../../xch/providers/multi";
 import { acceptOfferArgs, BlockHeader, changeNetworkArgs, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, pushSpendBundleArgs, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../xch/providers/provider";
 
 class TestProvider implements Provider {
@@ -55,14 +56,14 @@ class TestProvider implements Provider {
     async getAddress(): Promise<string> {
         return "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3";
     }
-    async transfer(args: transferArgs): Promise<boolean> {
-        return true;
+    async transfer(args: transferArgs): Promise<Optional<SpendBundle>> {
+        return null;
     }
-    async transferCAT(args: transferCATArgs): Promise<boolean> {
-        return true;
+    async transferCAT(args: transferCATArgs): Promise<Optional<SpendBundle>> {
+        return null;
     }
-    async acceptOffer(args: acceptOfferArgs): Promise<boolean> {
-        return true;
+    async acceptOffer(args: acceptOfferArgs): Promise<Optional<SpendBundle>> {
+        return null;
     }
     subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
         args.callback("xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3");
@@ -96,6 +97,39 @@ describe("XCHModule", () => {
         expect(XCHModule.provider instanceof TestProvider).to.be.true;
         XCHModule.clearProvider();
         expect(XCHModule.provider).to.be.null;
+    });
+
+    describe("createProvider()", () => {
+        afterEach(() => {
+            XCHModule.clearProvider();
+        });
+
+        for(let i = 0; i < 8; ++i) {
+            const useGoby = i % 2;
+            const useLeaflet = Math.floor(i / 2) % 2;
+            const usePrivateKey = Math.floor(i / 4) % 2;
+            const expectedProviderCount = useGoby + useLeaflet + usePrivateKey;
+
+            const testTitle = `Works (useGoby: ${useGoby}, useLeaflet: ${useLeaflet}, usePrivateKey: ${usePrivateKey})`;
+            it(testTitle, () => {
+                const params: any = {};
+                if(useGoby === 1) {
+                    params.useGoby = true;
+                }
+                if(useLeaflet === 1) {
+                    params.leafletAPIKey = "TEST-API-KEY";
+                }
+                if(usePrivateKey === 1) {
+                    params.privateKey = "42".repeat(32);
+                }
+
+                XCHModule.createProvider(params);
+
+                expect(XCHModule.provider).to.not.be.null;
+                const p = XCHModule.provider as MultiProvider;
+                expect(p.providers.length).to.equal(expectedProviderCount);
+            });
+        }
     });
 
     describe("No provider set", () => {
@@ -335,7 +369,7 @@ describe("XCHModule", () => {
                     to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
                     value: 5
                 })
-            ).to.be.true;
+            ).to.be.null;
         });
 
         it("transferCAT()", async () => {
@@ -345,7 +379,7 @@ describe("XCHModule", () => {
                     assetId: "Kitty",
                     value: 5
                 })
-            ).to.be.true;
+            ).to.be.null;
         });
 
         it("acceptOffer()", async () => {
@@ -353,7 +387,7 @@ describe("XCHModule", () => {
                 await XCHModule.acceptOffer({
                     offer: "offer"
                 })
-            ).to.be.true;
+            ).to.be.null;
         });
 
         it("subscribeToAddressChanges()", async () => {

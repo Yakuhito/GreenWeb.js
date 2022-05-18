@@ -44,7 +44,7 @@ export class SmartCoin {
         this.calculatePuzzleHash();
     }
 
-    private calculatePuzzleHash(): void {
+    protected calculatePuzzleHash(): void {
         if(this.puzzle === null) return;
 
         this.puzzleHash = Util.sexp.sha256tree(this.puzzle);

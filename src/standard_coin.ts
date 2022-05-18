@@ -37,14 +37,20 @@ export class StandardCoin extends SmartCoin {
 
         if(forceUsePuzzle) {
             if(puzzle === null || puzzle === undefined) {
-                throw new Error("Please set 'forceUsePuzzle' to true to use a custom puzzle");
+                throw new Error("StandardCoin: 'forceUsePuzzle' is true, but no puzzle was given.");
             } else {
                 this.puzzle = puzzle;
+                this.calculatePuzzleHash();
             }
         }
 
         if(!forceUsePuzzle && publicKey !== null) {
-            this.puzzle = this.getPuzzleForPublicKey(publicKey, isSyntheticKey);
+            const publicKeyObj = Util.key.hexToPublicKey(publicKey);
+            const pkey: any = isSyntheticKey ? publicKeyObj : Util.sexp.calculateSyntheticPublicKey(publicKeyObj);
+
+            this.puzzle = this.getPuzzleForSyntheticPublicKey(pkey);
+            this.publicKey = isSyntheticKey ? publicKey : Util.key.publicKeyToHex(pkey);
+            this.calculatePuzzleHash();
         }
     }
 
@@ -52,6 +58,7 @@ export class StandardCoin extends SmartCoin {
         parentCoinInfo = null,
         puzzleHash = null,
         amount = null,
+        coin = null,
         puzzle = null,
         publicKey = null,
         isSyntheticKey = false,
@@ -62,24 +69,21 @@ export class StandardCoin extends SmartCoin {
             puzzleHash: puzzleHash !== undefined && puzzleHash !== null ? puzzleHash : this.puzzleHash,
             amount: amount !== undefined && amount !== null ? amount : this.amount,
             puzzle: forceUsePuzzle ? puzzle : null,
+            coin: coin !== undefined && coin !== null ? coin : null,
             publicKey: publicKey !== undefined && publicKey !== null ? publicKey : this.publicKey,
             isSyntheticKey: isSyntheticKey !== undefined && isSyntheticKey !== null ? isSyntheticKey : false,
             forceUsePuzzle: forceUsePuzzle
         });
     }
 
-    private getPuzzleForPublicKey(publicKey: string, isSyntheticKey: boolean): SExp {
-        return Util.sexp.standardCoinPuzzle(
-            Util.key.hexToPublicKey(publicKey),
-            isSyntheticKey
-        );
+    private getPuzzleForSyntheticPublicKey(publicKey: any): SExp {
+        return Util.sexp.standardCoinPuzzle(publicKey, true);
     }
 
     public withPublicKey(publicKey: bytes, isSyntheticKey: boolean = false) : StandardCoin {
         return this.copyWith({
             publicKey: publicKey,
-            puzzle: this.getPuzzleForPublicKey(publicKey, isSyntheticKey),
-            forceUsePuzzle: true,
+            isSyntheticKey: isSyntheticKey,
         });
     }
 

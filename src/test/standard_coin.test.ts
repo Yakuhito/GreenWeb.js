@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
 import { initializeBLS, SExp } from "clvm";
 import { StandardCoin } from "../standard_coin";
@@ -6,124 +7,359 @@ import { Util } from "../util";
 import { Coin } from "../util/serializer/types/coin";
 import { bytes } from "../xch/providers/provider_types";
 
-describe("StandardCoin", () => {
-    const TEST_COIN_PRIVATE_KEY_STR = "42".repeat(32);
-    const DESTINATION_PUZZLE_HASH = "69".repeat(32);
-    let testCoinPrivKey: any;
-    let testCoinPubKey: bytes;
-    let testCoinPuzzle: SExp;
-    let testCoin: Coin;
-    let destinationAddress: string;
+describe.only("StandardCoin", () => {
+    const TEST_PRIV_KEY_STR = "42".repeat(32);
+    const TEST_DESTINATION_PUZZLE_HASH = "69".repeat(32);
+    const TEST_DESTINATION_ADDRESS = Util.address.puzzleHashToAddress(TEST_DESTINATION_PUZZLE_HASH);
+    let TEST_PRIV_KEY: any;
+    let TEST_PUB_KEY: bytes;
+    let TEST_SYNTH_KEY: bytes;
+    let TEST_PUZZLE: SExp;
+    let TEST_PUZZLE_STR: bytes;
+    let TEST_PUZZLE_IS_SYNT: SExp;
+    let TEST_PUZZLE_IS_SYNT_STR: bytes;
+    let TEST_COIN: Coin;
 
     beforeEach(async () => {
         await initializeBLS();
-        testCoinPrivKey = Util.key.hexToPrivateKey(TEST_COIN_PRIVATE_KEY_STR);
-        const g1Elem = testCoinPrivKey.get_g1();
-        testCoinPubKey = Util.key.publicKeyToHex(g1Elem);
+        TEST_PRIV_KEY = Util.key.hexToPrivateKey(TEST_PRIV_KEY_STR);
+        const g1Elem = TEST_PRIV_KEY.get_g1();
+        TEST_PUB_KEY = Util.key.publicKeyToHex(g1Elem);
+        TEST_SYNTH_KEY = Util.key.publicKeyToHex(
+            Util.sexp.calculateSyntheticPublicKey(g1Elem)
+        );
 
-        testCoinPuzzle = Util.sexp.standardCoinPuzzle(g1Elem);
+        TEST_PUZZLE = Util.sexp.standardCoinPuzzle(g1Elem);
+        TEST_PUZZLE_STR = Util.sexp.toHex(TEST_PUZZLE);
+        TEST_PUZZLE_IS_SYNT = Util.sexp.standardCoinPuzzle(g1Elem, true);
+        TEST_PUZZLE_IS_SYNT_STR = Util.sexp.toHex(TEST_PUZZLE_IS_SYNT);
 
-        testCoin = new Coin();
-        testCoin.amount = 1338;
-        testCoin.parentCoinInfo = "02".repeat(32);
-        testCoin.puzzleHash = Util.sexp.sha256tree(testCoinPuzzle);
-
-        destinationAddress = Util.address.puzzleHashToAddress(DESTINATION_PUZZLE_HASH);
+        TEST_COIN = new Coin();
+        TEST_COIN.amount = 1338;
+        TEST_COIN.parentCoinInfo = "02".repeat(32);
+        TEST_COIN.puzzleHash = Util.sexp.sha256tree(TEST_PUZZLE);
     });
 
-    describe("constructor", () => {
-        for(let i = 0; i < 16; ++i) {
-            const giveParentCoinInfo = i % 2 === 1;
-            const givePuzzleHash = Math.floor(i / 2) % 2 === 1;
-            const giveAmount = Math.floor(i / 4) % 2 === 1;
-            const givePubKey = Math.floor(i / 8) % 2 === 1;
-            let message =  "Correctly constructs coin (";
-
-            if(giveParentCoinInfo) {
-                message += "parentCoinInfo, ";
-            }
-            if(givePuzzleHash) {
-                message += "puzzleHash, ";
-            }
-            if(giveAmount) {
-                message += "amount, ";
-            }
-            if(givePubKey) {
-                message += "publicKey, ";
-            }
-            if(i === 0) {
-                message += "no args given)";
-            } else {
-                message = message.slice(0, -2) + ")";
-            }
-
-            it(message, () => {
-                const constructorArgs: any = {};
-                if(giveParentCoinInfo) {
-                    constructorArgs.parentCoinInfo = testCoin.parentCoinInfo;
-                }
-                if(givePuzzleHash) {
-                    constructorArgs.puzzleHash = testCoin.puzzleHash;
-                }
-                if(giveAmount) {
-                    constructorArgs.amount = testCoin.amount;
-                }
-                if(givePubKey) {
-                    constructorArgs.publicKey = testCoinPubKey;
-                }
-
-                const sc = new StandardCoin(constructorArgs);
-                if(giveParentCoinInfo) {
-                    expect(sc.parentCoinInfo).to.equal(testCoin.parentCoinInfo);
-                } else {
-                    expect(sc.parentCoinInfo).to.be.null;
-                }
-                if(givePuzzleHash || givePubKey) {
-                    expect(sc.puzzleHash).to.equal(testCoin.puzzleHash);
-                } else {
-                    expect(sc.puzzleHash).to.be.null;
-                }
-                if(giveAmount) {
-                    expect(sc.amount?.toString()).to.equal(testCoin.amount.toString());
-                } else {
-                    expect(sc.amount).to.be.null;
-                }
-                if(givePubKey) {
-                    expect(Util.sexp.toHex(sc.puzzle ?? SExp.to([]))).to.equal(Util.sexp.toHex(testCoinPuzzle));
-                } else {
-                    expect(sc.puzzle).to.be.null;
-                }
-            });
+    const _expectToThrow = async (func: any, message: string) => {
+        let errOk: boolean = false;
+        try {
+            await func();
+        } catch (err: any) {
+            errOk = err.message === message;
         }
 
-        it("Correctly overwrites wrong puzzleHash if given public key", () => {
+        expect(errOk).to.be.true;
+    };
+
+    describe("constructor", function () {
+        it("Works", () => {
+            const sc = new StandardCoin({
+                amount: TEST_COIN.amount,
+                parentCoinInfo: TEST_COIN.parentCoinInfo,
+                puzzleHash: TEST_COIN.puzzleHash,
+                publicKey: TEST_PUB_KEY
+            });
+
+            expect(
+                sc.amount?.eq(TEST_COIN.amount)
+            ).to.be.true;
+            expect(sc.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
+            expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
+            expect(
+                Util.sexp.toHex(sc.puzzle)
+            ).to.equal(TEST_PUZZLE_STR);
+        });
+
+        it("Correctly sets values if given no arguments", () => {
+            const sc = new StandardCoin({});
+
+            expect(sc.parentCoinInfo).to.be.null;
+            expect(sc.puzzleHash).to.be.null;
+            expect(sc.amount).to.be.null;
+            expect(sc.puzzle).to.be.null;
+            expect(sc.publicKey).to.be.null;
+        });
+
+        it("Correctly sets values if given no arguments (#2)", () => {
+            const sc = new StandardCoin();
+
+            expect(sc.parentCoinInfo).to.be.null;
+            expect(sc.puzzleHash).to.be.null;
+            expect(sc.amount).to.be.null;
+            expect(sc.puzzle).to.be.null;
+            expect(sc.publicKey).to.be.null;
+        });
+
+        it("Correctly sets values if all arguments are 'undefined'", () => {
+            const sc = new StandardCoin({
+                parentCoinInfo: undefined,
+                puzzleHash: undefined,
+                amount: undefined,
+                coin: undefined,
+                puzzle: undefined,
+                publicKey: undefined,
+                isSyntheticKey: undefined,
+                forceUsePuzzle: undefined,
+            });
+
+            expect(sc.parentCoinInfo).to.be.null;
+            expect(sc.puzzleHash).to.be.null;
+            expect(sc.amount).to.be.null;
+            expect(sc.puzzle).to.be.null;
+            expect(sc.publicKey).to.be.null;
+        });
+
+        it("Prefers coin to parentCoinInfo / puzzleHash / amount", () => {
+            const sc = new StandardCoin({
+                coin: TEST_COIN,
+                amount: 31337,
+                parentCoinInfo: "02".repeat(32),
+                puzzleHash: "00".repeat(32),
+            });
+
+            expect(sc.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
+            expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
+            expect(
+                sc.amount?.eq(TEST_COIN.amount)
+            ).to.be.true;
+        });
+
+        it("Correctly overwrites wrong puzzleHash if given puzzle", () => {
             const sc = new StandardCoin({
                 puzzleHash: "00".repeat(32),
-                publicKey: testCoinPubKey
+                puzzle: TEST_PUZZLE,
+                forceUsePuzzle: true
             });
 
-            expect(sc.puzzleHash).to.equal(testCoin.puzzleHash);
-        });
-    });
-
-    describe("send()", () => {
-        it("Returns 'null' if coin info was not provided", () => {
-            const sc = new StandardCoin({});
-            expect(
-                sc.send(destinationAddress)
-            ).to.be.null;
+            expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
         });
 
-        //todo
-    });
-
-    describe("Real test", () => {
-        // https://www.chiaexplorer.com/blockchain/coin/0x836253e600f63d0496b5962cd2d044b5eaa8feb90a64c4f9471717017786b295
-        // (tx picked at random)
-        it("send()", () => {
+        it("Does not use puzzle if forceUsePuzzle is not true", () => {
             const sc = new StandardCoin({
-                
+                puzzleHash: "00".repeat(32),
+                puzzle: TEST_PUZZLE
             });
+
+            expect(sc.puzzleHash).to.equal("00".repeat(32));
         });
+
+        it("Does not use puzzle if forceUsePuzzle is not true (#2)", () => {
+            const sc = new StandardCoin({
+                puzzleHash: "00".repeat(32),
+                puzzle: TEST_PUZZLE,
+                forceUsePuzzle: undefined
+            });
+
+            expect(sc.puzzleHash).to.equal("00".repeat(32));
+        });
+
+        it("Correctly sets puzzle if given public key", () => {
+            const sc = new StandardCoin({
+                publicKey: TEST_PUB_KEY
+            });
+
+            expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
+            expect(
+                Util.sexp.toHex(sc.puzzle)
+            ).to.equal(TEST_PUZZLE_STR);
+        });
+
+        it("Correctly sets puzzle if given synthetic public key", () => {
+            const sc = new StandardCoin({
+                publicKey: TEST_PUB_KEY,
+                isSyntheticKey: true,
+            });
+
+            expect(sc.puzzleHash).to.equal(Util.sexp.sha256tree(TEST_PUZZLE_IS_SYNT));
+            expect(
+                Util.sexp.toHex(sc.puzzle)
+            ).to.equal(TEST_PUZZLE_IS_SYNT_STR);
+        });
+
+        it("Throws if puzzle is undefined and forceUsePuzzle is true", () => _expectToThrow(
+            () => new StandardCoin({
+                puzzle: undefined,
+                forceUsePuzzle: true,
+            }),
+            "StandardCoin: 'forceUsePuzzle' is true, but no puzzle was given."
+        ));
+
+        it("Throws if puzzle is null and forceUsePuzzle is true", () => _expectToThrow(
+            () => new StandardCoin({
+                forceUsePuzzle: true,
+            }),
+            "StandardCoin: 'forceUsePuzzle' is true, but no puzzle was given."
+        ));
+    });
+
+    describe("copyWith()", () => {
+        it("Works", () => {
+            const sc = new StandardCoin().copyWith({
+                amount: TEST_COIN.amount,
+                puzzleHash: TEST_COIN.puzzleHash,
+                parentCoinInfo: TEST_COIN.parentCoinInfo,
+                publicKey: TEST_PUB_KEY,
+            });
+
+            expect(
+                sc.amount?.eq(TEST_COIN.amount)
+            ).to.be.true;
+            expect(sc.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
+            expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
+            expect(sc.publicKey).to.equal(TEST_SYNTH_KEY);
+            expect(
+                Util.sexp.toHex(sc.puzzle)
+            ).to.equal(TEST_PUZZLE_STR);
+        });
+
+        it("Correctly sets values if given no arguments", () => {
+            const sc = new StandardCoin().copyWith({});
+
+            expect(sc.parentCoinInfo).to.be.null;
+            expect(sc.puzzleHash).to.be.null;
+            expect(sc.amount).to.be.null;
+            expect(sc.puzzle).to.be.null;
+            expect(sc.publicKey).to.be.null;
+        });
+
+        it("Correctly sets values if all arguments are 'undefined'", () => {
+            const sc = new StandardCoin().copyWith({
+                parentCoinInfo: undefined,
+                puzzleHash: undefined,
+                amount: undefined,
+                puzzle: undefined,
+                publicKey: undefined,
+                isSyntheticKey: undefined,
+                forceUsePuzzle: undefined,
+            });
+
+            expect(sc.parentCoinInfo).to.be.null;
+            expect(sc.puzzleHash).to.be.null;
+            expect(sc.amount).to.be.null;
+            expect(sc.puzzle).to.be.null;
+            expect(sc.publicKey).to.be.null;
+        });
+
+        it("Prefers coin to parentCoinInfo / puzzleHash / amount", () => {
+            const sc = new StandardCoin().copyWith({
+                coin: TEST_COIN,
+                amount: 31337,
+                parentCoinInfo: "02".repeat(32),
+                puzzleHash: "00".repeat(32),
+            });
+
+            expect(sc.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
+            expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
+            expect(
+                sc.amount?.eq(TEST_COIN.amount)
+            ).to.be.true;
+        });
+    });
+
+    describe("withPublicKey()", () => {
+        for(const isSyntheticKey of [false, true]) {
+            const ext = isSyntheticKey ? " (synthetic key)" : "";
+
+            it("Correctly creates a new StandardCoin with modified public key" + ext, () => {
+                const sc = new StandardCoin();
+    
+                expect(sc.publicKey).to.be.null;
+                expect(sc.puzzle).to.be.null;
+                const sc2 = sc.withPublicKey(
+                    isSyntheticKey ? TEST_SYNTH_KEY : TEST_PUB_KEY,
+                    isSyntheticKey
+                );
+                expect(sc2.puzzleHash).to.equal(TEST_COIN.puzzleHash);
+            });
+    
+            it("Does not modify the initial SmartCoin" + ext, () => {
+                const sc = new StandardCoin();
+    
+                expect(sc.publicKey).to.be.null;
+                expect(sc.puzzle).to.be.null;
+                sc.withPublicKey(
+                    isSyntheticKey ? TEST_SYNTH_KEY : TEST_PUB_KEY,
+                    isSyntheticKey
+                );
+                expect(sc.publicKey).to.be.null;
+                expect(sc.puzzle).to.be.null;
+            });
+        }
+    });
+
+    describe("withParentCoinInfo()", () => {
+        it("Correctly creates a new SmartCoin with modified parentCoinInfo", () => {
+            const sc = new StandardCoin({coin: TEST_COIN});
+            const TEST_VAL = "42".repeat(32);
+
+            expect(TEST_VAL).to.not.equal(TEST_COIN.parentCoinInfo);
+            const sc2 = sc.withParentCoinInfo(TEST_VAL);
+            expect(sc2.parentCoinInfo).to.equal(TEST_VAL);
+        });
+
+        it("Does not modify the initial SmartCoin", () => {
+            const sc = new StandardCoin({coin: TEST_COIN});
+            const TEST_VAL = "42".repeat(32);
+
+            expect(TEST_VAL).to.not.equal(TEST_COIN.parentCoinInfo);
+            sc.withParentCoinInfo(TEST_VAL);
+            expect(sc.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
+        });
+    });
+
+    describe("withPuzzleHash()", () => {
+        it("Correctly creates a new SmartCoin with modified puzzleHash and no puzzle", () => {
+            const sc = new StandardCoin({
+                coin: TEST_COIN,
+                puzzle: TEST_PUZZLE,
+                forceUsePuzzle: true
+            });
+            const TEST_VAL = "42".repeat(32);
+
+            expect(TEST_VAL).to.not.equal(TEST_COIN.puzzleHash);
+            const sc2 = sc.withPuzzleHash(TEST_VAL);
+            expect(sc2.puzzleHash).to.equal(TEST_VAL);
+            expect(sc2.puzzle).to.be.null;
+        });
+
+        it("Does not modify the initial SmartCoin", () => {
+            const sc = new StandardCoin({
+                coin: TEST_COIN,
+                puzzle: TEST_PUZZLE,
+                forceUsePuzzle: true
+            });
+            const TEST_VAL = "42".repeat(32);
+
+            expect(TEST_VAL).to.not.equal(TEST_COIN.puzzleHash);
+            sc.withPuzzleHash(TEST_VAL);
+            expect(sc.puzzleHash).to.equal(TEST_COIN.puzzleHash);
+            expect(
+                Util.sexp.toHex(sc.puzzle)
+            ).to.equal(TEST_PUZZLE_STR);
+        });
+    });
+
+    describe("withAmount()", () => {
+        it("Correctly creates a new SmartCoin with modified amount", () => {
+            const sc = new StandardCoin({coin: TEST_COIN});
+            const TEST_VAL = BigNumber.from(1234);
+
+            expect(TEST_VAL.eq(TEST_COIN.amount)).to.be.false;
+            const sc2 = sc.withAmount(TEST_VAL);
+            expect(sc2.amount?.eq(TEST_VAL)).to.be.true;
+        });
+
+        it("Does not modify the initial SmartCoin", () => {
+            const sc = new StandardCoin({coin: TEST_COIN});
+            const TEST_VAL = BigNumber.from(1234);
+
+            expect(TEST_VAL.eq(TEST_COIN.amount)).to.be.false;
+            sc.withAmount(TEST_VAL);
+            expect(sc.amount?.eq(TEST_VAL)).to.be.false;
+        });
+    });
+
+    describe.only("send()", () => {
+        //todo
     });
 });

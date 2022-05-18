@@ -6,7 +6,7 @@ import { SmartCoin } from "../smart_coin";
 import { Util } from "../util";
 import { Coin } from "../xch/providers/provider_types";
 
-describe.only("SmartCoin", () => {
+describe("SmartCoin", () => {
     /*
     (venv) yakuhito@catstation:~/projects/clvm_tools$ run '(mod (conditions) (list conditions))'
     (c 2 ())

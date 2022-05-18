@@ -131,7 +131,12 @@ export class StandardCoin extends SmartCoin {
         ]);
     }
 
-    public send(addressOrPuzzleHash: string, fee?: BigNumberish, amount?: BigNumberish): CoinSpend | null {
+    public send(
+        addressOrPuzzleHash: string,
+        fee?: BigNumberish,
+        amount?: BigNumberish,
+        changeAddressOrPuzzleHash?: string
+    ): CoinSpend | null {
         if(!this.hasCoinInfo()) {
             return null;
         }
@@ -153,14 +158,24 @@ export class StandardCoin extends SmartCoin {
         const conditions: SExp[] = [
             this.createCreateCoinCondition(newCoinPuzzleHash, newCoinAmount),
         ];
-
+        
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         if(txFee.add(newCoinAmount).lt(this.amount!)) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const changeAmount = this.amount!.sub(newCoinAmount).sub(txFee);
-            conditions.push(
+            let changePuzzleHash: string = changeAddressOrPuzzleHash === undefined ?
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                this.createCreateCoinCondition(this.puzzleHash!, changeAmount)
+                this.puzzleHash! : Util.address.validateHashString(changeAddressOrPuzzleHash);
+
+            if(changePuzzleHash === "") {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                changePuzzleHash = Util.address.addressToPuzzleHash(changeAddressOrPuzzleHash!)
+            }
+            if(changePuzzleHash === "") {
+                throw new Error("'changeAddressOrPuzzleHash' is not a valid puzzle hash or address")
+            }
+            conditions.push(
+                this.createCreateCoinCondition(changePuzzleHash, changeAmount)
             );
         }
 
@@ -172,14 +187,18 @@ export class StandardCoin extends SmartCoin {
 
         const solution: SExp = SExp.to([
             SExp.to([]),
-            SExp.to(conditions),
+            SExp.to([1, ...conditions]), // 1 = 'q'
             SExp.to([])
         ]);
 
         return this.spend(solution);
     }
 
-    public multisend(recipientsAndAmounts: Array<[string, BigNumberish]>, fee?: BigNumberish): CoinSpend | null {
+    public multisend(
+        recipientsAndAmounts: Array<[string, BigNumberish]>,
+        fee?: BigNumberish,
+        changeAddressOrPuzzleHash?: string
+    ): CoinSpend | null {
         if(!this.hasCoinInfo()) {
             return null;
         }
@@ -213,9 +232,21 @@ export class StandardCoin extends SmartCoin {
         if(txFee.add(totalSpent).lt(this.amount!)) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const changeAmount = this.amount!.sub(totalSpent).sub(txFee);
+            let changePuzzleHash: string = changeAddressOrPuzzleHash === undefined ?
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                this.puzzleHash! : Util.address.validateHashString(changeAddressOrPuzzleHash);
+
+            if(changePuzzleHash === "") {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                changePuzzleHash = Util.address.addressToPuzzleHash(changeAddressOrPuzzleHash!)
+            }
+            if(changePuzzleHash === "") {
+                throw new Error("'changeAddressOrPuzzleHash' is not a valid puzzle hash or address")
+            }
+
             conditions.push(
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                this.createCreateCoinCondition(this.puzzleHash!, changeAmount)
+                this.createCreateCoinCondition(changePuzzleHash, changeAmount)
             );
         }
 
@@ -227,7 +258,7 @@ export class StandardCoin extends SmartCoin {
 
         const solution: SExp = SExp.to([
             SExp.to([]),
-            SExp.to(conditions),
+            SExp.to([1, ...conditions]), // 1 = 'q'
             SExp.to([])
         ]);
 

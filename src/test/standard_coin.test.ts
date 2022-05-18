@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
@@ -360,6 +361,57 @@ describe.only("StandardCoin", () => {
     });
 
     describe.only("send()", () => {
-        //todo
+        // https://www.chiaexplorer.com/blockchain/coin/0x90ae7f17e5b7d02a8178560643ce4134937ca35fcd3dcf69ebc8188dec670d9a
+        // (tx chosen at random; it's not mine)
+        // removed the coin announcement from the solution
+        it.only("Real test", () => {
+            // eslint-disable-next-line max-len
+            const PUZZLE_STR = "ff02ffff01ff02ffff01ff02ffff03ff0bffff01ff02ffff03ffff09ff05ffff1dff0bffff1effff0bff0bffff02ff06ffff04ff02ffff04ff17ff8080808080808080ffff01ff02ff17ff2f80ffff01ff088080ff0180ffff01ff04ffff04ff04ffff04ff05ffff04ffff02ff06ffff04ff02ffff04ff17ff80808080ff80808080ffff02ff17ff2f808080ff0180ffff04ffff01ff32ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff06ffff04ff02ffff04ff09ff80808080ffff02ff06ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080ffff04ffff01b088e139287dc4d359ac66bf928458e91afd4a68905ec44e8fc71e86d06bc7470f44466c062e9247619906845b834b05adff018080";
+
+            // eslint-disable-next-line max-len
+            const SYNTHETIC_KEY = "88e139287dc4d359ac66bf928458e91afd4a68905ec44e8fc71e86d06bc7470f44466c062e9247619906845b834b05ad";
+
+            // eslint-disable-next-line max-len
+            const SOLUTION_STR = "ff80ffff01ffff33ffa0099fb6be4707dde8e4ca595d34fbe8fa99cb30ca756d99c63a4d3dac1fd899f0ff8502540be40080ffff33ffa054801b54fbae6bef63a77bd40222efe1fb1c78e8accf94f5271794be70d8b3b6ff840208d4cc80ffff34ff648080ff8080";
+
+            const PUZZLE_HASH = "0e60706bf819526a5e2fada4a5dfc14c894f0dc91f03a2e0bcbe43a33ebf9aca";
+            const PARENT_COIN_INFO = "eba93c93bd683c90b1863f7e9c4965d99d156607fcbe6b2c70501e5ff7860808";
+            const AMOUNT = BigNumber.from(10034133296);
+            const COIN_NAME = "506f0a739366f13eb85f972ad1fe7a014824f217897b155bab15c99bf928aed8";
+
+            const RECIPIENT_PUZZLE_HASH = "099fb6be4707dde8e4ca595d34fbe8fa99cb30ca756d99c63a4d3dac1fd899f0";
+            const RECIPIENT_AMOUNT = BigNumber.from("0x02540be400");
+            const FEE = BigNumber.from(100);
+            const CHANGE_ADDRESS = "54801b54fbae6bef63a77bd40222efe1fb1c78e8accf94f5271794be70d8b3b6";
+
+            const sc = new StandardCoin({
+                parentCoinInfo: PARENT_COIN_INFO,
+                amount: AMOUNT,
+                publicKey: SYNTHETIC_KEY,
+                isSyntheticKey: true
+            });
+
+            expect(sc.puzzleHash).to.equal(PUZZLE_HASH);
+            expect(
+                Util.sexp.toHex(sc.puzzle)
+            ).to.equal(PUZZLE_STR);
+            expect(sc.getId()).to.equal(COIN_NAME);
+
+            const sb = sc.send(
+                RECIPIENT_PUZZLE_HASH,
+                FEE,
+                RECIPIENT_AMOUNT,
+                CHANGE_ADDRESS
+            );
+            expect(
+                Util.coin.getId(sb!.coin)
+            ).to.equal(COIN_NAME);
+            expect(
+                Util.sexp.toHex(sb?.puzzleReveal)
+            ).to.equal(PUZZLE_STR);
+            expect(
+                Util.sexp.toHex(sb?.solution)
+            ).to.equal(SOLUTION_STR);
+        });
     });
 });

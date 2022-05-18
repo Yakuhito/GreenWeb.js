@@ -69,16 +69,13 @@ export class PrivateKeyProvider implements Provider {
         // network genesis challenge
         const networkData: string = Util.network.getGenesisChallenge(this.network);
 
-        const { PrivateKey, AugSchemeMPL } = getBLSModule();
+        const { AugSchemeMPL } = getBLSModule();
 
         const emptySig = AugSchemeMPL.aggregate([]);
         const signatures: Array<typeof emptySig> = [
             AugSchemeMPL.aggregate([]),
         ];
-        const sk = PrivateKey.from_bytes(
-            Buffer.from(this.privateKey, "hex"),
-            false
-        );
+        const sk= Util.key.hexToPrivateKey(this.privateKey);
         const publicKey = Buffer.from(sk.get_g1().serialize()).toString("hex");
 
         for(let i = 0; i < coinSpends.length; i++) {

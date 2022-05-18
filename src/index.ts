@@ -18,3 +18,6 @@ export { CoinSpend } from "./util/serializer/types/coin_spend";
 
 // greenweb.SmartCoin
 export { SmartCoin } from "./smart_coin";
+
+// greenweb.StandardCoin
+export { StandardCoin } from "./standard_coin";

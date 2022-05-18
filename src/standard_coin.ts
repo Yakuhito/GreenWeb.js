@@ -44,7 +44,7 @@ export class StandardCoin extends SmartCoin {
         }
 
         if(!forceUsePuzzle && publicKey !== null) {
-            this.puzzle = this.getPuzzleForPublicKey(publicKey, forceUsePuzzle);
+            this.puzzle = this.getPuzzleForPublicKey(publicKey, isSyntheticKey);
         }
     }
 
@@ -61,7 +61,7 @@ export class StandardCoin extends SmartCoin {
             parentCoinInfo: parentCoinInfo !== undefined && parentCoinInfo !== null ? parentCoinInfo : this.parentCoinInfo,
             puzzleHash: puzzleHash !== undefined && puzzleHash !== null ? puzzleHash : this.puzzleHash,
             amount: amount !== undefined && amount !== null ? amount : this.amount,
-            puzzle: forceUsePuzzle && puzzle !== undefined && puzzle !== null ? puzzle : null,
+            puzzle: forceUsePuzzle ? puzzle : null,
             publicKey: publicKey !== undefined && publicKey !== null ? publicKey : this.publicKey,
             isSyntheticKey: isSyntheticKey !== undefined && isSyntheticKey !== null ? isSyntheticKey : false,
             forceUsePuzzle: forceUsePuzzle
@@ -80,6 +80,25 @@ export class StandardCoin extends SmartCoin {
             publicKey: publicKey,
             puzzle: this.getPuzzleForPublicKey(publicKey, isSyntheticKey),
             forceUsePuzzle: true,
+        });
+    }
+
+    public withParentCoinInfo(newValue: string): StandardCoin {
+        return this.copyWith({
+            parentCoinInfo: newValue
+        });
+    }
+
+    public withPuzzleHash(newValue: string): StandardCoin {
+        return this.copyWith({
+            puzzleHash: newValue,
+            puzzle: null
+        });
+    }
+
+    public withAmount(newValue: uint): StandardCoin {
+        return this.copyWith({
+            amount: BigNumber.from(newValue),
         });
     }
 
@@ -108,7 +127,7 @@ export class StandardCoin extends SmartCoin {
         ]);
     }
 
-    public send(address: string, fee?: BigNumberish, amount?: BigNumberish): CoinSpend | null {
+    public send(addressOrPuzzleHash: string, fee?: BigNumberish, amount?: BigNumberish): CoinSpend | null {
         if(!this.hasCoinInfo()) {
             return null;
         }
@@ -121,7 +140,12 @@ export class StandardCoin extends SmartCoin {
             throw new Error("fee + newCoinAmount > currentCoinAmount");
         }
 
-        const newCoinPuzzleHash: bytes = Util.address.addressToPuzzleHash(address);
+        const ph = Util.address.validateHashString(addressOrPuzzleHash);
+        const newCoinPuzzleHash: bytes = ph === "" ? Util.address.addressToPuzzleHash(addressOrPuzzleHash) : ph;
+        if(newCoinPuzzleHash === "") {
+            throw new Error("invalid addressOrPuzzleHash");
+        }
+
         const conditions: SExp[] = [
             this.createCreateCoinCondition(newCoinPuzzleHash, newCoinAmount),
         ];
@@ -130,6 +154,61 @@ export class StandardCoin extends SmartCoin {
         if(txFee.add(newCoinAmount).lt(this.amount!)) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const changeAmount = this.amount!.sub(newCoinAmount).sub(txFee);
+            conditions.push(
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                this.createCreateCoinCondition(this.puzzleHash!, changeAmount)
+            );
+        }
+
+        if(!txFee.eq(0)) {
+            conditions.push(
+                this.createReserveFeeCondition(txFee)
+            );
+        }
+
+        const solution: SExp = SExp.to([
+            SExp.to([]),
+            SExp.to(conditions),
+            SExp.to([])
+        ]);
+
+        return this.spend(solution);
+    }
+
+    public multisend(recipientsAndAmounts: Array<[string, BigNumberish]>, fee?: BigNumberish): CoinSpend | null {
+        if(!this.hasCoinInfo()) {
+            return null;
+        }
+
+        const txFee: BigNumber = fee === undefined ? BigNumber.from(0) : BigNumber.from(fee);
+        let totalSpent: BigNumber = BigNumber.from(0);
+        const conditions: SExp[] = [];
+
+        for(const recipientAndAmount of recipientsAndAmounts) {
+            const recipient = recipientAndAmount[0];
+            const amount = BigNumber.from(recipientAndAmount[1]);
+            totalSpent = totalSpent.add(amount);
+
+            const recipientPh = Util.address.validateHashString(recipient);
+            const targetPuzzleHash = recipientPh === "" ? Util.address.addressToPuzzleHash(recipient) : recipientPh;
+            if(targetPuzzleHash === "") {
+                throw new Error(`Invalid recipient: ${recipient}`);
+            }
+
+            conditions.push(
+                this.createCreateCoinCondition(targetPuzzleHash, amount)
+            );
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        if(txFee.add(totalSpent).gt(this.amount!)) {
+            throw new Error("fee + totalSpent > currentCoinAmount");
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        if(txFee.add(totalSpent).lt(this.amount!)) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const changeAmount = this.amount!.sub(totalSpent).sub(txFee);
             conditions.push(
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 this.createCreateCoinCondition(this.puzzleHash!, changeAmount)

@@ -10,7 +10,7 @@ import { ConditionsDict } from "../util/sexp";
 import { ConditionOpcode } from "../util/sexp/condition_opcodes";
 import { bytes } from "../xch/providers/provider_types";
 
-describe.only("StandardCoin", () => {
+describe("StandardCoin", () => {
     const TEST_PRIV_KEY_STR = "42".repeat(32);
     const TEST_DESTINATION_PUZZLE_HASH = "69".repeat(32);
     const TEST_DESTINATION_ADDRESS = Util.address.puzzleHashToAddress(TEST_DESTINATION_PUZZLE_HASH);

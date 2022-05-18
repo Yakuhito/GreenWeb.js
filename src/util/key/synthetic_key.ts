@@ -24,7 +24,7 @@ export class SyntheticKeyUtil {
         return blob.mod(this.GROUP_ORDER);
     }
 
-    public static calculateSyntheticSecretKey(secretKey: any, hiddenPuzzleHash: bytes): any {
+    public static calculateSyntheticSecretKey(secretKey: any, hiddenPuzzleHash: bytes = Util.sexp.DEFAULT_HIDDEN_PUZZLE_HASH): any {
         const privKeyNum: BigNumber = BigNumber.from("0x" + Util.key.privateKeyToHex(secretKey));
         const pubKey = secretKey.get_g1();
         const syntheticOffset: BigNumber = this.calculateSyntheticOffset(pubKey, hiddenPuzzleHash);

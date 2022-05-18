@@ -14,5 +14,6 @@
  - `SExpUtil`: Expose more Chia wallet puzzles (`P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM`, `DEFAULT_HIDDEN_PUZZLE_PROGRAM`, `DEFAULT_HIDDEN_PUZZLE_HASH`, `CALCULATE_SYNTHETIC_PUBLIC_KEY_PROGRAM`) and expose `calculateSyntheticPublicKey()` and `standardCoinPuzzle()`, which are used by `StandardCoin`
  - `Provider`: Modify return types of the `tranfer()`, `transferCAT()`, and `acceptOffer()` methods from `Promise<boolean>` to `Promise<Optional<SpendBundle>>`
  - Create `greenweb.util.goby`, which can be used to parse Goby's `SpendBundle`, `CoinSpend`, and `Coin` objects
+ - Expose `SyntheticKeyUtil` via `greenweb.util.key.synthetic`; functions: `calculateSyntheticOffset()` and `calculateSyntheticSecretKey()`.
  - Tests: 100% coverage
  

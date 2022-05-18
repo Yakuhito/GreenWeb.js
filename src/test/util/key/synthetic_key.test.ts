@@ -70,6 +70,13 @@ describe("SyntheticKeyUtil", () => {
                 Util.key.privateKeyToHex(res)
             ).to.equal("0028a00013d3f709f9ad00abcd623888ba7a9795bb86f7c533e342f4fd90e7bd");
         });
-        
+
+        it("Work correctly when hiddenPuzzleHash is not provided", () => {
+            const res = SyntheticKeyUtil.calculateSyntheticSecretKey(sk);
+
+            expect(
+                Util.key.privateKeyToHex(res)
+            ).to.equal("36b50b35b5c7e30c603f1c20a8dbd79ef5b11920fd00803bd83b0303d4b659c7");
+        })
     });
 });

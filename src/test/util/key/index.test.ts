@@ -4,6 +4,7 @@ import { initialize } from "clvm";
 import { KeyUtil } from "../../../util/key";
 import { DeriveKeysUtils } from "../../../util/key/derive_keys";
 import { MnemonicUtils } from "../../../util/key/mnemonic";
+import { SyntheticKeyUtil } from "../../../util/key/synthetic_key";
 
 const keyUtil = new KeyUtil();
 const SK_HEX = "42".repeat(32);
@@ -21,6 +22,12 @@ describe("KeyUtil", () => {
     describe("mnemonic", () => {
         it("Is exposed and instance of MnemonicUtils", () => {
             expect(keyUtil.mnemonic === MnemonicUtils).to.be.true;
+        });
+    });
+
+    describe("synthetic", () => {
+        it("Is exposed and instance of SyntheticKeyUtil", () => {
+            expect(keyUtil.synthetic === SyntheticKeyUtil).to.be.true;
         });
     });
 

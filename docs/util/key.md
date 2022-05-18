@@ -129,3 +129,15 @@ public static masterSkToPoolingAuthenticationSk(master: any, poolWalletIndex: nu
 ```js
 public static masterPkToWalletPkUnhardened(master: any, index: number): any {
 ```
+
+# greenweb.util.key.synthetic
+
+Exposes the following functions:
+
+```js
+private static calculateSyntheticOffset(publicKey: any, hiddenPuzzleHash: bytes): BigNumber {
+```
+
+```js
+public static calculateSyntheticSecretKey(secretKey: any, hiddenPuzzleHash: bytes = Util.sexp.DEFAULT_HIDDEN_PUZZLE_HASH): any {
+```

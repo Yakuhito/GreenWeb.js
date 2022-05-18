@@ -3,10 +3,12 @@ import { util } from "../..";
 import { bytes } from "../../xch/providers/provider_types";
 import { DeriveKeysUtils } from "./derive_keys";
 import { MnemonicUtils } from "./mnemonic";
+import { SyntheticKeyUtil } from "./synthetic_key";
 
 export class KeyUtil {
     public impl = DeriveKeysUtils;
     public mnemonic = MnemonicUtils;
+    public synthetic = SyntheticKeyUtil;
 
     public hexToPrivateKey(hex: bytes): any {
         const { PrivateKey } = getBLSModule();

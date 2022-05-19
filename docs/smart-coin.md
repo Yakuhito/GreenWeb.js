@@ -1,10 +1,10 @@
 # SmartCoin
 
-`SmartCoin` is a class that can be used to create `CoinSpend`s more easily. It represents a standard `Coin`, plus its puzzle (the solution is only required to spend it). This class also exposes helper methods, such as `curry()` and `getId()`.
+`SmartCoin` is a class that can be used to create `CoinSpend`s more easily. It represents a standard `Coin`, plus its puzzle (the solution is only required to spend it). In the future, this class might expose more helper methods, such as `curry` and `uncurry`.
 
 ## constructor
 
-Used to initialize a new class instance. All parameters are optional.
+One of the two ways of creating a new class instance.
 
 ### Arguments
 
@@ -13,7 +13,6 @@ export type SmartCoinConstructorArgs = {
     parentCoinInfo?: string | null,
     puzzleHash?: string | null,
     amount?: uint | null,
-    coin?: Coin | null,
     puzzle?: SExp | null
 };
 ```
@@ -34,20 +33,14 @@ console.log(sc);
 
 ---
 
-## copyWith
+## fromCoin
 
-Used to create a new `SmartCoin` object that inherits some of its properties from the instance that it was called on. Overwirte properties by giving them as arguments.
+The other way of creating a new class instance.
 
 ### Definition
 
 ```js
-public copyWith({
-    parentCoinInfo = null,
-    puzzleHash = null,
-    amount = null,
-    coin = null,
-    puzzle = null,
-}: SmartCoinConstructorArgs): SmartCoin {
+public static fromCoin(coin: Coin | null, puzzle?: SExp | null): SmartCoin {
 ```
 
 ### Returns
@@ -57,58 +50,57 @@ A `SmartCoin` instance.
 ### Example
 
 ```js
-const sc = new greenweb.SmartCoin({parentCoinInfo: "test", amount: 1});
-const sc2 = sc.copyWith({amount: 2});
-console.log(sc2);
-// u {parentCoinInfo: 'test', puzzleHash: null, amount: B {cn: '0x02', hn: true}, puzzle: null}
+const smartcoin = greenweb.SmartCoin.fromCoin(null);
+console.log(smartcoin);
+// Object { parentCoinInfo: null, puzzleHash: null, amount: null, puzzle: null }
 ```
 
 ---
 
-## withParentCoinInfo
+## setParentCoinInfo
 
-Creates a new `SmartCoin` instance with a new value for `parentCoinInfo`.
+Sets a `SmartCoin`'s `parentCoinInfo` property.
 
 ### Definition
 
 ```js
-public withParentCoinInfo(newValue: string): SmartCoin {
+public setParentCoinInfo(newValue: string): void {
 ```
 
 ---
 
-## withPuzzleHash
+## setPuzzleHash
 
-Creates a new `SmartCoin` instance with a new value for `puzzleHash`. `puzzle` will get set to `null`.
+Sets a `SmartCoin`'s `puzzleHash` property. Will do nothing if the coin's `puzzle` property is not null.
 
 ### Definition
 
 ```js
-public withPuzzleHash(newValue: string): SmartCoin {
+public setPuzzleHash(newValue: string): void {
 ```
 
 ---
 
-## withAmount
+## setAmount
 
-Creates a new `SmartCoin` instance with a new value for `amount`.
+Sets a `SmartCoin`'s `amount` property.
 
 ### Definition
 
 ```js
-public withAmount(newValue: uint): SmartCoin {
+public setAmount(newValue: uint): void {
 ```
 
 ---
 
-## withPuzzle
+## setPuzzle
 
-Creates a new `SmartCoin` instance with a new value for `puzzle`. `puzzleHash` is automatically updated.
+Sets a `SmartCoin`'s `puzzle` property. Each time the `puzzle` is set,`puzzleHash` will be automatically updated.
 
 ### Definition
 
 ```js
-public withPuzzle(newValue: SExp): SmartCoin {
+public setPuzzle(newValue: SExp): void {
 ```
 
 ---

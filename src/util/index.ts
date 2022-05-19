@@ -2,7 +2,6 @@ import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { AddressUtil } from "./address";
 import { CoinUtil } from "./coin";
 import { GobyUtil } from "./goby";
-import { KeyUtil } from "./key";
 import { NetworkUtil } from "./network";
 import { SerializerUtil } from "./serializer";
 import { SExpUtil } from "./sexp";
@@ -14,7 +13,6 @@ export class Util {
     public static network: NetworkUtil = new NetworkUtil();
     public static sexp: SExpUtil = new SExpUtil();
     public static goby: GobyUtil = new GobyUtil();
-    public static key: KeyUtil = new KeyUtil();
     public static mojoPerXCH: BigNumber = BigNumber.from(1000000000000);
 
     public static formatToken(amount: BigNumberish, amountPerUnit: BigNumberish = 1000): string {

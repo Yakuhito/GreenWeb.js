@@ -9,93 +9,74 @@ export type SmartCoinConstructorArgs = {
     parentCoinInfo?: string | null,
     puzzleHash?: string | null,
     amount?: uint | null,
-    coin?: Coin | null,
     puzzle?: SExp | null
 };
 
 export class SmartCoin {
-    public parentCoinInfo: string | null = null;
-    public puzzleHash: string | null = null;
-    public amount: BigNumber | null = null;
+    public parentCoinInfo: string | null;
+    public puzzleHash: string | null;
+    public amount: uint | null;
 
-    public puzzle: SExp | null = null;
+    public puzzle: SExp | null;
     
     constructor({
         parentCoinInfo = null,
         puzzleHash = null,
         amount = null,
-        coin = null,
         puzzle = null,
-    }: SmartCoinConstructorArgs = {}) {
-        if(coin !== null && coin !== undefined) {
-            this.parentCoinInfo = coin.parentCoinInfo;
-            this.puzzleHash = coin.puzzleHash;
-            this.amount = BigNumber.from(coin.amount);
-        } else {
-            this.parentCoinInfo = parentCoinInfo;
-            this.puzzleHash = puzzleHash;
-            this.amount = amount !== null ? BigNumber.from(amount) : null;
-        }
-
-        if(puzzle !== null && puzzle !== undefined) {
-            this.puzzle = puzzle;
-        }
+    }: SmartCoinConstructorArgs) {
+        this.parentCoinInfo = parentCoinInfo;
+        this.puzzleHash = puzzleHash;
+        this.amount = amount !== null ? BigNumber.from(amount) : null;
+        this.puzzle = puzzle;
 
         this.calculatePuzzleHash();
     }
 
-    protected calculatePuzzleHash(): void {
+    public static fromCoin(coin: Coin | null, puzzle?: SExp | null): SmartCoin {
+        if(puzzle === undefined) {
+            puzzle = null;
+        }
+
+        let amount = coin?.amount ?? null;
+        if(amount !== null) {
+            amount = BigNumber.from(amount);
+        }
+
+        return new SmartCoin({
+            parentCoinInfo: coin?.parentCoinInfo ?? null,
+            puzzleHash: coin?.puzzleHash ?? null,
+            amount,
+            puzzle: puzzle ?? null
+        });
+    }
+
+    private calculatePuzzleHash(): void {
         if(this.puzzle === null) return;
 
         this.puzzleHash = Util.sexp.sha256tree(this.puzzle);
     }
 
-    public copyWith({
-        parentCoinInfo = null,
-        puzzleHash = null,
-        amount = null,
-        coin = null,
-        puzzle = null,
-    }: SmartCoinConstructorArgs): SmartCoin {
-        const puzzleSupplied = puzzle !== undefined && puzzle !== null;
-        const puzzleHashSupplied = puzzleHash !== undefined && puzzleHash !== null;
-        const givePuzzle = puzzleSupplied || (puzzleHashSupplied && this.puzzleHash !== puzzleHash);
-
-        return new SmartCoin({
-            parentCoinInfo: parentCoinInfo !== undefined && parentCoinInfo !== null ? parentCoinInfo : this.parentCoinInfo,
-            puzzleHash: puzzleHashSupplied ? puzzleHash : this.puzzleHash,
-            amount: amount !== undefined && amount !== null ? amount : this.amount,
-            puzzle: givePuzzle ? puzzle : this.puzzle,
-            coin: coin !== undefined && coin !== null ? coin : null,
-        });
+    public setParentCoinInfo(newValue: string): void {
+        this.parentCoinInfo = newValue;
     }
 
-    public withParentCoinInfo(newValue: string): SmartCoin {
-        return this.copyWith({
-            parentCoinInfo: newValue
-        });
+    public setPuzzleHash(newValue: string): void {
+        if(this.puzzle === null) {
+            this.puzzleHash = newValue;
+        }
     }
 
-    public withPuzzleHash(newValue: string): SmartCoin {
-        return this.copyWith({
-            puzzleHash: newValue,
-            puzzle: null
-        });
+    public setAmount(newValue: uint): void {
+        this.amount = BigNumber.from(newValue);
     }
 
-    public withAmount(newValue: uint): SmartCoin {
-        return this.copyWith({
-            amount: BigNumber.from(newValue),
-        });
+    public setPuzzle(newValue: SExp): void {
+        this.puzzle = newValue;
+        this.calculatePuzzleHash();
     }
 
-    public withPuzzle(newValue: SExp): SmartCoin {
-        return this.copyWith({
-            puzzle: newValue,
-        });
-    }
-
-    protected hasCoinInfo(): boolean {
+    private hasCoinInfo(): boolean {
         return this.parentCoinInfo !== null &&
             this.puzzleHash !== null &&
             this.amount !== null;
@@ -157,8 +138,9 @@ export class SmartCoin {
         const newPuzzle = Util.sexp.curry(
             this.puzzle, args
         );
-        const sc = new SmartCoin({ coin: c, puzzle: newPuzzle });
-
-        return sc;
+        return SmartCoin.fromCoin(
+            c,
+            newPuzzle
+        );
     }
 }

@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
-import { Bytes, CLVMType, getBLSModule, OPERATOR_LOOKUP, run_program, SExp, sexp_from_stream, Stream } from "clvm";
-import { Util } from "..";
+import { Bytes, CLVMType, OPERATOR_LOOKUP, run_program, SExp, sexp_from_stream, Stream } from "clvm";
 import { bytes } from "../../xch/providers/provider_types";
 import { ConditionOpcode } from "./condition_opcodes";
 import { ConditionWithArgs } from "./condition_with_args";
@@ -47,12 +46,30 @@ export class SExpUtil {
         ];
     }
 
-    // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/puzzles/sha256tree_module.clvm.hex
-    public readonly SHA256TREE_MODULE_PROGRAM = this.fromHex("ff02ffff01ff02ff02ffff04ff02ffff04ff05ff80808080ffff04ffff01ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff02ffff04ff02ffff04ff09ff80808080ffff02ff02ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080");
+    /*
+    Uses chialisp to get the program's sha256tree hash
+    (venv) yakuhito@catstation:~/projects/clvm_tools$ cat hash.clvm 
+    (mod program
+        (defun sha256tree (TREE)
+           (if (l TREE)
+               (sha256 2 (sha256tree (f TREE)) (sha256tree (r TREE)))
+               (sha256 1 TREE)
+            )
+        )
+
+        (sha256tree program)
+    )
+    (venv) yakuhito@catstation:~/projects/clvm_tools$ run hash.clvm 
+    (a (q 2 2 (c 2 (c 3 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))
+    (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(a (q 2 2 (c 2 (c 3 ()))) (c (q 2 (i (l 5) (q 11 (q . 2) (a 2 (c 2 (c 9 ()))) (a 2 (c 2 (c 13 ())))) (q 11 (q . 1) 5)) 1) 1))'
+    ff02ffff01ff02ff02ffff04ff02ffff04ff03ff80808080ffff04ffff01ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff02ffff04ff02ffff04ff09ff80808080ffff02ff02ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080
+    (venv) yakuhito@catstation:~/projects/clvm_tools$
+    */
+    public readonly SHA256TREE_PROGRAM = "ff02ffff01ff02ff02ffff04ff02ffff04ff03ff80808080ffff04ffff01ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff02ffff04ff02ffff04ff09ff80808080ffff02ff02ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080";
     public sha256tree(program: SExp): bytes {
         const result: SExp = this.run(
-            this.SHA256TREE_MODULE_PROGRAM,
-            SExp.to([program])
+            this.fromHex(this.SHA256TREE_PROGRAM),
+            program
         );
         
         return Buffer.from(
@@ -220,7 +237,7 @@ export class SExpUtil {
     ff02ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff07ff8080808080ffff04ffff01ffff04ffff0102ffff04ffff04ffff0101ff0580ffff04ffff02ff06ffff04ff02ffff04ff0bffff01ff0180808080ff80808080ff02ffff03ff05ffff01ff04ffff0104ffff04ffff04ffff0101ff0980ffff04ffff02ff06ffff04ff02ffff04ff0dffff04ff0bff8080808080ff80808080ffff010b80ff0180ff018080
     (venv) yakuhito@catstation:~/projects/clvm_tools$
     */
-    public readonly CURRY_PROGRAM = this.fromHex("ff02ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff07ff8080808080ffff04ffff01ffff04ffff0102ffff04ffff04ffff0101ff0580ffff04ffff02ff06ffff04ff02ffff04ff0bffff01ff0180808080ff80808080ff02ffff03ff05ffff01ff04ffff0104ffff04ffff04ffff0101ff0980ffff04ffff02ff06ffff04ff02ffff04ff0dffff04ff0bff8080808080ff80808080ffff010b80ff0180ff018080");
+    public readonly CURRY_PROGRAM = "ff02ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff07ff8080808080ffff04ffff01ffff04ffff0102ffff04ffff04ffff0101ff0580ffff04ffff02ff06ffff04ff02ffff04ff0bffff01ff0180808080ff80808080ff02ffff03ff05ffff01ff04ffff0104ffff04ffff04ffff0101ff0980ffff04ffff02ff06ffff04ff02ffff04ff0dffff04ff0bff8080808080ff80808080ffff010b80ff0180ff018080";
     public curry(program: SExp, args: SExp[]): SExp {
         const currySolution: SExp = SExp.to([
             program,
@@ -228,47 +245,8 @@ export class SExpUtil {
         ]);
 
         return this.run(
-            this.CURRY_PROGRAM,
+            this.fromHex(this.CURRY_PROGRAM),
             currySolution
-        );
-    }
-
-    // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clvm.hex
-    public readonly P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM = this.fromHex("ff02ffff01ff02ffff03ff0bffff01ff02ffff03ffff09ff05ffff1dff0bffff1effff0bff0bffff02ff06ffff04ff02ffff04ff17ff8080808080808080ffff01ff02ff17ff2f80ffff01ff088080ff0180ffff01ff04ffff04ff04ffff04ff05ffff04ffff02ff06ffff04ff02ffff04ff17ff80808080ff80808080ffff02ff17ff2f808080ff0180ffff04ffff01ff32ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff06ffff04ff02ffff04ff09ff80808080ffff02ff06ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080");
-    // https://github.com/Chia-Network/chia-blockchain/blob/5f4e39480e2312dc93a7b3609bcea576a9a758f9/chia/wallet/puzzles/p2_delegated_puzzle_or_hidden_puzzle.py#L70
-    public readonly DEFAULT_HIDDEN_PUZZLE_PROGRAM = this.fromHex("ff0980");
-    public readonly DEFAULT_HIDDEN_PUZZLE_HASH = "711d6c4e32c92e53179b199484cf8c897542bc57f2b22582799f9d657eec4699";
-    // https://github.com/Chia-Network/chia-blockchain/blob/5f4e39480e2312dc93a7b3609bcea576a9a758f9/chia/wallet/puzzles/calculate_synthetic_public_key.clvm.hex
-    public readonly CALCULATE_SYNTHETIC_PUBLIC_KEY_PROGRAM = this.fromHex("ff1dff02ffff1effff0bff02ff05808080");
-
-    // https://github.com/Chia-Network/chia-blockchain/blob/5f4e39480e2312dc93a7b3609bcea576a9a758f9/chia/wallet/puzzles/p2_delegated_puzzle_or_hidden_puzzle.py
-    public calculateSyntheticPublicKey(publicKey: any, hiddenPuzzleHash = this.DEFAULT_HIDDEN_PUZZLE_HASH): any {
-        const { G1Element } = getBLSModule();
-        
-        const r = this.run(
-            this.CALCULATE_SYNTHETIC_PUBLIC_KEY_PROGRAM,
-            SExp.to([
-                Bytes.from(Util.key.publicKeyToHex(publicKey), "hex"),
-                Bytes.from(hiddenPuzzleHash, "hex")
-            ]),
-        );
-
-        return G1Element.from_bytes(
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            r.atom!.data()
-        );
-    }
-
-    // https://github.com/Chia-Network/chia-blockchain/blob/5f4e39480e2312dc93a7b3609bcea576a9a758f9/chia/wallet/puzzles/p2_delegated_puzzle_or_hidden_puzzle.py
-    public standardCoinPuzzle(key: any, isSyntheticKey: boolean = false): SExp {
-        const syntheticPublicKey = isSyntheticKey ?
-            key : this.calculateSyntheticPublicKey(key, this.DEFAULT_HIDDEN_PUZZLE_HASH);
-
-        return this.curry(
-            this.P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM,
-            [
-                SExp.to(Bytes.from(Util.key.publicKeyToHex(syntheticPublicKey), "hex")),
-            ]
         );
     }
 }

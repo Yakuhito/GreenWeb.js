@@ -19,9 +19,6 @@ nav:
             - 'network': 'util/network.md'
             - 'sexp': 'util/sexp.md'
             - 'goby': 'util/goby.md'
-            - 'key': 'util/key.md'
-    - SmartCoin: 'smart-coin.md'
-    - StandardCoin: 'standard-coin.md'
     - License: 'license.md'
 
 markdown_extensions:

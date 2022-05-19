@@ -16,7 +16,6 @@ The main javascript files exports a single object, `greenweb`. It has the follow
 The object also exports the following classes as properties:
 
  - [`SmartCoin`](smart-coin.md): GreenWeb.js's `SmartCoin` class - click on the link for more info!
- - [`StandardCoin`](standard-coin.md): Helper class used for making standard coins easier to use.
  - [`BigNumber`](https://docs.ethers.io/v5/api/utils/bignumber/): Export of the class that GreenWeb.js uses to handle big numbers (thanks to the `ethers` project for publishing their solution as a package).
  - `Coin`: The `Coin` class, as used by the Chia blockchain.
  - `CoinSpend`: The `CoinSpend` class, as used by the Chia blockchain.
@@ -28,7 +27,7 @@ The object also exports the following classes as properties:
 Use the following snippet to include GreenWeb.js on a page:
 
 ```html
-<script src="https://assets.fireacademy.io/greenweb-1.1.6.js"></script>
+<script src="https://assets.fireacademy.io/greenweb-1.1.5.js"></script>
 ```
 
 Or just use the latest version (not recommended):

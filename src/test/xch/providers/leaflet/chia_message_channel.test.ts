@@ -129,6 +129,53 @@ describe("ChiaMessageChannel", () => {
             expect(url).to.equal("wss://host:1337/API-KEY/ws");
             expect(sentMessages).to.equal(1);
         });
+
+        it("Works if an error occurs", async () => {
+            let url: string = "";
+    
+            const obj: IWebSocket = {
+                onmessage: async (m: any) => { },
+                onopen: () => { },
+                send: () => { },
+                close: () => { },
+                onerror: () => { },
+                readyState: WebSocket.CONNECTING
+            };
+            const webSocketOverrideCreateFunc = (_url: string) => {
+                url = _url;
+    
+                return obj;
+            };
+            const msgChannel: ChiaMessageChannel = new ChiaMessageChannel({
+                host: "host",
+                port: 1337,
+                apiKey: "API-KEY",
+                onMessage: () => { },
+                network: Network.mainnet,
+                webSocketCreateFunc: webSocketOverrideCreateFunc
+            });
+    
+            const opener = async () => {
+                while(obj.onmessage === null) {
+                    await sleep(20);
+                }
+    
+                obj.readyState = WebSocket.OPEN;
+                obj.onopen?.("hey");
+            };
+    
+            await Promise.all([
+                msgChannel.connect(),
+                opener()
+            ]);
+    
+            expect(url).to.equal("wss://host:1337/API-KEY/ws");
+            expect(msgChannel.isConnected()).to.be.true;
+    
+            obj.onerror?.("err");
+    
+            expect(msgChannel.isConnected()).to.be.false;
+        });
     });
 
     describe("sendMessage()", () => {
@@ -301,77 +348,32 @@ describe("ChiaMessageChannel", () => {
         });
     });
 
-    it("isConnected() works even if connect() hasn't been called", async () => {
-        const obj: IWebSocket = {
-            onmessage: null,
-            onopen: () => { },
-            send: (msg: Buffer) => { },
-            close: () => { },
-            onerror: () => { },
-            readyState: WebSocket.CONNECTING
-        };
-        const webSocketOverrideCreateFunc = (_url: string) => {
-            obj.readyState = WebSocket.OPEN;
-
-            return obj;
-        };
-        const msgChannel: ChiaMessageChannel = new ChiaMessageChannel({
-            host: "ho::st",
-            port: 1337,
-            apiKey: "API-KEY",
-            onMessage: () => { },
-            network: Network.mainnet,
-            webSocketCreateFunc: webSocketOverrideCreateFunc
+    describe("isConnected()", () => {
+        it("Works even if connect() hasn't been called", async () => {
+            const obj: IWebSocket = {
+                onmessage: null,
+                onopen: () => { },
+                send: (msg: Buffer) => { },
+                close: () => { },
+                onerror: () => { },
+                readyState: WebSocket.CONNECTING
+            };
+            const webSocketOverrideCreateFunc = (_url: string) => {
+                obj.readyState = WebSocket.OPEN;
+    
+                return obj;
+            };
+            const msgChannel: ChiaMessageChannel = new ChiaMessageChannel({
+                host: "ho::st",
+                port: 1337,
+                apiKey: "API-KEY",
+                onMessage: () => { },
+                network: Network.mainnet,
+                webSocketCreateFunc: webSocketOverrideCreateFunc
+            });
+    
+            expect(msgChannel.isConnected()).to.be.false;
         });
-
-        expect(msgChannel.isConnected()).to.be.false;
-    });
-
-    it("Works if an error occurs", async () => {
-        let url: string = "";
-
-        const obj: IWebSocket = {
-            onmessage: async (m: any) => { },
-            onopen: () => { },
-            send: () => { },
-            close: () => { },
-            onerror: () => { },
-            readyState: WebSocket.CONNECTING
-        };
-        const webSocketOverrideCreateFunc = (_url: string) => {
-            url = _url;
-
-            return obj;
-        };
-        const msgChannel: ChiaMessageChannel = new ChiaMessageChannel({
-            host: "host",
-            port: 1337,
-            apiKey: "API-KEY",
-            onMessage: () => { },
-            network: Network.mainnet,
-            webSocketCreateFunc: webSocketOverrideCreateFunc
-        });
-
-        const opener = async () => {
-            while(obj.onmessage === null) {
-                await sleep(20);
-            }
-
-            obj.readyState = WebSocket.OPEN;
-            obj.onopen?.("hey");
-        };
-
-        await Promise.all([
-            msgChannel.connect(),
-            opener()
-        ]);
-
-        expect(url).to.equal("wss://host:1337/API-KEY/ws");
-        expect(msgChannel.isConnected()).to.be.true;
-
-        obj.onerror?.("err");
-
-        expect(msgChannel.isConnected()).to.be.false;
     });
 
     describe("messageHandler()", () => {

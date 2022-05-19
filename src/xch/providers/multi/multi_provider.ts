@@ -31,7 +31,7 @@ export class MultiProvider implements Provider {
                     continue;
                 }
 
-                await this.providers[i].close();
+                await await this.providers[i].close();
             } catch (_) {
                 continue;
             }
@@ -334,7 +334,7 @@ export class MultiProvider implements Provider {
                     continue;
                 }
 
-                return this.providers[i].signCoinSpends(args);
+                return await this.providers[i].signCoinSpends(args);
             } catch(_) {
                 continue;
             }
@@ -350,7 +350,7 @@ export class MultiProvider implements Provider {
                     continue;
                 }
 
-                return this.providers[i].changeNetwork(args);
+                return await this.providers[i].changeNetwork(args);
             } catch(_) {
                 continue;
             }

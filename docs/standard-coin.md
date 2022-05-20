@@ -18,7 +18,7 @@ export type StandardCoinConstructorArgs = {
 ```
 
 `isSyntheticKey` should be set to `true` if the given `publicKey` has already been transformed to a synthetic key. If your public key comes from a function such as `masterSkToWallerSk`, leave this parameter unset or set it to `false`.
-`forceUsePuzzle` should be set to `true` if you wish to overwrite a `StandardCoin`s puzzle and ignore the one computed frm the public key. Using this parameter is not recommended.
+`forceUsePuzzle` should be set to `true` if you wish to overwrite a `StandardCoin`s puzzle and ignore the one computed from the public key. Using this parameter is not recommended.
 
 ### Returns
 
@@ -38,7 +38,7 @@ console.log(sc);
 
 ## copyWith
 
-Used to create a new `StandardCoin` object that inherits some of its properties from the instance that it was called on. Overwirte properties by giving them as arguments.
+Used to create a new `StandardCoin` object that inherits some of its properties from the instance on which it was called. Overwrite properties by giving them as arguments.
 
 ### Definition
 

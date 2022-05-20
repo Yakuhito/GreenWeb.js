@@ -36,7 +36,7 @@ console.log(sc);
 
 ## copyWith
 
-Used to create a new `SmartCoin` object that inherits some of its properties from the instance that it was called on. Overwirte properties by giving them as arguments.
+Used to create a new `SmartCoin` object that inherits some of its properties from the instance on which it was called. Overwrite properties by giving them as arguments.
 
 ### Definition
 

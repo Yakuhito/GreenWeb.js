@@ -1,0 +1,31 @@
+site_name: GreenWeb.js
+
+nav:
+    - 'Modules':
+        - 'xch':
+            - 'Module Overview': 'xch/index.md'
+            - 'Provider': 'xch/provider.md'
+            - 'LeafletProvider': 'xch/leaflet-provider.md'
+            - 'GobyProvider': 'xch/goby-provider.md'
+            - 'MultiProvider': 'xch/multi-provider.md'
+            - 'PrivateKeyProvider': 'xch/private-key-provider.md'
+        - 'clvm':
+            - 'Module Overview': 'clvm/index.md'
+        - 'util':
+            - 'Module Overview': 'util/index.md'
+            - 'address': 'util/address.md'
+            - 'coin': 'util/coin.md'
+            - 'serializer': 'util/serializer.md'
+            - 'network': 'util/network.md'
+            - 'sexp': 'util/sexp.md'
+            - 'goby': 'util/goby.md'
+            - 'key': 'util/key.md'
+    - SmartCoin: 'smart-coin.md'
+    - StandardCoin: 'standard-coin.md'
+    - License: 'license.md'
+
+markdown_extensions:
+    - def_list
+    - tables
+    - toc:
+        permalink: "#"

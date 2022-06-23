@@ -1,0 +1,81 @@
+{
+  "name": "greenwebjs",
+  "version": "1.1.6",
+  "author": "yakuhito",
+  "description": "Chia JavaScript API",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yakuhito/greenweb.js.git"
+  },
+  "keywords": [
+    "Chia",
+    "JavaScript",
+    "API"
+  ],
+  "homepage": "https://github.com/Yakuhito/greenweb.js#readme",
+  "bugs": {
+    "url": "https://github.com/Yakuhito/greenweb.js/issues"
+  },
+  "main": "./lib/index.js",
+  "typings": "./lib/index.d.ts",
+  "files": [
+    "*"
+  ],
+  "scripts": {
+    "build": "webpack",
+    "publish": "npx tsc && cp package.json lib/ && ./prepare-package.sh && cd lib  && rm -r test && npm publish",
+    "test": "nyc mocha -r ts-node/register src/test/*.test.ts src/test/**/*.test.ts src/test/**/**/*.test.ts src/test/**/**/**/*.test.ts src/test/**/**/**/**/*.test.ts",
+    "test-web": "cd web_test; python3 -m http.server 1337",
+    "test-docs": "mkdocs serve"
+  },
+  "dependencies": {
+    "@chiamine/bls-signatures": "^0.2.1-beta.2",
+    "@ethersproject/bignumber": "^5.5.0",
+    "@types/ws": "^8.2.0",
+    "bech32": "^2.0.0",
+    "buffer": "^6.0.3",
+    "clvm": "^1.0.9",
+    "cross-blob": "^3.0.1",
+    "crypto-js": "^4.1.1",
+    "stream-browserify": "^3.0.0",
+    "ws": "^8.2.3"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.22",
+    "@types/crypto-js": "^4.0.2",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^15.14.9",
+    "@typescript-eslint/eslint-plugin": "^4.1.0",
+    "@typescript-eslint/parser": "^4.1.0",
+    "chai": "^4.0.0-canary.2",
+    "eslint": "^7.8.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsdoc": "^30.4.1",
+    "fork-ts-checker-webpack-plugin": "^6.2.12",
+    "mocha": "^9.1.3",
+    "nyc": "^15.1.0",
+    "terser-webpack-plugin": "^5.1.3",
+    "ts-loader": "^9.2.3",
+    "ts-node": "^10.4.0",
+    "tslint": "^6.1.3",
+    "typescript": "^4.5.4",
+    "webpack": "^5.39.1",
+    "webpack-cli": "^4.7.2"
+  },
+  "browserslist": [
+    "edge >= 79",
+    "firefox >= 68",
+    "chrome >= 67",
+    "safari > 14",
+    "opera >= 54",
+    "ios_saf >= 14.4",
+    "android >= 67",
+    "op_mob >= 48",
+    "and_chr >= 67",
+    "and_ff >= 68",
+    "samsung >= 9.2",
+    "node >= 10.4.0",
+    "electron >= 4.0.0"
+  ]
+}

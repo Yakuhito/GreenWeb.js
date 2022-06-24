@@ -11,7 +11,7 @@ import { ConditionWithArgs } from "../../../util/sexp/condition_with_args";
 
 const sexpUtil = new SExpUtil();
 
-describe.only("SExpUtil", () => {
+describe("SExpUtil", () => {
     describe("fromHex()", () => {
         it("Correctly converts a hex string to a SExp object", () => {
             const plus = h(KEYWORD_TO_ATOM["+"]);

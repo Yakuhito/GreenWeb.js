@@ -100,6 +100,18 @@ TypeScript/JavaScript port of [this function](https://github.com/Chia-Network/ch
 
 Curries a list of parameters into a given program.
 
+```js
+public curry(program: SExp, args: SExp[]): SExp {
+```
+
+## uncurry
+
+Given a curried program, returns the original module and the arguments that were curried in. If the input is invalid, returns null.
+
+```js
+public uncurry(program: SExp): [SExp, SExp[]] | null {
+```
+
 ## calculateSyntheticPublicKey
 
 A wrapper for `CALCULATE_SYNTHETIC_PUBLIC_KEY_PROGRAM`.

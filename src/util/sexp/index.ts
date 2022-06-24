@@ -128,7 +128,7 @@ export class SExpUtil {
         const opcode = as_atoms[0] as ConditionOpcode;
         const cwa = new ConditionWithArgs();
         cwa.opcode = opcode;
-        cwa.vars = as_atoms.slice(1);
+        cwa.vars = as_atoms.slice(1) as bytes[];
 
         return [false, cwa];
     }
@@ -136,7 +136,7 @@ export class SExpUtil {
     // https://github.com/Chia-Network/chia-blockchain/blob/fe77c690182e97f7ef13d1fb383481f32efe2e87/chia/types/blockchain_format/program.py#L104
     public asAtomList(
         sexp: SExp,
-    ): any[] {
+    ): bytes[] {
         const items = [];
         let obj = sexp;
         // eslint-disable-next-line no-constant-condition
@@ -149,7 +149,7 @@ export class SExpUtil {
             if(atom === null || atom === undefined) {
                 break;
             }
-            items.push(atom);
+            items.push(atom.hex());
             obj = pair[1];
         }
 
@@ -275,14 +275,20 @@ export class SExpUtil {
     // https://github.com/irulast/chia-crypto-utils/blob/f1d8ef4c8ed6134e392f4b42ef9a4e30d449f3d3/lib/src/clvm/program.dart#L158
     // https://github.com/Chia-Network/chia-blockchain/blob/22e47a81dfbed053c7a8044b6dc254b8b152b0ab/chia/types/blockchain_format/program.py#L113
     public uncurry(program: SExp): [SExp, SExp[]] | null {
-        const programList: any[] = this.asAtomList(program);
+        const programList = [];
+        try {
+            for(const elem of program.as_iter()) {
+                programList.push(elem);
+            }
+        // eslint-disable-next-line no-empty
+        } catch(_) {}
 
         if(programList.length !== 3) {
             // 'Program is wrong length, should contain 3: (operator, puzzle, arguments)',
             return null;
         }
 
-        if(programList[0].toInt() !== 2) {
+        if(programList[0].atom?.hex() !== "02") {
             // 'Program is missing apply operator (a)'
             return null;
         }
@@ -292,27 +298,33 @@ export class SExpUtil {
             // 'Puzzle did not match expected pattern'
             return null;
         }
-        
+
         const uncurriedArgs = this._matchCurriedArgs(programList[2]);
-        if(uncurriedArgs === null) {
+        if(uncurriedArgs.length === 0) {
             return null;
         }
+        
         return [uncurriedModule, uncurriedArgs];
     }
 
     // https://github.com/irulast/chia-crypto-utils/blob/f1d8ef4c8ed6134e392f4b42ef9a4e30d449f3d3/lib/src/clvm/program.dart#L177
     private _matchQuotedProgram(program: SExp): SExp | null {
-        const cons = program.pair ?? [null, null];
-        if(cons[0]?.toInt() === 1 && !cons[1]?.isAtom) {
+        const cons = program.as_pair() ?? [null, null];
+        if(cons[0]?.atom.hex() === "01" && !cons[1].atom) {
             return cons[1];
         }
+
         return null;
     }
 
     // https://github.com/irulast/chia-crypto-utils/blob/f1d8ef4c8ed6134e392f4b42ef9a4e30d449f3d3/lib/src/clvm/program.dart#L185
-    private _matchCurriedArgs(program: SExp): SExp[] | null {
-        const result = this._matchCurriedArgsHelper([], program);
-        return result;
+    private _matchCurriedArgs(program: SExp): SExp[] {
+        try {
+            const result = this._matchCurriedArgsHelper([], program);
+            return result;
+        } catch(_) {
+            return [];
+        }
     }
 
     // https://github.com/irulast/chia-crypto-utils/blob/f1d8ef4c8ed6134e392f4b42ef9a4e30d449f3d3/lib/src/clvm/program.dart#L190
@@ -320,7 +332,13 @@ export class SExpUtil {
         uncurriedArguments: SExp[],
         inputProgram: SExp,
     ): SExp[] {
-        const inputProgramList = this.asAtomList(inputProgram);
+        const inputProgramList = []
+        if(inputProgram.atom === null) {
+            for(const elem of inputProgram.as_iter()) {
+                inputProgramList.push(new SExp(elem));
+            }
+        }
+
         // base case
         if (inputProgramList.length === 0) {
             return uncurriedArguments;
@@ -343,8 +361,9 @@ export class SExpUtil {
 
     // https://github.com/irulast/chia-crypto-utils/blob/f1d8ef4c8ed6134e392f4b42ef9a4e30d449f3d3/lib/src/clvm/program.dart#L213
     private _matchQuotedAtom(program: SExp): SExp | null {
-        const cons = program.pair ?? [null, null];
-        if(cons[0]?.toInt() === 1 && cons[1]?.isAtom) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const cons = program.as_pair()!;
+        if(cons[0].atom.hex() === "01" && cons[1].atom) {
             return cons[1];
         }
         return null;

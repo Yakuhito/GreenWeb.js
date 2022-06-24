@@ -11,7 +11,7 @@ import { ConditionWithArgs } from "../../../util/sexp/condition_with_args";
 
 const sexpUtil = new SExpUtil();
 
-describe("SExpUtil", () => {
+describe.only("SExpUtil", () => {
     describe("fromHex()", () => {
         it("Correctly converts a hex string to a SExp object", () => {
             const plus = h(KEYWORD_TO_ATOM["+"]);
@@ -388,7 +388,7 @@ describe("SExpUtil", () => {
             (venv) yakuhito@catstation:~/projects/clvm_tools$
             */
             const sexp: SExp = sexpUtil.fromHex("ff31ff33ff3780");
-            const res: bytes[] = sexpUtil.asAtomList(sexp);
+            const res: bytes[] = sexpUtil.asAtomList(sexp) as bytes[];
             
             expect(res.length).to.equal(3);
             expect(res.toString()).to.equal("31,33,37");
@@ -409,7 +409,7 @@ describe("SExpUtil", () => {
                 ))
             );
             
-            const res: bytes[] = sexpUtil.asAtomList(sexp);
+            const res: bytes[] = sexpUtil.asAtomList(sexp) as bytes[];
             expect(res.length).to.equal(1);
             expect(res[0]).to.equal("31");
         });
@@ -753,6 +753,135 @@ describe("SExpUtil", () => {
             const puzzleHash2: string = sexpUtil.sha256tree(puzzle2);
 
             expect(puzzleHash1).to.equal(puzzleHash2);
+        });
+    });
+
+    describe("uncurry()", () => {
+        it("Returns null when given a program that is not curried (wrong instruction)", () => {
+            const program: SExp = sexpUtil.fromHex("ff04ff01ff8080"); // (c 1 ())
+            const res = sexpUtil.uncurry(program);
+
+            expect(res).to.be.null;
+        });
+
+        it("Returns null when given a program that is not curried (first element = list)", () => {
+            const program: SExp = sexpUtil.fromHex("ffff01ff01ff02ff0380ffff01ff10ff02ff0580ffff04ffff0101ff018080"); // ((q 1 2 3) (q 16 2 5) (c (q . 1) 1))
+            const res = sexpUtil.uncurry(program);
+
+            expect(res).to.be.null;
+        });
+
+        it("Returns null when given a program that is not curried (program is atom)", () => {
+            const program: SExp = sexpUtil.fromHex("ff02ff8201a4ffff04ffff0101ff018080"); // (a 420 (c (q . 1) 1))
+            const res = sexpUtil.uncurry(program);
+
+            expect(res).to.be.null;
+        });
+
+        it("Returns null when given a program that is not curried (wrong list length)", () => {
+            const program: SExp = sexpUtil.fromHex("ff8080"); // (())
+            const res = sexpUtil.uncurry(program);
+
+            expect(res).to.be.null;
+        });
+
+        it("Returns null when given a program that is not curried (invalid uncurried module)", () => {
+            const program: SExp = sexpUtil.fromHex("ff02ffff820539ff8201a480ffff04ffff018200c8ffff04ffff011eff01808080"); // (a (1337 420) (c (q . 200) (c (q . 30) 1)))
+            const res = sexpUtil.uncurry(program);
+
+            expect(res).to.be.null;
+        });
+
+        it("Returns null when given a program that is not curried (invalid uncurried args)", () => {
+            const program: SExp = sexpUtil.fromHex("ff02ffff01ff0bff02ff0580ffff04ffff820539ff0bffff0132ffff013c80ff018080"); // (a (q 11 2 5) (c (1337 11 (q . 50) (q . 60)) 1))
+            const res = sexpUtil.uncurry(program);
+
+            expect(res).to.be.null;
+        });
+
+        it("Returns null when given a program that is not curried (args = atom)", () => {
+            const program: SExp = sexpUtil.fromHex("ff02ffff01ff0bff02ff0580ffff010180"); // (a (q 11 2 5) 1)
+            const res = sexpUtil.uncurry(program);
+
+            expect(res).to.be.null;
+        });
+
+        it("Returns null when given a program that is not curried (program = atom)", () => {
+            const program: SExp = sexpUtil.fromHex("01"); // 1
+            const res = sexpUtil.uncurry(program);
+
+            expect(res).to.be.null;
+        });
+
+        it("Works (only one atom curried in)", () => {
+            const program: SExp = sexpUtil.fromHex("ff02ffff01ff10ff02ff0580ffff04ffff0101ff018080"); // (a (q 16 2 5) (c (q . 1) 1))
+            const res = sexpUtil.uncurry(program);
+
+            expect(res).to.not.be.null;
+            expect(res?.[1].length).to.equal(1);
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            expect(sexpUtil.toHex(res![0])).to.equal("ff10ff02ff0580"); // (+ 2 5)
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            expect(res![1][0].as_int()).to.equal(1);
+        });
+
+        it("Works", () => {
+            const BASE_PROGRAM_HEX = "ff10ff02ffff11ff05ff0b8080";
+            const baseProgram = sexpUtil.fromHex(BASE_PROGRAM_HEX); // (mod (a b c) (+ a (- b c)))
+            const args = [
+                sexpUtil.fromHex("04"),
+                sexpUtil.fromHex("03")
+            ];
+            const program = sexpUtil.curry(baseProgram, args);
+
+            const res = sexpUtil.uncurry(program);
+            expect(res).to.not.be.null;
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            expect(sexpUtil.toHex(res![0])).to.equal(BASE_PROGRAM_HEX);
+        });
+
+        // https://github.com/Chia-Network/clvm_tools/blob/1ada1f004a7c1744c78ba7b5d5e8663204b22187/tests/curry_test.py#L18
+        it("Chia-Network/clvm_tools - test_curry_uncurry #1", () => {
+            const f = sexpUtil.fromHex("ff10ff02ff0580"); // (+ 2 5)
+            const args = [
+                sexpUtil.fromHex("8200c8"),
+                sexpUtil.fromHex("1e")
+            ] // 200, 30
+            const curried = sexpUtil.curry(f, args);
+
+            expect(sexpUtil.toHex(curried)).to.equal("ff02ffff01ff10ff02ff0580ffff04ffff018200c8ffff04ffff011eff01808080");
+            const r = sexpUtil.uncurry(curried);
+            expect(r).to.not.be.null;
+
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const f_0 = r![0];
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const args_0 = r![1];
+            expect(sexpUtil.toHex(f_0)).to.equal(sexpUtil.toHex(f));
+            expect(args_0.length).to.equal(args.length);
+            expect(sexpUtil.toHex(args[0])).to.equal("8200c8");
+            expect(sexpUtil.toHex(args[1])).to.equal("1e");
+        });
+
+        // https://github.com/Chia-Network/clvm_tools/blob/1ada1f004a7c1744c78ba7b5d5e8663204b22187/tests/curry_test.py#L18
+        it("Chia-Network/clvm_tools - test_curry_uncurry #2", () => {
+            const f = sexpUtil.fromHex("ff10ff02ff0580"); // (+ 2 5)
+            const args = [
+                sexpUtil.fromHex("ff10ffff0132ffff013c80")
+            ] // (+ (q . 50) (q . 60))
+            const curried = sexpUtil.curry(f, args);
+
+            expect(sexpUtil.toHex(curried)).to.equal("ff02ffff01ff10ff02ff0580ffff04ffff01ff10ffff0132ffff013c80ff018080");
+            const r = sexpUtil.uncurry(curried);
+            expect(r).to.not.be.null;
+
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const f_0 = r![0];
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const args_0 = r![1];
+            expect(sexpUtil.toHex(f_0)).to.equal(sexpUtil.toHex(f));
+            expect(args_0.length).to.equal(args.length);
+            expect(sexpUtil.toHex(args[0])).to.equal("ff10ffff0132ffff013c80");
         });
     });
 });

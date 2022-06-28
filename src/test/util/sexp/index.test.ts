@@ -652,6 +652,14 @@ describe("SExpUtil", () => {
         });
     });
 
+    describe("CAT_PROGRAM_MOD_HASH", () => {
+        it("Is equal to the sha256tree hash of CAT_PROGRAM_MOD_HASH", () => {
+            const hash = sexpUtil.sha256tree(sexpUtil.CAT_PROGRAM);
+
+            expect(hash).to.equal(sexpUtil.CAT_PROGRAM_MOD_HASH);
+        });
+    });
+
     describe("calculateSyntheticPublicKey()", () => {
         /*
         (venv) yakuhito@catstation:~/projects/clvm_tools$ cat calculate_synthetic_public_key.clvm 

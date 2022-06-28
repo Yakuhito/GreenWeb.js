@@ -636,6 +636,12 @@ describe("SExpUtil", () => {
             // https://github.com/Chia-Network/chia-blockchain/blob/5f4e39480e2312dc93a7b3609bcea576a9a758f9/chia/wallet/puzzles/calculate_synthetic_public_key.clvm.hex.sha256tree
             "624c5d5704d0decadfc0503e71bbffb6cdfe45025bce7cf3e6864d1eafe8f65e"
         );
+        sha256Correct(
+            "CAT_PROGRAM",
+            sexpUtil.CAT_PROGRAM,
+            // https://github.com/Chia-Network/chia-blockchain/blob/d0de8038cd95b71fa050f79e3685c51dcf05e13e/chia/wallet/puzzles/cat.clvm.hex.sha256tree
+            "72dec062874cd4d3aab892a0906688a1ae412b0109982e1797a170add88bdcdc"
+        );
     });
 
     describe("DEFAULT_HIDDEN_PUZZLE_HASH", () => {

@@ -32,8 +32,8 @@ export class SmartCoin {
             this.puzzleHash = Util.hex.dehexlify(coin.puzzleHash);
             this.amount = BigNumber.from(coin.amount);
         } else {
-            this.parentCoinInfo = Util.hex.dehexlify(parentCoinInfo || "");
-            this.puzzleHash = Util.hex.dehexlify(puzzleHash || "");
+            this.parentCoinInfo = Util.hex.dehexlify(parentCoinInfo);
+            this.puzzleHash = Util.hex.dehexlify(puzzleHash);
             this.amount = amount !== null ? BigNumber.from(amount) : null;
         }
 

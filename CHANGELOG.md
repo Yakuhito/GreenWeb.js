@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.7
+ - Add the `CAT` class (CAT1 support)
+ - Create `greenweb.util.spend`
+ - Add the `greenweb.util.sexp.uncurry()` method
+
 ## 1.1.6
  - Add a changelog (`CHANGELOG.md`)
  - Add `StandardCoin`, which can be used to create standard transactions more easily.

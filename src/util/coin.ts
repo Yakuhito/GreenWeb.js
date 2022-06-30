@@ -1,6 +1,7 @@
 import { bytes, Coin } from "../xch/providers/provider_types";
 import CryptoJS from "crypto-js";
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
+import { Bytes, SExp } from "clvm";
 
 export class CoinUtil {
     public amountToBytes(amount: BigNumberish): bytes {
@@ -51,5 +52,14 @@ export class CoinUtil {
 
     public getName(coin: Coin): bytes {
         return this.getId(coin);
+    }
+
+    //todo: test
+    public toProgram(coin: Coin): SExp {
+        return SExp.to([
+            Bytes.from(coin.parentCoinInfo, "hex"),
+            Bytes.from(coin.puzzleHash, "hex"),
+            Bytes.from(this.amountToBytes(coin.amount), "hex"),
+        ]);
     }
 }

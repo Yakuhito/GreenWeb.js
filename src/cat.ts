@@ -2,6 +2,8 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { Bytes, SExp } from "clvm";
 import { SmartCoin } from "./smart_coin";
 import { Util } from "./util";
+import { ConditionsDict } from "./util/sexp";
+import { ConditionOpcode } from "./util/sexp/condition_opcodes";
 import { bytes, Coin, uint } from "./xch/providers/provider_types";
 
 export type LineageProof = {
@@ -64,6 +66,7 @@ export class CAT extends SmartCoin {
             parentCoinInfo, puzzleHash, amount, coin
         });
 
+        this.puzzle = puzzle;
         this.TAILProgramHash = TAILProgramHash;
         this.innerPuzzle = innerPuzzle;
         this.innerPuzzleHash = innerPuzzleHash;
@@ -75,16 +78,18 @@ export class CAT extends SmartCoin {
         this.TAILSolution = TAILSolution;
         this.lineageProof = lineageProof;
 
-        this.deriveArgsFromPuzzle(puzzle);
+        this.deriveArgsFromPuzzle();
+        this.deriveTAILProgramAndSolutionFromSolution();
+        this.constructPuzzle();
+        this.constructSolution();
         this.calculateInnerPuzzleHash();
         this.calculateTAILPuzzleHash();
-        this.constructPuzzle();
     }
 
-    public deriveArgsFromPuzzle(puzzle: SExp | null) {
-        if(puzzle === null || puzzle === undefined) return;
+    protected deriveArgsFromPuzzle() {
+        if(this.puzzle === null || this.puzzle === undefined) return;
 
-        const res = Util.sexp.uncurry(puzzle);
+        const res = Util.sexp.uncurry(this.puzzle);
         if(res === null) return;
         
         const args: SExp[] = res[1];
@@ -97,9 +102,36 @@ export class CAT extends SmartCoin {
         this.calculatePuzzleHash();
     }
 
-    public constructPuzzle() {
+    protected deriveTAILProgramAndSolutionFromSolution(solution: SExp | null) {
+        if(solution === null || this.puzzle === undefined) return;
+
+        const res = Util.sexp.conditionsDictForSolution(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.innerPuzzle!,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.innerSolution!,
+            Util.sexp.MAX_BLOCK_COST_CLVM
+        );
+        if(res[0]) return;
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const conditionsDict: ConditionsDict = res[1]!;
+
+        for(const _ of (conditionsDict.get(ConditionOpcode.CREATE_COIN) ?? [])) {
+            if(_.vars[1] === "8f") { // -113 in bytes
+                this.TAILProgram = Util.sexp.fromHex(_.vars[2]);
+                this.TAILSolution = Util.sexp.fromHex(_.vars[3]);
+                this.calculateTAILPuzzleHash();
+                break;
+            }
+        }
+    }
+
+    protected constructPuzzle() {
         if(this.TAILProgramHash === null) return;
-        if(this.innerPuzzle === null) return;
+        if(this.innerPuzzle === null) {
+            
+        };
 
         this.puzzle = Util.sexp.curry(
             Util.sexp.CAT_PROGRAM,
@@ -122,6 +154,10 @@ export class CAT extends SmartCoin {
         if(this.TAILProgram === null) return;
 
         this.TAILProgramHash = Util.sexp.sha256tree(this.TAILProgram);
+    }
+
+    protected constructSolution(): void {
+        //a
     }
 
     public copyWith({
@@ -229,13 +265,10 @@ export class CAT extends SmartCoin {
     public isSpendable(): boolean {
         if(!this.hasCoinInfo()) return false;
 
-        if(this.innerSolution !== null && this.innerPuzzle !== null) return true;
-
         if(
-            this.TAILProgram !== null &&
-            this.TAILSolution !== null &&
-            this.extraDelta !== null &&
-            !BigNumber.from(this.extraDelta).eq(0)
+            this.innerSolution !== null &&
+            this.TAILProgramHash !== null &&
+            this.innerPuzzle !== null
         ) return true;
 
         return false;

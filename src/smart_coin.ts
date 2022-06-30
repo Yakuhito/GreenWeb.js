@@ -161,4 +161,8 @@ export class SmartCoin {
 
         return sc;
     }
+
+    public isSpendable(): boolean {
+        return this.hasCoinInfo();
+    }
 }

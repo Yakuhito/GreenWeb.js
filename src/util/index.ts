@@ -6,6 +6,7 @@ import { KeyUtil } from "./key";
 import { NetworkUtil } from "./network";
 import { SerializerUtil } from "./serializer";
 import { SExpUtil } from "./sexp";
+import { SpendUtil } from "./spend";
 
 export class Util {
     public static address: AddressUtil = new AddressUtil();
@@ -15,6 +16,7 @@ export class Util {
     public static sexp: SExpUtil = new SExpUtil();
     public static goby: GobyUtil = new GobyUtil();
     public static key: KeyUtil = new KeyUtil();
+    public static spend: SpendUtil = new SpendUtil();
     public static mojoPerXCH: BigNumber = BigNumber.from(1000000000000);
 
     public static formatToken(amount: BigNumberish, amountPerUnit: BigNumberish = 1000): string {

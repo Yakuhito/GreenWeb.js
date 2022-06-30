@@ -8,6 +8,7 @@ import { KeyUtil } from "../../util/key";
 import { NetworkUtil } from "../../util/network";
 import { SerializerUtil } from "../../util/serializer";
 import { SExpUtil } from "../../util/sexp";
+import { SpendUtil } from "../../util/spend";
 
 describe("Util", function() {
     describe("parseToken", () => {
@@ -144,6 +145,10 @@ describe("Util", function() {
 
         it("Exposes KeyUtil instance as .key", () => {
             expect(util.key instanceof KeyUtil).to.be.true;
+        });
+
+        it("Exposes SpendUtil instance as .spend", () => {
+            expect(util.spend instanceof SpendUtil).to.be.true;
         });
     });
 

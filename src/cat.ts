@@ -4,23 +4,43 @@ import { SmartCoin } from "./smart_coin";
 import { Util } from "./util";
 import { bytes, Coin, uint } from "./xch/providers/provider_types";
 
+export type LineageProof = {
+    parentName?: bytes | null,
+    innerPuzzleHash?: bytes | null,
+    amount?: uint | null,
+};
+
 export type CATConstructorArgs = {
+    // standard SmartCoin
     parentCoinInfo?: bytes | null,
     puzzleHash?: bytes | null,
     amount?: uint | null,
     coin?: Coin | null,
     puzzle?: SExp | null,
+    // CAT-specific
     TAILProgramHash?: bytes | null,
-    TAILProgram?: SExp | null,
     innerPuzzleHash?: bytes | null,
     innerPuzzle?: SExp | null,
+    // spend
+    innerSolution?: SExp | null,
+    // or (spend 2)
+    extraDelta?: uint | null,
+    TAILProgram?: SExp | null,
+    TAILSolution?: SExp | null,
+    lineageProof?: LineageProof | null,
 };
 
 export class CAT extends SmartCoin {
     public TAILProgramHash: bytes | null = null;
-    public TAILProgram: SExp | null = null;
     public innerPuzzleHash: bytes | null = null;
     public innerPuzzle: SExp | null = null;
+
+    public innerSolution: SExp | null = null;
+
+    public extraDelta: uint | null = null;
+    public TAILProgram: SExp | null = null;
+    public TAILSolution: SExp | null = null;
+    public lineageProof: LineageProof | null = null;
 
     constructor({
         parentCoinInfo = null,
@@ -28,19 +48,32 @@ export class CAT extends SmartCoin {
         amount = null,
         coin = null,
         puzzle = null,
+
         TAILProgramHash = null,
-        TAILProgram = null,
         innerPuzzleHash = null,
         innerPuzzle = null,
+
+        innerSolution = null,
+
+        extraDelta = null,
+        TAILProgram = null,
+        TAILSolution = null,
+        lineageProof = null,
     }: CATConstructorArgs = {}) {
         super({
             parentCoinInfo, puzzleHash, amount, coin
         });
 
-        this.TAILProgram = TAILProgram;
         this.TAILProgramHash = TAILProgramHash;
         this.innerPuzzle = innerPuzzle;
         this.innerPuzzleHash = innerPuzzleHash;
+        this.innerSolution = innerSolution;
+        if(extraDelta !== null) {
+            this.extraDelta = BigNumber.from(extraDelta);
+        }
+        this.TAILProgram = TAILProgram;
+        this.TAILSolution = TAILSolution;
+        this.lineageProof = lineageProof;
 
         this.deriveArgsFromPuzzle(puzzle);
         this.calculateInnerPuzzleHash();
@@ -97,10 +130,17 @@ export class CAT extends SmartCoin {
         amount = null,
         coin = null,
         puzzle = null,
+
         TAILProgramHash = null,
-        TAILProgram = null,
         innerPuzzleHash = null,
         innerPuzzle = null,
+
+        innerSolution = null,
+
+        extraDelta = null,
+        TAILProgram = null,
+        TAILSolution = null,
+        lineageProof = null,
     }: CATConstructorArgs = {}): CAT {
         return new CAT({
             parentCoinInfo: parentCoinInfo ?? this.parentCoinInfo,
@@ -109,9 +149,13 @@ export class CAT extends SmartCoin {
             coin: coin,
             puzzle: puzzle ?? this.puzzle,
             TAILProgramHash: TAILProgramHash ?? this.TAILProgramHash,
-            TAILProgram: TAILProgram ?? this.TAILProgram,
             innerPuzzleHash: innerPuzzleHash ?? this.innerPuzzleHash,
-            innerPuzzle: innerPuzzle ?? this.innerPuzzle
+            innerPuzzle: innerPuzzle ?? this.innerPuzzle,
+            innerSolution: innerSolution ?? this.innerSolution,
+            extraDelta: extraDelta ?? this.extraDelta,
+            TAILProgram: TAILProgram ?? this.TAILProgram,
+            TAILSolution: TAILSolution ?? this.TAILSolution,
+            lineageProof: lineageProof ?? this.lineageProof,
         });
     }
 
@@ -140,12 +184,6 @@ export class CAT extends SmartCoin {
         });
     }
 
-    public withTAILProgram(newValue: SExp): CAT {
-        return this.copyWith({
-            TAILProgram: newValue
-        });
-    }
-
     public withInnerPuzzle(newValue: SExp): CAT {
         return this.copyWith({
             innerPuzzle: newValue
@@ -156,5 +194,50 @@ export class CAT extends SmartCoin {
         return this.copyWith({
             innerPuzzleHash: newValue
         });
+    }
+
+    public withInnerSolution(newValue: SExp): CAT {
+        return this.copyWith({
+            innerSolution: newValue
+        });
+    }
+
+    public withExtraDelta(newValue: uint): CAT {
+        return this.copyWith({
+            extraDelta: newValue
+        });
+    }
+
+    public withTAILProgram(newValue: SExp): CAT {
+        return this.copyWith({
+            TAILProgram: newValue
+        });
+    }
+
+    public withTAILSolution(newValue: SExp): CAT {
+        return this.copyWith({
+            TAILSolution: newValue
+        });
+    }
+
+    public withLineageProof(newValue: LineageProof): CAT {
+        return this.copyWith({
+            lineageProof: newValue
+        });
+    }
+
+    public isSpendable(): boolean {
+        if(!this.hasCoinInfo()) return false;
+
+        if(this.innerSolution !== null && this.innerPuzzle !== null) return true;
+
+        if(
+            this.TAILProgram !== null &&
+            this.TAILSolution !== null &&
+            this.extraDelta !== null &&
+            !BigNumber.from(this.extraDelta).eq(0)
+        ) return true;
+
+        return false;
     }
 }

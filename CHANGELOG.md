@@ -2,8 +2,14 @@
 
 ## 1.1.7
  - Add the `CAT` class (CAT1 support)
+ - TODO: Add CAT tests
  - Create `greenweb.util.spend`
+    - New method: `spendCATs()`
+    - TODO: New method: `spendStandardCoins()`
  - Add the `greenweb.util.sexp.uncurry()` method
+ - TODO: Update `StandardCoin` (**BREAKING CHANGES**)
+ - TODO: Add `greenweb.util.hexlify` and 1`greenweb.util.unhexlify`
+ - TODO: bug fx
 
 ## 1.1.6
  - Add a changelog (`CHANGELOG.md`)

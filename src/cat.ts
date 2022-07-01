@@ -89,7 +89,7 @@ export class CAT extends SmartCoin {
             }
         }
 
-        this.deriveArgsFromPuzzle();
+        this.constructInnerPuzzle();
         this.deriveTAILProgramAndSolutionFromSolution();
         this.constructInnerSolution();
         this.constructPuzzle();
@@ -97,24 +97,17 @@ export class CAT extends SmartCoin {
         this.calculateTAILPuzzleHash();
     }
 
-    protected deriveArgsFromPuzzle() {
-        if(this.puzzle === null || this.puzzle === undefined) return;
+    protected constructInnerPuzzle(): void {
+        if(this.syntheticKey === null) return;
 
-        const res = Util.sexp.uncurry(this.puzzle);
-        if(res === null) return;
-        
-        const args: SExp[] = res[1];
-        if(args.length !== 3) return;
-        if(args[0].as_bin().hex() !== Util.sexp.CAT_PROGRAM_MOD_HASH) return;
-
-        this.TAILProgramHash = args[1].as_bin().hex();
-        this.innerPuzzle = args[2];
-
-        this.calculatePuzzleHash();
+        this.innerPuzzle = Util.sexp.standardCoinPuzzle(
+            Util.key.hexToPrivateKey(this.syntheticKey),
+            true
+        )
     }
 
     protected deriveTAILProgramAndSolutionFromSolution() {
-        if(this.innerPuzzle === null || this.innerSolution === undefined) return;
+        if(this.innerPuzzle === null || this.innerSolution === null) return;
 
         const res = Util.sexp.conditionsDictForSolution(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

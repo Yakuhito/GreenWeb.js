@@ -637,10 +637,34 @@ describe("SExpUtil", () => {
             "624c5d5704d0decadfc0503e71bbffb6cdfe45025bce7cf3e6864d1eafe8f65e"
         );
         sha256Correct(
-            "CAT_PROGRAM",
-            sexpUtil.CAT_PROGRAM,
+            "CAT_PROGRAM_MOD",
+            sexpUtil.CAT_PROGRAM_MOD,
             // https://github.com/Chia-Network/chia-blockchain/blob/d0de8038cd95b71fa050f79e3685c51dcf05e13e/chia/wallet/puzzles/cat.clvm.hex.sha256tree
             "72dec062874cd4d3aab892a0906688a1ae412b0109982e1797a170add88bdcdc"
+        );
+        sha256Correct(
+            "GENESIS_BY_COIN_ID_TAIL_MOD",
+            sexpUtil.GENESIS_BY_COIN_ID_TAIL_MOD,
+            // https://github.com/Chia-Network/chia-blockchain/blob/d0de8038cd95b71fa050f79e3685c51dcf05e13e/chia/wallet/puzzles/genesis_by_coin_id.clvm.hex.sha256tree
+            "493afb89eed93ab86741b2aa61b8f5de495d33ff9b781dfc8919e602b2afa150"
+        );
+        sha256Correct(
+            "GENESIS_BY_PUZZLE_HASH_TAIL_MOD",
+            sexpUtil.GENESIS_BY_PUZZLE_HASH_TAIL_MOD,
+            // https://github.com/Chia-Network/chia-blockchain/blob/d0de8038cd95b71fa050f79e3685c51dcf05e13e/chia/wallet/puzzles/genesis_by_puzzle_hash.clvm.hex.sha256tree
+            "de5a6e06d41518be97ff6365694f4f89475dda773dede267caa33da63b434e36"
+        );
+        sha256Correct(
+            "EVERYTHING_WITH_SIGNATURE_TAIL_MOD",
+            sexpUtil.EVERYTHING_WITH_SIGNATURE_TAIL_MOD,
+            // https://github.com/Chia-Network/chia-blockchain/blob/d0de8038cd95b71fa050f79e3685c51dcf05e13e/chia/wallet/puzzles/everything_with_signature.clvm.hex.sha256tree
+            "1720d13250a7c16988eaf530331cefa9dd57a76b2c82236bec8bbbff91499b89"
+        );
+        sha256Correct(
+            "DELEGATED_TAIL_MOD",
+            sexpUtil.DELEGATED_TAIL_MOD,
+            // https://github.com/Chia-Network/chia-blockchain/blob/d0de8038cd95b71fa050f79e3685c51dcf05e13e/chia/wallet/puzzles/delegated_tail.clvm.hex.sha256tree
+            "999c3696e167f8a79d938adc11feba3a3dcb39ccff69a426d570706e7b8ec399"
         );
     });
 
@@ -652,9 +676,9 @@ describe("SExpUtil", () => {
         });
     });
 
-    describe("CAT_PROGRAM_MOD_HASH", () => {
+    describe("CAT_PROGRAM_MOD", () => {
         it("Is equal to the sha256tree hash of CAT_PROGRAM_MOD_HASH", () => {
-            const hash = sexpUtil.sha256tree(sexpUtil.CAT_PROGRAM);
+            const hash = sexpUtil.sha256tree(sexpUtil.CAT_PROGRAM_MOD);
 
             expect(hash).to.equal(sexpUtil.CAT_PROGRAM_MOD_HASH);
         });

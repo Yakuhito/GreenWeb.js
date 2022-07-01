@@ -13,16 +13,17 @@ export type LineageProof = {
 };
 
 export type CATConstructorArgs = {
-    // standard SmartCoin
+    // SmartCoin
     parentCoinInfo?: bytes | null,
     puzzleHash?: bytes | null,
     amount?: uint | null,
     coin?: Coin | null,
-    puzzle?: SExp | null,
     // CAT-specific
     TAILProgramHash?: bytes | null,
-    innerPuzzleHash?: bytes | null,
     innerPuzzle?: SExp | null,
+    // inner puzzle
+    publicKey?: bytes | null,
+    syntheticKey?: bytes | null,
     // spend
     innerSolution?: SExp | null,
     // or (spend 2)
@@ -34,8 +35,11 @@ export type CATConstructorArgs = {
 
 export class CAT extends SmartCoin {
     public TAILProgramHash: bytes | null = null;
-    public innerPuzzleHash: bytes | null = null;
+
     public innerPuzzle: SExp | null = null;
+    public innerPuzzleHash: bytes | null = null;
+
+    public syntheticKey: bytes | null = null;
 
     public innerSolution: SExp | null = null;
 
@@ -49,13 +53,14 @@ export class CAT extends SmartCoin {
         puzzleHash = null,
         amount = null,
         coin = null,
-        puzzle = null,
 
         TAILProgramHash = null,
-        innerPuzzleHash = null,
         innerPuzzle = null,
 
         innerSolution = null,
+
+        publicKey = null,
+        syntheticKey = null,
 
         extraDelta = null,
         TAILProgram = null,
@@ -66,10 +71,8 @@ export class CAT extends SmartCoin {
             parentCoinInfo, puzzleHash, amount, coin
         });
 
-        this.puzzle = puzzle;
         this.TAILProgramHash = TAILProgramHash;
         this.innerPuzzle = innerPuzzle;
-        this.innerPuzzleHash = innerPuzzleHash;
         this.innerSolution = innerSolution;
         if(extraDelta !== null) {
             this.extraDelta = BigNumber.from(extraDelta);
@@ -77,11 +80,19 @@ export class CAT extends SmartCoin {
         this.TAILProgram = TAILProgram;
         this.TAILSolution = TAILSolution;
         this.lineageProof = lineageProof;
+        if(syntheticKey !== null) {
+            this.syntheticKey = syntheticKey;
+        } else {
+            if(publicKey !== null) {
+                const publicKeyObj = Util.key.hexToPublicKey(publicKey);
+                this.syntheticKey =Util.sexp.calculateSyntheticPublicKey(publicKeyObj);
+            }
+        }
 
         this.deriveArgsFromPuzzle();
         this.deriveTAILProgramAndSolutionFromSolution();
+        this.constructInnerSolution();
         this.constructPuzzle();
-        this.constructSolution();
         this.calculateInnerPuzzleHash();
         this.calculateTAILPuzzleHash();
     }
@@ -102,8 +113,8 @@ export class CAT extends SmartCoin {
         this.calculatePuzzleHash();
     }
 
-    protected deriveTAILProgramAndSolutionFromSolution(solution: SExp | null) {
-        if(solution === null || this.puzzle === undefined) return;
+    protected deriveTAILProgramAndSolutionFromSolution() {
+        if(this.innerPuzzle === null || this.innerSolution === undefined) return;
 
         const res = Util.sexp.conditionsDictForSolution(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -128,11 +139,8 @@ export class CAT extends SmartCoin {
     }
 
     protected constructPuzzle() {
-        if(this.TAILProgramHash === null) return;
-        if(this.innerPuzzle === null) {
-            
-        };
-
+        if(this.TAILProgramHash === null || this.innerPuzzle === null) return;
+    
         this.puzzle = Util.sexp.curry(
             Util.sexp.CAT_PROGRAM,
             [
@@ -156,8 +164,20 @@ export class CAT extends SmartCoin {
         this.TAILProgramHash = Util.sexp.sha256tree(this.TAILProgram);
     }
 
-    protected constructSolution(): void {
-        //a
+    protected constructInnerSolution(): void {
+        if(this.innerSolution !== null) return;
+        if(this.TAILProgram === null || this.TAILSolution === null) return;
+        if(BigNumber.from(this.extraDelta).eq(0)) return;
+
+        this.innerSolution = SExp.to([
+            SExp.to([
+                Bytes.from(ConditionOpcode.CREATE_COIN, "hex"),
+                Bytes.from("yakuhitoyakuhitoyakuhitoyakuhito"),
+                Bytes.from("8f", "hex"),
+                this.TAILProgram,
+                this.TAILSolution
+            ]),
+        ]);
     }
 
     public copyWith({
@@ -165,13 +185,14 @@ export class CAT extends SmartCoin {
         puzzleHash = null,
         amount = null,
         coin = null,
-        puzzle = null,
 
         TAILProgramHash = null,
-        innerPuzzleHash = null,
         innerPuzzle = null,
 
         innerSolution = null,
+
+        publicKey = null,
+        syntheticKey = null,
 
         extraDelta = null,
         TAILProgram = null,
@@ -183,10 +204,10 @@ export class CAT extends SmartCoin {
             puzzleHash: puzzleHash ?? this.puzzleHash,
             amount: amount ?? this.amount,
             coin: coin,
-            puzzle: puzzle ?? this.puzzle,
             TAILProgramHash: TAILProgramHash ?? this.TAILProgramHash,
-            innerPuzzleHash: innerPuzzleHash ?? this.innerPuzzleHash,
             innerPuzzle: innerPuzzle ?? this.innerPuzzle,
+            publicKey: publicKey,
+            syntheticKey: syntheticKey ?? this.syntheticKey,
             innerSolution: innerSolution ?? this.innerSolution,
             extraDelta: extraDelta ?? this.extraDelta,
             TAILProgram: TAILProgram ?? this.TAILProgram,
@@ -204,7 +225,6 @@ export class CAT extends SmartCoin {
     public withPuzzleHash(newValue: string): CAT {
         return this.copyWith({
             puzzleHash: newValue,
-            puzzle: null
         });
     }
 
@@ -226,9 +246,15 @@ export class CAT extends SmartCoin {
         });
     }
 
-    public withInnerPuzzleHash(newValue: bytes): CAT {
+    public withPublicKey(newValue: bytes): CAT {
         return this.copyWith({
-            innerPuzzleHash: newValue
+            publicKey: newValue
+        });
+    }
+
+    public withSyntheticKey(newValue: bytes): CAT {
+        return this.copyWith({
+            syntheticKey: newValue
         });
     }
 

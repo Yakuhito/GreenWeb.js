@@ -266,6 +266,84 @@ describe.only("CAT", () => {
     });
 
     describe("copyWith()", () => {
-        // lolcommits test #2
+        it("Works", () => {
+            const cat = new CAT().copyWith({
+                amount: TEST_COIN.amount,
+                parentCoinInfo: TEST_COIN.parentCoinInfo,
+                puzzleHash: TEST_COIN.puzzleHash,
+                innerPuzzle: TEST_PUZZLE,
+                TAILProgramHash: TEST_TAIL_HASH,
+                publicKey: TEST_PUB_KEY,
+                innerSolution: SExp.to([]),
+            });
+
+            expect(
+                cat.amount?.eq(TEST_COIN.amount)
+            ).to.be.true;
+            expect(cat.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
+            expect(cat.puzzleHash).to.equal(TEST_COIN.puzzleHash);
+            expect(
+                Util.sexp.toHex(cat.innerPuzzle)
+            ).to.equal(TEST_PUZZLE_STR);
+            expect(cat.TAILProgramHash).to.equal(TEST_TAIL_HASH);
+            expect(cat.syntheticKey).to.equal(TEST_SYNTH_KEY);
+            expect(
+                Util.sexp.toHex(cat.innerSolution)
+            ).to.equal("80");
+            expect(cat.extraDelta).to.be.null;
+            expect(cat.TAILProgram).to.be.null;
+            expect(cat.TAILSolution).to.be.null;
+            expect(cat.lineageProof).to.be.null;
+        });
+
+        it("Correctly sets values if given no arguments", () => {
+            const c = new CAT().copyWith({});
+
+            expect(c.parentCoinInfo).to.be.null;
+            expect(c.puzzleHash).to.be.null;
+            expect(c.amount).to.be.null;
+            expect(c.puzzle).to.be.null;
+            expect(c.TAILProgramHash).to.be.null;
+            expect(c.innerPuzzle).to.be.null;
+            expect(c.innerPuzzleHash).to.be.null;
+            expect(c.syntheticKey).to.be.null;
+            expect(c.innerSolution).to.be.null;
+            expect(c.extraDelta).to.be.null;
+            expect(c.TAILProgram).to.be.null;
+            expect(c.TAILSolution).to.be.null;
+            expect(c.lineageProof).to.be.null;
+        });
+
+        it("Correctly sets values if all arguments are 'undefined'", () => {
+            const c = new CAT().copyWith({
+                parentCoinInfo: undefined,
+                puzzleHash: undefined,
+                amount: undefined,
+                coin: undefined,
+                TAILProgramHash: undefined,
+                innerPuzzle: undefined,
+                innerSolution: undefined,
+                publicKey: undefined,
+                syntheticKey: undefined,
+                extraDelta: undefined,
+                TAILProgram: undefined,
+                TAILSolution: undefined,
+                lineageProof: undefined,
+            });
+
+            expect(c.parentCoinInfo).to.be.null;
+            expect(c.puzzleHash).to.be.null;
+            expect(c.amount).to.be.null;
+            expect(c.puzzle).to.be.null;
+            expect(c.TAILProgramHash).to.be.null;
+            expect(c.innerPuzzle).to.be.null;
+            expect(c.innerPuzzleHash).to.be.null;
+            expect(c.syntheticKey).to.be.null;
+            expect(c.innerSolution).to.be.null;
+            expect(c.extraDelta).to.be.null;
+            expect(c.TAILProgram).to.be.null;
+            expect(c.TAILSolution).to.be.null;
+            expect(c.lineageProof).to.be.null;
+        });
     });
 });

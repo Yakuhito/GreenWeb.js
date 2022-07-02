@@ -2,7 +2,7 @@
 import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
 import { Bytes, initializeBLS, SExp } from "clvm";
-import { CAT } from "../cat";
+import { CAT, LineageProof } from "../cat";
 import { Util } from "../util";
 import { ConditionOpcode } from "../util/sexp/condition_opcodes";
 import { bytes, Coin } from "../xch/providers/provider_types";
@@ -344,6 +344,166 @@ describe.only("CAT", () => {
             expect(c.TAILProgram).to.be.null;
             expect(c.TAILSolution).to.be.null;
             expect(c.lineageProof).to.be.null;
+        });
+    });
+
+    describe("withParentCoinInfo()", () => {
+        it("Returns a new CAT with modified parentCoinInfo and does not modify the original object", () => {
+            const c = new CAT();
+            expect(c.parentCoinInfo).to.be.null;
+
+            const c2 = c.withParentCoinInfo(TEST_COIN.parentCoinInfo)
+            expect(c.parentCoinInfo).to.be.null;
+            expect(c2.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
+        });
+    });
+
+    describe("withPuzzleHash()", () => {
+        it("Returns a new CAT with modified puzzleHash and does not modify the original object", () => {
+            const c = new CAT();
+            expect(c.puzzleHash).to.be.null;
+
+            const c2 = c.withPuzzleHash(TEST_COIN.puzzleHash);
+            expect(c.puzzleHash).to.be.null;
+            expect(c2.puzzleHash).to.equal(TEST_COIN.puzzleHash);
+        });
+    });
+
+    describe("withAmount()", () => {
+        it("Returns a new CAT with modified amount and does not modify the original object", () => {
+            const c = new CAT();
+            expect(c.amount).to.be.null;
+
+            const c2 = c.withAmount(TEST_COIN.amount);
+            expect(c.amount).to.be.null;
+            expect(
+                BigNumber.from(c2.amount).eq(TEST_COIN.amount)
+            ).to.be.true;
+        });
+    });
+
+    describe("withTAILProgramHash()", () => {
+        it("Returns a new CAT with modified TAILProgramHash and does not modify the original object", () => {
+            const c = new CAT();
+            expect(c.TAILProgramHash).to.be.null;
+
+            const c2 = c.withTAILProgramHash(TEST_TAIL_HASH);
+            expect(c.TAILProgramHash).to.be.null;
+            expect(c2.TAILProgramHash).to.equal(TEST_TAIL_HASH);
+        });
+    });
+
+    describe("withInnerPuzzle()", () => {
+        it("Returns a new CAT with modified innerPuzzle and does not modify the original object", () => {
+            const c = new CAT();
+            expect(c.innerPuzzle).to.be.null;
+
+            const c2 = c.withInnerPuzzle(TEST_PUZZLE);
+            expect(c.innerPuzzle).to.be.null;
+            expect(
+                Util.sexp.toHex(c2.innerPuzzle)
+            ).to.equal(TEST_PUZZLE_STR);
+            expect(c2.innerPuzzleHash).to.equal(TEST_PUZZLE_HASH);
+        });
+    });
+
+    describe("withPublicKey()", () => {
+        it("Returns a new CAT with modified syntheticKey and does not modify the original object", () => {
+            const c = new CAT();
+            expect(c.syntheticKey).to.be.null;
+
+            const c2 = c.withPublicKey(TEST_PUB_KEY);
+            expect(c.syntheticKey).to.be.null;
+            expect(c2.syntheticKey).to.equal(TEST_SYNTH_KEY);
+        });
+    });
+
+    describe("withSyntheticKey()", () => {
+        it("Returns a new CAT with modified syntheticKey and does not modify the original object", () => {
+            const c = new CAT();
+            expect(c.syntheticKey).to.be.null;
+
+            const c2 = c.withSyntheticKey(TEST_SYNTH_KEY);
+            expect(c.syntheticKey).to.be.null;
+            expect(c2.syntheticKey).to.equal(TEST_SYNTH_KEY);
+        });
+    });
+
+    describe("withInnerSolution()", () => {
+        it("Returns a new CAT with modified innerSolution and does not modify the original object", () => {
+            const c = new CAT();
+            expect(c.innerSolution).to.be.null;
+
+            const c2 = c.withInnerSolution(TEST_PUZZLE);
+            expect(c.innerSolution).to.be.null;
+            expect(
+                Util.sexp.toHex(c2.innerSolution)
+            ).to.equal(TEST_PUZZLE_STR);
+        });
+    });
+
+    describe("withExtraDelta()", () => {
+        it("Returns a new CAT with modified extraDelta and does not modify the original object", () => {
+            const c = new CAT();
+            expect(c.extraDelta).to.be.null;
+
+            const c2 = c.withExtraDelta(1337);
+            expect(c.extraDelta).to.be.null;
+            expect(
+                BigNumber.from(c2.extraDelta).eq(1337)
+            ).to.be.true;
+        });
+    });
+
+    describe("withTAILProgram()", () => {
+        it("Returns a new CAT with modified TAILProgram and does not modify the original object", () => {
+            const c = new CAT();
+            expect(c.TAILProgram).to.be.null;
+
+            const c2 = c.withTAILProgram(TEST_TAIL);
+            expect(c.TAILProgram).to.be.null;
+            expect(
+                Util.sexp.toHex(c2.TAILProgram)
+            ).to.equal(
+                Util.sexp.toHex(TEST_TAIL)
+            );
+            expect(c2.TAILProgramHash).to.equal(TEST_TAIL_HASH);
+        });
+    });
+
+    describe("withTAILSolution()", () => {
+        it("Returns a new CAT with modified TAILSolution and does not modify the original object", () => {
+            const c = new CAT();
+            expect(c.TAILSolution).to.be.null;
+
+            const c2 = c.withTAILSolution(TEST_TAIL);
+            expect(c.TAILSolution).to.be.null;
+            expect(
+                Util.sexp.toHex(c2.TAILSolution)
+            ).to.equal(
+                Util.sexp.toHex(TEST_TAIL)
+            );
+        });
+    });
+
+    describe("withLineageProof()", () => {
+        it("Returns a new CAT with modified lineageProog and does not modify the original object", () => {
+            const lp: LineageProof = {
+                parentName: TEST_COIN.parentCoinInfo,
+                innerPuzzleHash: TEST_COIN.puzzleHash,
+                amount: TEST_COIN.amount
+            };
+
+            const c = new CAT();
+            expect(c.lineageProof).to.be.null;
+
+            const c2 = c.withLineageProof(lp);
+            expect(c.lineageProof).to.be.null;
+            expect(c2.lineageProof?.parentName).to.equal(lp.parentName);
+            expect(c2.lineageProof?.innerPuzzleHash).to.equal(lp.innerPuzzleHash);
+            expect(
+                BigNumber.from(c2.lineageProof?.amount).eq(lp.amount ?? -1)
+            ).to.be.true;
         });
     });
 });

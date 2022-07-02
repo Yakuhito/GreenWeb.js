@@ -79,7 +79,12 @@ export class CAT extends SmartCoin {
         }
         this.TAILProgram = TAILProgram;
         this.TAILSolution = TAILSolution;
-        this.lineageProof = lineageProof;
+        if(lineageProof !== null && lineageProof !== undefined) {
+            if(lineageProof.amount !== null && lineageProof.amount !== undefined) {
+                lineageProof.amount = BigNumber.from(lineageProof.amount);
+            }
+            this.lineageProof = lineageProof;
+        }
         if(syntheticKey !== null && syntheticKey !== undefined) {
             this.syntheticKey = syntheticKey;
         } else {
@@ -218,7 +223,7 @@ export class CAT extends SmartCoin {
 
     public withAmount(newValue: uint): CAT {
         return this.copyWith({
-            amount: BigNumber.from(newValue),
+            amount: newValue,
         });
     }
 

@@ -74,16 +74,16 @@ export class CAT extends SmartCoin {
         this.TAILProgramHash = TAILProgramHash;
         this.innerPuzzle = innerPuzzle;
         this.innerSolution = innerSolution;
-        if(extraDelta !== null) {
+        if(extraDelta !== null && extraDelta !== undefined) {
             this.extraDelta = BigNumber.from(extraDelta);
         }
         this.TAILProgram = TAILProgram;
         this.TAILSolution = TAILSolution;
         this.lineageProof = lineageProof;
-        if(syntheticKey !== null) {
+        if(syntheticKey !== null && syntheticKey !== undefined) {
             this.syntheticKey = syntheticKey;
         } else {
-            if(publicKey !== null) {
+            if(publicKey !== null && publicKey !== undefined) {
                 const publicKeyObj = Util.key.hexToPublicKey(publicKey);
                 const syntheticKeyObj = Util.sexp.calculateSyntheticPublicKey(publicKeyObj);
                 this.syntheticKey = Util.key.publicKeyToHex(syntheticKeyObj);
@@ -123,7 +123,7 @@ export class CAT extends SmartCoin {
         const conditionsDict: ConditionsDict = res[1]!;
 
         for(const _ of (conditionsDict.get(ConditionOpcode.CREATE_COIN) ?? [])) {
-            if(_.vars[1] === "8f") { // -113 in bytes
+            if(_.vars[1] === "8f" && _.vars.length >= 4) { // -113 in bytes
                 this.TAILProgram = Util.sexp.fromHex(_.vars[2]);
                 this.TAILSolution = Util.sexp.fromHex(_.vars[3]);
                 this.calculateTAILPuzzleHash();
@@ -154,7 +154,7 @@ export class CAT extends SmartCoin {
     protected constructInnerSolution(): void {
         if(this.innerSolution !== null) return;
         if(this.TAILProgram === null || this.TAILSolution === null) return;
-        if(BigNumber.from(this.extraDelta).eq(0)) return;
+        if(this.extraDelta === null || BigNumber.from(this.extraDelta).eq(0)) return;
 
         this.innerSolution = SExp.to([
             SExp.to([

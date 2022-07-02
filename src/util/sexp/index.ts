@@ -138,19 +138,19 @@ export class SExpUtil {
         sexp: SExp,
     ): bytes[] {
         const items = [];
-        let obj = sexp;
         // eslint-disable-next-line no-constant-condition
-        while(true) {
-            const pair = obj.pair;
-            if(pair === null || pair === undefined) {
-                break;
+        try {
+            for(const e of sexp.as_iter()) {
+                if(e.atom) {
+                    items.push(e.atom.hex());
+                } else {
+                    items.push(
+                        this.toHex(SExp.to(e))
+                    );
+                }
             }
-            const atom = pair[0].atom;
-            if(atom === null || atom === undefined) {
-                break;
-            }
-            items.push(atom.hex());
-            obj = pair[1];
+        } catch(_) {
+            // do nothing
         }
 
         return items;

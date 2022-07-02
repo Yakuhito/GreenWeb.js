@@ -80,10 +80,12 @@ export class CAT extends SmartCoin {
         this.TAILProgram = TAILProgram;
         this.TAILSolution = TAILSolution;
         if(lineageProof !== null && lineageProof !== undefined) {
-            if(lineageProof.amount !== null && lineageProof.amount !== undefined) {
-                lineageProof.amount = BigNumber.from(lineageProof.amount);
-            }
-            this.lineageProof = lineageProof;
+            this.lineageProof = {
+                amount: lineageProof.amount !== null && lineageProof.amount !== undefined ?
+                    BigNumber.from(lineageProof.amount) : null,
+                parentName: lineageProof.parentName ?? null,
+                innerPuzzleHash: lineageProof.innerPuzzleHash ?? null,
+            };
         }
         if(syntheticKey !== null && syntheticKey !== undefined) {
             this.syntheticKey = syntheticKey;
@@ -190,7 +192,7 @@ export class CAT extends SmartCoin {
         TAILProgram = null,
         TAILSolution = null,
         lineageProof = null,
-    }: CATConstructorArgs = {}): CAT {
+    }: CATConstructorArgs): CAT {
         return new CAT({
             parentCoinInfo: parentCoinInfo ?? this.parentCoinInfo,
             puzzleHash: puzzleHash ?? this.puzzleHash,

@@ -200,6 +200,54 @@ describe.only("CAT", () => {
             ).to.equal(TAIL_SOLUTION_HEX);
         });
 
+        it("Does not derive TAILProgram and TAILSolution from innerSolution if there is no CREATE_COIN condition", () => {
+            const TAIL_PROGRAM_HEX = "ff0eff02ff0580"; // (mod (arg1 arg2) (concat arg1 arg2))
+            const TAIL_SOLUTION_HEX = "ff85676f6f6420ff876d6f726e696e6780"; // ("good " "morning")
+
+            const TAILProgram = Util.sexp.fromHex(TAIL_PROGRAM_HEX);
+            const TAILSolution = Util.sexp.fromHex(TAIL_SOLUTION_HEX);
+            const innerSol = SExp.to([
+                SExp.to([
+                    Bytes.from(ConditionOpcode.AGG_SIG_ME, "hex"),
+                    SExp.FALSE,
+                    Bytes.from("8f", "hex"),
+                    TAILProgram,
+                    TAILSolution
+                ]),
+            ]);
+            const c = new CAT({
+                innerPuzzle: Util.sexp.fromHex("01"), // 1
+                innerSolution: innerSol
+            });
+
+            expect(c.TAILProgram).to.be.null;
+            expect(c.TAILSolution).to.be.null;
+        });
+
+        it("Does not derive TAILProgram and TAILSolution from innerSolution if there is no CREATE_COIN -113 condition", () => {
+            const TAIL_PROGRAM_HEX = "ff0eff02ff0580"; // (mod (arg1 arg2) (concat arg1 arg2))
+            const TAIL_SOLUTION_HEX = "ff85676f6f6420ff876d6f726e696e6780"; // ("good " "morning")
+
+            const TAILProgram = Util.sexp.fromHex(TAIL_PROGRAM_HEX);
+            const TAILSolution = Util.sexp.fromHex(TAIL_SOLUTION_HEX);
+            const innerSol = SExp.to([
+                SExp.to([
+                    Bytes.from(ConditionOpcode.CREATE_COIN, "hex"),
+                    SExp.FALSE,
+                    Bytes.from("8e", "hex"),
+                    TAILProgram,
+                    TAILSolution
+                ]),
+            ]);
+            const c = new CAT({
+                innerPuzzle: Util.sexp.fromHex("01"), // 1
+                innerSolution: innerSol
+            });
+
+            expect(c.TAILProgram).to.be.null;
+            expect(c.TAILSolution).to.be.null;
+        });
+
         it("Correctly calculates puzzle and puzzleHash given TAILProgramHash and innerPuzzle", () => {
             const c = new CAT({
                 innerPuzzle: TEST_PUZZLE,
@@ -262,6 +310,61 @@ describe.only("CAT", () => {
             const innerSolutionHex = Util.sexp.toHex(innerSolution);
             // eslint-disable-next-line max-len
             expect(innerSolutionHex).to.equal("ffff33ffa079616b756869746f79616b756869746f79616b756869746f79616b756869746fff818fffff02ffff01ff02ffff01ff04ffff04ff02ffff04ff05ffff04ff5fff80808080ff8080ffff04ffff0132ff018080ffff04ffff01b0b1caabfef7a350bd3d39910f30d844c613916b0d70585f65ba37fec4eefbbc797a5b147f5ab730b77e104cb5ad9d875fff018080ffff824242808080");
+        });
+
+        it("Does not construct the inner solution when extraDelta === 0", () => {
+            const solution = SExp.to([
+                Bytes.from("4242", "hex")
+            ]);
+
+            const c = new CAT({
+                TAILProgram: TEST_TAIL,
+                TAILSolution: solution,
+                extraDelta: 0
+            });
+
+            expect(c.innerSolution).to.be.null;
+        });
+
+        it("Converts LineageProof amount to BigNumber", () => {
+            const lp: LineageProof = {
+                amount: "0x42"
+            };
+
+            const c = new CAT({
+                lineageProof: lp
+            });
+            
+            expect(
+                c.lineageProof?.amount instanceof BigNumber
+            ).to.be.true;
+            expect(
+                (c.lineageProof?.amount as BigNumber).toNumber()
+            ).to.equal(0x42);
+        });
+
+        it("Sets LineageProof amount to null when it is 'undefined'", () => {
+            const lp: LineageProof = {
+                amount: undefined
+            };
+
+            const c = new CAT({
+                lineageProof: lp
+            });
+            
+            expect(c.lineageProof?.amount).to.be.null;
+        });
+
+        it("Sets LineageProof amount to null when it is 'null'", () => {
+            const lp: LineageProof = {
+                amount: null
+            };
+
+            const c = new CAT({
+                lineageProof: lp
+            });
+            
+            expect(c.lineageProof?.amount).to.be.null;
         });
     });
 

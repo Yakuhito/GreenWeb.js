@@ -1,5 +1,5 @@
 import { getBLSModule } from "clvm";
-import { util } from "../..";
+import { Util } from "..";
 import { bytes } from "../../xch/providers/provider_types";
 import { DeriveKeysUtils } from "./derive_keys";
 import { MnemonicUtils } from "./mnemonic";
@@ -13,7 +13,7 @@ export class KeyUtil {
     public hexToPrivateKey(hex: bytes): any {
         const { PrivateKey } = getBLSModule();
 
-        const pkHex = util.address.validateHashString(hex);
+        const pkHex = Util.address.validateHashString(hex);
         if(pkHex === "") {
             return null;
         }

@@ -264,4 +264,8 @@ describe.only("CAT", () => {
             expect(innerSolutionHex).to.equal("ffff33ffa079616b756869746f79616b756869746f79616b756869746f79616b756869746fff818fffff02ffff01ff02ffff01ff04ffff04ff02ffff04ff05ffff04ff5fff80808080ff8080ffff04ffff0132ff018080ffff04ffff01b0b1caabfef7a350bd3d39910f30d844c613916b0d70585f65ba37fec4eefbbc797a5b147f5ab730b77e104cb5ad9d875fff018080ffff824242808080");
         });
     });
+
+    describe("copyWith()", () => {
+        // lolcommits
+    });
 });

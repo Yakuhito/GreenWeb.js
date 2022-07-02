@@ -117,7 +117,8 @@ export class SpendUtil {
         const list = [
             Bytes.from(spendableCAT.parentCoinInfo, "hex"),
             Bytes.from(spendableCAT.innerPuzzleHash, "hex"),
-            Bytes.from(spendableCAT.amount?.toHexString().slice(2), "hex")
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            Bytes.from(Util.coin.amountToBytes(spendableCAT.amount!), "hex")
         ];
 
         return SExp.to(list);

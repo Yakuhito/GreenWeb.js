@@ -120,7 +120,7 @@ export class StandardCoin extends SmartCoin {
                 Buffer.from(puzzleHash, "hex"),
             ),
             Bytes.from(
-                Buffer.from(amount.toHexString().slice(2), "hex")
+                Util.coin.amountToBytes(amount), "hex"
             ),
         ]);
     }
@@ -131,7 +131,7 @@ export class StandardCoin extends SmartCoin {
                 Buffer.from(ConditionOpcode.RESERVE_FEE, "hex"),
             ),
             Bytes.from(
-                Buffer.from(fee.toHexString().slice(2), "hex")
+                Util.coin.amountToBytes(fee), "hex"
             ),
         ]);
     }

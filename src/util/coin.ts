@@ -54,7 +54,6 @@ export class CoinUtil {
         return this.getId(coin);
     }
 
-    //todo: test
     public toProgram(coin: Coin): SExp {
         return SExp.to([
             Bytes.from(coin.parentCoinInfo, "hex"),

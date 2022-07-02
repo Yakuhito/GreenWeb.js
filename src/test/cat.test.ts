@@ -8,7 +8,7 @@ import { ConditionOpcode } from "../util/sexp/condition_opcodes";
 import { bytes, Coin } from "../xch/providers/provider_types";
 
 
-describe.only("CAT", () => {
+describe("CAT", () => {
     const TEST_PRIV_KEY_STR = "42".repeat(32);
     
     let TEST_PRIV_KEY: any;

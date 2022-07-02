@@ -922,4 +922,48 @@ describe("SExpUtil", () => {
             expect(sexpUtil.toHex(args[0])).to.equal("ff10ffff0132ffff013c80");
         });
     });
+
+    describe("genesisByCoinIdTAIL()", () => {
+        it("Works", () => {
+            const GENESIS_ID = "42".repeat(32);
+            const res = sexpUtil.genesisByCoinIdTAIL(GENESIS_ID);
+        
+            expect(
+                sexpUtil.toHex(res)
+            ).to.equal("ff02ffff01ff02ffff03ff2fffff01ff0880ffff01ff02ffff03ffff09ff2dff0280ff80ffff01ff088080ff018080ff0180ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ff018080");
+        });
+    });
+
+    describe("genesisByPuzzleHashTAIL()", () => {
+        it("Works", () => {
+            const PUZZLE_HASH = "42".repeat(32);
+            const res = sexpUtil.genesisByPuzzleHashTAIL(PUZZLE_HASH);
+        
+            expect(
+                sexpUtil.toHex(res)
+            ).to.equal("ff02ffff01ff02ffff03ff2fffff01ff0880ffff01ff02ffff03ffff09ffff0bff82013fff02ff8202bf80ff2d80ff80ffff01ff088080ff018080ff0180ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ff018080");
+        });
+    });
+
+    describe("everythingWithSignatureTAIL()", () => {
+        it("Works", () => {
+            const pubKey = "42".repeat(48);
+            const res = sexpUtil.everythingWithSignatureTAIL(pubKey);
+        
+            expect(
+                sexpUtil.toHex(res)
+            ).to.equal("ff02ffff01ff02ffff01ff04ffff04ff02ffff04ff05ffff04ff5fff80808080ff8080ffff04ffff0132ff018080ffff04ffff01b0424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242ff018080");
+        });
+    });
+
+    describe("delegatedTAIL()", () => {
+        it("Works", () => {
+            const pubKey = "42".repeat(48);
+            const res = sexpUtil.delegatedTAIL(pubKey);
+        
+            expect(
+                sexpUtil.toHex(res)
+            ).to.equal("ff02ffff01ff02ffff01ff04ffff04ff04ffff04ff05ffff04ffff02ff06ffff04ff02ffff04ff82027fff80808080ff80808080ffff02ff82027fffff04ff0bffff04ff17ffff04ff2fffff04ff5fffff04ff81bfff82057f80808080808080ffff04ffff01ff31ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff06ffff04ff02ffff04ff09ff80808080ffff02ff06ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080ffff04ffff01b0424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242ff018080");
+        });
+    });
 });

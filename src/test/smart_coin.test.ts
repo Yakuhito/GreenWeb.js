@@ -402,4 +402,29 @@ describe("SmartCoin", () => {
             expect(sc.getId()).to.equal("1cc5ca8441d8c37ef7be224cbc5b24acb83da17970a4652ad0788d6f29e0846e");
         });
     });
+
+    describe("isSpendable()", () => {
+        it("Returns false if coin info is not available", () => {
+            const sc = new SmartCoin();
+
+            expect(sc.isSpendable()).to.be.false;
+        });
+
+        it("Returns false if coin info is incomplete", () => {
+            const sc = new SmartCoin({
+                parentCoinInfo: TEST_COIN.parentCoinInfo,
+                puzzleHash: TEST_COIN.puzzleHash
+            });
+
+            expect(sc.isSpendable()).to.be.false;
+        });
+
+        it("Returns true if coin info is available", () => {
+            const sc = new SmartCoin({
+                coin: TEST_COIN
+            });
+
+            expect(sc.isSpendable()).to.be.true;
+        });
+    });
 });

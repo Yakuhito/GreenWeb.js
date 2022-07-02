@@ -506,4 +506,56 @@ describe.only("CAT", () => {
             ).to.be.true;
         });
     });
+
+    describe("isSpendable()", () => {
+        it("Returns false if there is no coin info", () => {
+            const c = new CAT({
+                innerSolution: SExp.to([]),
+                TAILProgramHash: TEST_TAIL_HASH,
+                innerPuzzle: TEST_PUZZLE
+            });
+
+            expect(
+                c.isSpendable()
+            ).to.be.false;
+        });
+
+        it("Returns false if coin info is incomplete", () => {
+            const c = new CAT({
+                innerSolution: SExp.to([]),
+                TAILProgramHash: TEST_TAIL_HASH,
+                innerPuzzle: TEST_PUZZLE,
+                parentCoinInfo: TEST_COIN.parentCoinInfo,
+                puzzleHash: TEST_COIN.puzzleHash,
+            });
+
+            expect(
+                c.isSpendable()
+            ).to.be.false;
+        });
+
+        it("Returns false if required CAT info is incomplete", () => {
+            const c = new CAT({
+                coin: TEST_COIN,
+                TAILProgramHash: TEST_TAIL_HASH,
+            });
+
+            expect(
+                c.isSpendable()
+            ).to.be.false;
+        });
+
+        it("Returns true if required info is available", () => {
+            const c = new CAT({
+                coin: TEST_COIN,
+                TAILProgramHash: TEST_TAIL_HASH,
+                innerSolution: SExp.to([]),
+                publicKey: TEST_PUB_KEY
+            });
+
+            expect(
+                c.isSpendable()
+            ).to.be.true;
+        });
+    });
 });

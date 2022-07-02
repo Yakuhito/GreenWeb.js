@@ -85,7 +85,8 @@ export class CAT extends SmartCoin {
         } else {
             if(publicKey !== null) {
                 const publicKeyObj = Util.key.hexToPublicKey(publicKey);
-                this.syntheticKey =Util.sexp.calculateSyntheticPublicKey(publicKeyObj);
+                const syntheticKeyObj = Util.sexp.calculateSyntheticPublicKey(publicKeyObj);
+                this.syntheticKey = Util.key.publicKeyToHex(syntheticKeyObj);
             }
         }
 
@@ -101,7 +102,7 @@ export class CAT extends SmartCoin {
         if(this.syntheticKey === null) return;
 
         this.innerPuzzle = Util.sexp.standardCoinPuzzle(
-            Util.key.hexToPrivateKey(this.syntheticKey),
+            Util.key.hexToPublicKey(this.syntheticKey),
             true
         )
     }
@@ -134,14 +135,7 @@ export class CAT extends SmartCoin {
     protected constructPuzzle() {
         if(this.TAILProgramHash === null || this.innerPuzzle === null) return;
     
-        this.puzzle = Util.sexp.curry(
-            Util.sexp.CAT_PROGRAM,
-            [
-                SExp.to(Bytes.from(Util.sexp.CAT_PROGRAM_MOD_HASH, "hex")),
-                SExp.to(Bytes.from(this.TAILProgramHash, "hex")),
-                this.innerPuzzle
-            ]
-        );
+        this.puzzle = Util.sexp.CATPuzzle(this.TAILProgramHash, this.innerPuzzle);
         this.calculatePuzzleHash();
     }
 
@@ -200,7 +194,8 @@ export class CAT extends SmartCoin {
             TAILProgramHash: TAILProgramHash ?? this.TAILProgramHash,
             innerPuzzle: innerPuzzle ?? this.innerPuzzle,
             publicKey: publicKey,
-            syntheticKey: syntheticKey ?? this.syntheticKey,
+            syntheticKey: publicKey === null || publicKey === undefined ?
+                syntheticKey ?? this.syntheticKey : null,
             innerSolution: innerSolution ?? this.innerSolution,
             extraDelta: extraDelta ?? this.extraDelta,
             TAILProgram: TAILProgram ?? this.TAILProgram,

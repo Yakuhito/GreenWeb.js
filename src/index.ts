@@ -21,3 +21,6 @@ export { SmartCoin } from "./smart_coin";
 
 // greenweb.StandardCoin
 export { StandardCoin } from "./standard_coin";
+
+// greenweb.CAT
+export { CAT } from "./cat";

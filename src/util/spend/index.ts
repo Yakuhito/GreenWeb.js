@@ -9,7 +9,7 @@ import { ConditionOpcode } from "../sexp/condition_opcodes";
 
 export class SpendUtil {
     // https://github.com/Chia-Network/chia-blockchain/blob/749162d9fead35d2beb2d34bdc7d90df4d5ec6d5/chia/wallet/cat_wallet/cat_utils.py#L88
-    public spendCATs(CATs: CAT[]): CoinSpend[] {
+    public static spendCATs(CATs: CAT[]): CoinSpend[] {
         const N = CATs.length;
 
         const deltas = [];
@@ -96,7 +96,7 @@ export class SpendUtil {
     }
 
     // https://github.com/Chia-Network/chia-blockchain/blob/749162d9fead35d2beb2d34bdc7d90df4d5ec6d5/chia/wallet/cat_wallet/cat_utils.py#L63
-    private subtotalsForDeltas(deltas: BigNumber[]): BigNumber[] {
+    private static subtotalsForDeltas(deltas: BigNumber[]): BigNumber[] {
         const subtotals = [];
         let subtotal = BigNumber.from(0);
 
@@ -113,7 +113,7 @@ export class SpendUtil {
     }
 
     // https://github.com/Chia-Network/chia-blockchain/blob/749162d9fead35d2beb2d34bdc7d90df4d5ec6d5/chia/wallet/cat_wallet/cat_utils.py#L82
-    private nextInfoForSpendableCat(spendableCAT: CAT): SExp {
+    private static nextInfoForSpendableCat(spendableCAT: CAT): SExp {
         const list = [
             Bytes.from(spendableCAT.parentCoinInfo, "hex"),
             Bytes.from(spendableCAT.innerPuzzleHash, "hex"),

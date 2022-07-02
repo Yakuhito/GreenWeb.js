@@ -34,4 +34,8 @@ describe("GreenWeb.js module", () => {
     it("Exports 'StandardCoin'", () => {
         expect(GreenWeb.StandardCoin).to.not.be.undefined;
     });
+
+    it("Exports 'CAT'", () => {
+        expect(GreenWeb.CAT).to.not.be.undefined;
+    });
 });

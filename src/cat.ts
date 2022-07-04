@@ -296,7 +296,7 @@ export class CAT extends SmartCoin {
     }
 
     public addConditionsToInnerSolution(conditions: SExp[]): CAT {
-        if(this.innerSolution === null) return this;
+        if(this.innerSolution === null) this.innerSolution = SExp.to([])
 
         try {
             const cl = [];

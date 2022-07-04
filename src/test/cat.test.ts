@@ -8,7 +8,7 @@ import { ConditionOpcode } from "../util/sexp/condition_opcodes";
 import { bytes, Coin } from "../xch/providers/provider_types";
 
 
-describe.only("CAT", () => {
+describe("CAT", () => {
     const TEST_PRIV_KEY_STR = "42".repeat(32);
     
     let TEST_PRIV_KEY: any;
@@ -663,17 +663,22 @@ describe.only("CAT", () => {
     });
 
     describe("addConditionsToInnerSolution()", () => {
-        it("Returns current CAT if innerSolution is null", () => {
+        it("Correctly handles innerSolution = null", () => {
             const c = new CAT({
                 coin: TEST_COIN,
             });
             const c2 = c.addConditionsToInnerSolution([SExp.FALSE, SExp.TRUE]);
 
-            expect(c2.innerSolution).to.be.null;
+            expect(c2.innerSolution).to.not.be.null;
+            expect(
+                Util.sexp.toHex(c2.innerSolution)
+            ).to.equal(
+                Util.sexp.toHex(SExp.to([SExp.FALSE, SExp.TRUE]))
+            );
             expect(c2.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
         });
 
-        it("Does not modify inner solution if it is not a list", () => {
+        it("Does not modify innerSolution if it is not a list", () => {
             const c = new CAT({
                 innerSolution: SExp.to(Bytes.from("4242", "hex"))
             });

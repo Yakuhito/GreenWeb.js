@@ -294,4 +294,24 @@ export class CAT extends SmartCoin {
 
         return false;
     }
+
+    public addConditionsToInnerSolution(conditions: SExp[]): CAT {
+        if(this.innerSolution === null) return this;
+
+        try {
+            const cl = [];
+            for(const elem of this.innerSolution.as_iter()) {
+                cl.push(elem);
+            }
+            for(const elem of conditions) {
+                cl.push(elem);
+            }
+
+            return this.copyWith({
+                innerSolution: SExp.to(cl),
+            });
+        } catch(_) {
+            return this;
+        }
+    }
 }

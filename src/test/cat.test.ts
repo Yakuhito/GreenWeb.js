@@ -8,7 +8,7 @@ import { ConditionOpcode } from "../util/sexp/condition_opcodes";
 import { bytes, Coin } from "../xch/providers/provider_types";
 
 
-describe("CAT", () => {
+describe.only("CAT", () => {
     const TEST_PRIV_KEY_STR = "42".repeat(32);
     
     let TEST_PRIV_KEY: any;
@@ -659,6 +659,51 @@ describe("CAT", () => {
             expect(
                 c.isSpendable()
             ).to.be.true;
+        });
+    });
+
+    describe("addConditionsToInnerSolution()", () => {
+        it("Returns current CAT if innerSolution is null", () => {
+            const c = new CAT({
+                coin: TEST_COIN,
+            });
+            const c2 = c.addConditionsToInnerSolution([SExp.FALSE, SExp.TRUE]);
+
+            expect(c2.innerSolution).to.be.null;
+            expect(c2.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
+        });
+
+        it("Does not modify inner solution if it is not a list", () => {
+            const c = new CAT({
+                innerSolution: SExp.to(Bytes.from("4242", "hex"))
+            });
+            const c2 = c.addConditionsToInnerSolution([SExp.FALSE, SExp.TRUE]);
+
+            expect(
+                Util.sexp.toHex(c2.innerSolution)
+            ).to.equal("824242");
+        });
+
+        it("Works", () => {
+            const initialConds = [SExp.TRUE, SExp.TRUE];
+            const condsToAdd = [SExp.FALSE, SExp.TRUE, SExp.TRUE];
+            const finalConds = [...initialConds, ...condsToAdd];
+
+            const c = new CAT({
+                innerSolution: SExp.to(initialConds),
+            });
+            const c2 = c.addConditionsToInnerSolution(condsToAdd);
+
+            expect(
+                Util.sexp.toHex(c.innerSolution)
+            ).to.equal(
+                Util.sexp.toHex(SExp.to(initialConds)),
+            );
+            expect(
+                Util.sexp.toHex(c2.innerSolution)
+            ).to.equal(
+                Util.sexp.toHex(SExp.to(finalConds)),
+            );
         });
     });
 });

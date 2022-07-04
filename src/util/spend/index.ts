@@ -2,14 +2,34 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { Bytes, SExp } from "clvm";
 import { Util } from "..";
 import { CAT } from "../../cat";
-import { Coin } from "../../xch/providers/provider_types";
+import { bytes, Coin, uint } from "../../xch/providers/provider_types";
 import { CoinSpend } from "../serializer/types/coin_spend";
 import { ConditionsDict } from "../sexp";
 import { ConditionOpcode } from "../sexp/condition_opcodes";
 
 export class SpendUtil {
+    private createCoinCondition(puzzleHash: bytes, amount: uint, memos: bytes[] = []): SExp {
+        return SExp.to([
+            Bytes.from(ConditionOpcode.CREATE_COIN, "hex"),
+            Bytes.from(puzzleHash, "hex"),
+            Bytes.from(Util.coin.amountToBytes(amount), "hex"),
+            ...memos.map(e => Bytes.from(e, "hex"))
+        ]);
+    }
+
+    private reserveFeeCondition(fee: uint): SExp {
+        return SExp.to([
+            Bytes.from(
+                Buffer.from(ConditionOpcode.RESERVE_FEE, "hex"),
+            ),
+            Bytes.from(
+                Util.coin.amountToBytes(fee), "hex"
+            ),
+        ]);
+    }
+
     // https://github.com/Chia-Network/chia-blockchain/blob/749162d9fead35d2beb2d34bdc7d90df4d5ec6d5/chia/wallet/cat_wallet/cat_utils.py#L88
-    public static spendCATs(CATs: CAT[]): CoinSpend[] {
+    public spendCATs(CATs: CAT[]): CoinSpend[] {
         const N = CATs.length;
 
         const deltas = [];
@@ -96,7 +116,7 @@ export class SpendUtil {
     }
 
     // https://github.com/Chia-Network/chia-blockchain/blob/749162d9fead35d2beb2d34bdc7d90df4d5ec6d5/chia/wallet/cat_wallet/cat_utils.py#L63
-    private static subtotalsForDeltas(deltas: BigNumber[]): BigNumber[] {
+    private subtotalsForDeltas(deltas: BigNumber[]): BigNumber[] {
         const subtotals = [];
         let subtotal = BigNumber.from(0);
 
@@ -113,7 +133,7 @@ export class SpendUtil {
     }
 
     // https://github.com/Chia-Network/chia-blockchain/blob/749162d9fead35d2beb2d34bdc7d90df4d5ec6d5/chia/wallet/cat_wallet/cat_utils.py#L82
-    private static nextInfoForSpendableCat(spendableCAT: CAT): SExp {
+    private nextInfoForSpendableCat(spendableCAT: CAT): SExp {
         const list = [
             Bytes.from(spendableCAT.parentCoinInfo, "hex"),
             Bytes.from(spendableCAT.innerPuzzleHash, "hex"),

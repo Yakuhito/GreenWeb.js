@@ -226,6 +226,6 @@ export class StandardCoin extends SmartCoin {
             SExp.to([])
         ]);
 
-        return this.spend(solution);
+        return this.withSolution(solution).spend(); //todo
     }
 }

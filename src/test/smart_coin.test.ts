@@ -2,11 +2,12 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
+import { SExp } from "clvm";
 import { SmartCoin } from "../smart_coin";
 import { Util } from "../util";
 import { Coin } from "../xch/providers/provider_types";
 
-describe("SmartCoin", () => {
+describe.only("SmartCoin", () => {
     /*
     (venv) yakuhito@catstation:~/projects/clvm_tools$ run '(mod (conditions) (list conditions))'
     (c 2 ())
@@ -15,7 +16,8 @@ describe("SmartCoin", () => {
     */
     const TEST_COIN_PUZZLE_STR = "ff04ff02ff8080";
     const TEST_COIN_PUZZLE = Util.sexp.fromHex(TEST_COIN_PUZZLE_STR);
-    const TEST_COIN_SOLUTION = Util.sexp.fromHex("80"); // ()
+    const TEST_COIN_SOLUTION_STR = "80"; // {}
+    const TEST_COIN_SOLUTION = Util.sexp.fromHex(TEST_COIN_SOLUTION_STR); // ()
 
     const TEST_COIN = new Coin();
     TEST_COIN.amount = 1337;
@@ -28,7 +30,8 @@ describe("SmartCoin", () => {
                 amount: TEST_COIN.amount,
                 parentCoinInfo: TEST_COIN.parentCoinInfo,
                 puzzleHash: TEST_COIN.puzzleHash,
-                puzzle: TEST_COIN_PUZZLE
+                puzzle: TEST_COIN_PUZZLE,
+                solution: TEST_COIN_SOLUTION
             });
 
             expect(
@@ -39,6 +42,9 @@ describe("SmartCoin", () => {
             expect(
                 Util.sexp.toHex(sc.puzzle)
             ).to.equal(TEST_COIN_PUZZLE_STR);
+            expect(
+                Util.sexp.toHex(sc.solution)
+            ).to.equal(TEST_COIN_SOLUTION_STR);
         });
 
         it("Correctly sets values if given no arguments", () => {
@@ -48,6 +54,7 @@ describe("SmartCoin", () => {
             expect(sc.puzzleHash).to.be.null;
             expect(sc.amount).to.be.null;
             expect(sc.puzzle).to.be.null;
+            expect(sc.solution).to.be.null;
         });
 
         it("Correctly sets values if given no arguments (#2)", () => {
@@ -57,6 +64,7 @@ describe("SmartCoin", () => {
             expect(sc.puzzleHash).to.be.null;
             expect(sc.amount).to.be.null;
             expect(sc.puzzle).to.be.null;
+            expect(sc.solution).to.be.null;
         });
 
         it("Correctly sets values if all arguments are 'undefined'", () => {
@@ -65,13 +73,15 @@ describe("SmartCoin", () => {
                 puzzleHash: undefined,
                 amount: undefined,
                 coin: undefined,
-                puzzle: undefined
+                puzzle: undefined,
+                solution: undefined,
             });
 
             expect(sc.parentCoinInfo).to.be.null;
             expect(sc.puzzleHash).to.be.null;
             expect(sc.amount).to.be.null;
             expect(sc.puzzle).to.be.null;
+            expect(sc.solution).to.be.null;
         });
 
         it("Prefers coin to parentCoinInfo / puzzleHash / amount", () => {
@@ -105,7 +115,8 @@ describe("SmartCoin", () => {
                 amount: TEST_COIN.amount,
                 puzzleHash: TEST_COIN.puzzleHash,
                 parentCoinInfo: TEST_COIN.parentCoinInfo,
-                puzzle: TEST_COIN_PUZZLE
+                puzzle: TEST_COIN_PUZZLE,
+                solution: TEST_COIN_SOLUTION
             });
 
             expect(
@@ -116,6 +127,9 @@ describe("SmartCoin", () => {
             expect(
                 Util.sexp.toHex(sc.puzzle)
             ).to.equal(TEST_COIN_PUZZLE_STR);
+            expect(
+                Util.sexp.toHex(sc.solution)
+            ).to.equal(TEST_COIN_SOLUTION_STR);
         });
 
         it("Correctly sets values if given no arguments", () => {
@@ -125,6 +139,7 @@ describe("SmartCoin", () => {
             expect(sc.puzzleHash).to.be.null;
             expect(sc.amount).to.be.null;
             expect(sc.puzzle).to.be.null;
+            expect(sc.solution).to.be.null;
         });
 
         it("Correctly sets values if all arguments are 'undefined'", () => {
@@ -132,13 +147,15 @@ describe("SmartCoin", () => {
                 parentCoinInfo: undefined,
                 puzzleHash: undefined,
                 amount: undefined,
-                puzzle: undefined
+                puzzle: undefined,
+                solution: undefined,
             });
 
             expect(sc.parentCoinInfo).to.be.null;
             expect(sc.puzzleHash).to.be.null;
             expect(sc.amount).to.be.null;
             expect(sc.puzzle).to.be.null;
+            expect(sc.solution).to.be.null;
         });
 
         it("Prefers coin to parentCoinInfo / puzzleHash / amount", () => {
@@ -253,6 +270,36 @@ describe("SmartCoin", () => {
         });
     });
 
+    describe("withSolution()", () => {
+        it("Correctly creates a new SmartCoin with modified solution", () => {
+            const sc = new SmartCoin({
+                solution: SExp.TRUE,
+            });
+
+            expect(
+                Util.sexp.toHex(sc.solution)
+            ).to.not.equal(TEST_COIN_SOLUTION_STR);
+            const sc2 = sc.withSolution(TEST_COIN_SOLUTION);
+            expect(
+                Util.sexp.toHex(sc2.solution)
+            ).to.equal(TEST_COIN_SOLUTION_STR);
+        });
+
+        it("Does not modify the initial SmartCoin", () => {
+            const sc = new SmartCoin({
+                solution: SExp.TRUE,
+            });
+
+            expect(
+                Util.sexp.toHex(sc.solution)
+            ).to.not.equal(TEST_COIN_SOLUTION_STR);
+            sc.withSolution(TEST_COIN_SOLUTION);
+            expect(
+                Util.sexp.toHex(sc.solution)
+            ).to.not.equal(TEST_COIN_SOLUTION_STR);
+        });
+    });
+
     describe("toCoin()", () => {
         it("Returns null if SmartCoin doesn't have coin info", () => {
             const sc = new SmartCoin({puzzle: TEST_COIN_PUZZLE});
@@ -272,28 +319,34 @@ describe("SmartCoin", () => {
 
     describe("spend()", () => {
         it("Returns null if puzzle is not available", () => {
-            const sc = new SmartCoin({coin: TEST_COIN});
+            const sc = new SmartCoin({coin: TEST_COIN, solution: TEST_COIN_SOLUTION});
 
-            expect(sc.spend(TEST_COIN_SOLUTION)).to.be.null;
+            expect(sc.spend()).to.be.null;
         });
 
         it("Returns null if coin info is not available", () => {
-            const sc = new SmartCoin({puzzle: TEST_COIN_PUZZLE});
+            const sc = new SmartCoin({puzzle: TEST_COIN_PUZZLE, solution: TEST_COIN_SOLUTION});
 
-            expect(sc.spend(TEST_COIN_SOLUTION)).to.be.null;
+            expect(sc.spend()).to.be.null;
+        });
+
+        it("Returns null if solution is not available", () => {
+            const sc = new SmartCoin({coin: TEST_COIN, puzzle: TEST_COIN_PUZZLE});
+
+            expect(sc.spend()).to.be.null;
         });
 
         it("Works if coin info and puzzle are available", () => {
-            const sc = new SmartCoin({coin: TEST_COIN, puzzle: TEST_COIN_PUZZLE});
+            const sc = new SmartCoin({coin: TEST_COIN, puzzle: TEST_COIN_PUZZLE, solution: TEST_COIN_SOLUTION});
 
-            const spendBundle = sc.spend(TEST_COIN_SOLUTION);
-            expect(spendBundle).to.not.be.null;
+            const coinSpend = sc.spend();
+            expect(coinSpend).to.not.be.null;
             expect(
-                Util.sexp.toHex(spendBundle?.puzzleReveal)
+                Util.sexp.toHex(coinSpend?.puzzleReveal)
             ).to.equal(Util.sexp.toHex(TEST_COIN_PUZZLE));
-            expect(Util.sexp.toHex(spendBundle?.solution)).to.equal(Util.sexp.toHex(TEST_COIN_SOLUTION));
+            expect(Util.sexp.toHex(coinSpend?.solution)).to.equal(Util.sexp.toHex(TEST_COIN_SOLUTION));
 
-            const c = spendBundle?.coin;
+            const c = coinSpend?.coin;
             expect(c?.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
             expect(c?.puzzleHash).to.equal(TEST_COIN.puzzleHash);
             expect(c?.amount.toString()).to.equal(TEST_COIN.amount.toString());
@@ -327,7 +380,7 @@ describe("SmartCoin", () => {
         const CURRIED_PROGRAM_HEX = "ff02ffff01ff10ff02ff0580ffff04ffff0107ff018080";
 
         it("Works if coin info is not set", () => {
-            const sc = new SmartCoin({puzzle: PROGRAM});
+            const sc = new SmartCoin({puzzle: PROGRAM, solution: TEST_COIN_SOLUTION});
             const newSc = sc.curry(ARGS);
 
             expect(newSc).to.not.be.null;
@@ -337,6 +390,7 @@ describe("SmartCoin", () => {
             expect(
                 Util.sexp.toHex(newSc?.puzzle)
             ).to.equal(CURRIED_PROGRAM_HEX);
+            expect(newSc?.solution).to.be.null;
         });
 
         it("Works if coin info is set", () => {
@@ -405,7 +459,10 @@ describe("SmartCoin", () => {
 
     describe("isSpendable()", () => {
         it("Returns false if coin info is not available", () => {
-            const sc = new SmartCoin();
+            const sc = new SmartCoin({
+                puzzle: TEST_COIN_PUZZLE,
+                solution: TEST_COIN_SOLUTION
+            });
 
             expect(sc.isSpendable()).to.be.false;
         });
@@ -413,15 +470,37 @@ describe("SmartCoin", () => {
         it("Returns false if coin info is incomplete", () => {
             const sc = new SmartCoin({
                 parentCoinInfo: TEST_COIN.parentCoinInfo,
-                puzzleHash: TEST_COIN.puzzleHash
+                puzzleHash: TEST_COIN.puzzleHash,
+                puzzle: TEST_COIN_PUZZLE,
+                solution: TEST_COIN_SOLUTION
             });
 
             expect(sc.isSpendable()).to.be.false;
         });
 
-        it("Returns true if coin info is available", () => {
+        it("Returns false if puzzle is not available", () => {
             const sc = new SmartCoin({
-                coin: TEST_COIN
+                coin: TEST_COIN,
+                solution: TEST_COIN_SOLUTION
+            });
+
+            expect(sc.isSpendable()).to.be.false;
+        });
+
+        it("Returns false if solution is not available", () => {
+            const sc = new SmartCoin({
+                coin: TEST_COIN,
+                puzzle: TEST_COIN_PUZZLE
+            });
+
+            expect(sc.isSpendable()).to.be.false;
+        });
+
+        it("Works", () => {
+            const sc = new SmartCoin({
+                coin: TEST_COIN,
+                puzzle: TEST_COIN_PUZZLE,
+                solution: TEST_COIN_SOLUTION
             });
 
             expect(sc.isSpendable()).to.be.true;

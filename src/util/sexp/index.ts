@@ -1,7 +1,8 @@
 /* eslint-disable max-len */
+import { BigNumberish } from "@ethersproject/bignumber";
 import { Bytes, CLVMType, getBLSModule, OPERATOR_LOOKUP, run_program, SExp, sexp_from_stream, Stream } from "clvm";
 import { Util } from "..";
-import { bytes } from "../../xch/providers/provider_types";
+import { bytes, Coin } from "../../xch/providers/provider_types";
 import { ConditionOpcode } from "./condition_opcodes";
 import { ConditionWithArgs } from "./condition_with_args";
 
@@ -389,6 +390,25 @@ export class SExpUtil {
                 innerPuzzle
             ]
         );
+    }
+    public CATSolution(
+        innerPuzzleSolution: SExp,
+        lineageProof: Coin | null,
+        prevCoinId: bytes,
+        thisCoinInfo: Coin,
+        nextCoinProof: Coin,
+        prevSubtotal: BigNumberish,
+        extraDelta: BigNumberish
+    ): SExp {
+        return SExp.to([
+            innerPuzzleSolution,
+            lineageProof === null ? SExp.FALSE : Util.coin.toProgram(lineageProof),
+            Bytes.from(prevCoinId, "hex"),
+            Util.coin.toProgram(thisCoinInfo),
+            Util.coin.toProgram(nextCoinProof),
+            Bytes.from(Util.coin.amountToBytes(prevSubtotal), "hex"),
+            Bytes.from(Util.coin.amountToBytes(extraDelta), "hex"),
+        ]);
     }
 
     // https://github.com/Chia-Network/chia-blockchain/blob/d0de8038cd95b71fa050f79e3685c51dcf05e13e/chia/wallet/puzzles/genesis_by_coin_id.clvm.hex

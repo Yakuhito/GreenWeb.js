@@ -1,4 +1,4 @@
-import { BigNumber } from "@ethersproject/bignumber";
+import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { Bytes, SExp } from "clvm";
 import { SmartCoin } from "./smart_coin";
 import { Util } from "./util";
@@ -25,7 +25,10 @@ export type CATConstructorArgs = {
     syntheticKey?: bytes | null,
     // spend
     innerSolution?: SExp | null,
-    // or (spend 2)
+    prevCoinId?: bytes | null,
+    nextCoinProof?: Coin | null,
+    prevSubotal?: BigNumberish | null,
+    // spend extra
     extraDelta?: uint | null,
     TAILProgram?: SExp | null,
     TAILSolution?: SExp | null,
@@ -40,6 +43,9 @@ export class CAT extends SmartCoin {
     public syntheticKey: bytes | null = null;
 
     public innerSolution: SExp | null = null;
+    public prevCoinId: bytes | null = null;
+    public nextCoinProof: Coin | null = null;
+    public prevSubotal: BigNumberish | null = null;
 
     public extraDelta: uint | null = null;
     public TAILProgram: SExp | null = null;
@@ -54,10 +60,13 @@ export class CAT extends SmartCoin {
 
         TAILProgramHash = null,
 
-        innerSolution = null,
-
         publicKey = null,
         syntheticKey = null,
+
+        innerSolution = null,
+        prevCoinId = null,
+        nextCoinProof = null,
+        prevSubotal = null,
 
         extraDelta = null,
         TAILProgram = null,
@@ -70,6 +79,11 @@ export class CAT extends SmartCoin {
 
         this.TAILProgramHash = TAILProgramHash;
         this.innerSolution = innerSolution;
+        this.prevCoinId = prevCoinId;
+        this.nextCoinProof = nextCoinProof;
+        if(prevSubotal !== null && prevSubotal !== undefined) {
+            this.prevSubotal = BigNumber.from(prevSubotal);
+        }
         if(extraDelta !== null && extraDelta !== undefined) {
             this.extraDelta = BigNumber.from(extraDelta);
         }
@@ -103,6 +117,7 @@ export class CAT extends SmartCoin {
         this.constructInnerSolution();
         this.constructPuzzle();
         this.calculateTAILPuzzleHash();
+        this.constructSolution();
     }
 
     protected deriveTAILProgramAndSolutionFromSolution() {
@@ -159,6 +174,49 @@ export class CAT extends SmartCoin {
         ]);
     }
 
+    protected lineageProofAsCoin(): Coin | null {
+        if(
+            this.lineageProof?.amount === null ||
+            this.lineageProof?.innerPuzzleHash === null ||
+            this.lineageProof?.parentName === null
+        ) {
+            return null;
+        }
+
+        const c = new Coin();
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        c.parentCoinInfo = this.lineageProof!.parentName!;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        c.puzzleHash = this.lineageProof!.innerPuzzleHash!;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        c.amount = this.lineageProof!.amount!;
+
+        return c;
+    }
+
+    protected constructSolution(): void {
+        if(
+            this.innerSolution === null ||
+            this.lineageProof === null ||
+            this.prevCoinId === null ||
+            !this.hasCoinInfo() ||
+            this.nextCoinProof === null ||
+            this.prevSubotal === null ||
+            this.extraDelta === null
+        ) return;
+
+        this.solution = Util.sexp.CATSolution(
+            this.innerSolution,
+            this.lineageProofAsCoin(),
+            this.prevCoinId,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.toCoin()!,
+            this.nextCoinProof,
+            this.prevSubotal,
+            this.extraDelta
+        );
+    }
+
     public copyWith({
         parentCoinInfo = null,
         puzzleHash = null,
@@ -168,6 +226,9 @@ export class CAT extends SmartCoin {
         TAILProgramHash = null,
 
         innerSolution = null,
+        prevCoinId = null,
+        nextCoinProof = null,
+        prevSubotal = null,
 
         publicKey = null,
         syntheticKey = null,
@@ -186,6 +247,9 @@ export class CAT extends SmartCoin {
             publicKey: publicKey,
             syntheticKey: syntheticKey ?? this.syntheticKey,
             innerSolution: innerSolution ?? this.innerSolution,
+            prevCoinId: prevCoinId ?? this.prevCoinId,
+            nextCoinProof: nextCoinProof ?? this.nextCoinProof,
+            prevSubotal: prevSubotal ?? this.prevSubotal,
             extraDelta: extraDelta ?? this.extraDelta,
             TAILProgram: TAILProgram ?? this.TAILProgram,
             TAILSolution: TAILSolution ?? this.TAILSolution,
@@ -262,29 +326,40 @@ export class CAT extends SmartCoin {
     public isSpendable(): boolean {
         if(!this.hasCoinInfo()) return false;
 
-        if(
-            this.innerSolution !== null &&
-            this.TAILProgramHash !== null &&
-            this.innerPuzzle !== null
-        ) return true;
+        if(this.puzzle !== null && this.solution !== null) return true;
 
         return false;
     }
 
     public addConditionsToInnerSolution(conditions: SExp[]): CAT {
-        if(this.innerSolution === null) this.innerSolution = SExp.to([])
-
+        if(this.innerSolution === null) {
+            this.innerSolution = Util.sexp.standardCoinSolution([]);
+        }
+        
         try {
-            const cl = [];
+            const e = [];
             for(const elem of this.innerSolution.as_iter()) {
-                cl.push(elem);
+                e.push(elem);
+            }
+            if(e.length !== 3) return this;
+
+            const conditionList: SExp[] = [];
+            const cl = e[1];
+            let first = true;
+
+            for(const elem of cl.as_iter()) {
+                if(first) {
+                    first = false;
+                } else {
+                    conditionList.push(elem);
+                }
             }
             for(const elem of conditions) {
-                cl.push(elem);
+                conditionList.push(elem);
             }
 
             return this.copyWith({
-                innerSolution: SExp.to(cl),
+                innerSolution: Util.sexp.standardCoinSolution(conditionList),
             });
         } catch(_) {
             return this;

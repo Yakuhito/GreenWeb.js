@@ -20,7 +20,6 @@ export type CATConstructorArgs = {
     coin?: Coin | null,
     // CAT-specific
     TAILProgramHash?: bytes | null,
-    innerPuzzle?: SExp | null,
     // inner puzzle
     publicKey?: bytes | null,
     syntheticKey?: bytes | null,
@@ -37,7 +36,6 @@ export class CAT extends SmartCoin {
     public TAILProgramHash: bytes | null = null;
 
     public innerPuzzle: SExp | null = null;
-    public innerPuzzleHash: bytes | null = null;
 
     public syntheticKey: bytes | null = null;
 
@@ -55,7 +53,6 @@ export class CAT extends SmartCoin {
         coin = null,
 
         TAILProgramHash = null,
-        innerPuzzle = null,
 
         innerSolution = null,
 
@@ -72,7 +69,6 @@ export class CAT extends SmartCoin {
         });
 
         this.TAILProgramHash = TAILProgramHash;
-        this.innerPuzzle = innerPuzzle;
         this.innerSolution = innerSolution;
         if(extraDelta !== null && extraDelta !== undefined) {
             this.extraDelta = BigNumber.from(extraDelta);
@@ -81,37 +77,32 @@ export class CAT extends SmartCoin {
         this.TAILSolution = TAILSolution;
         if(lineageProof !== null && lineageProof !== undefined) {
             this.lineageProof = {
-                amount: lineageProof.amount !== null && lineageProof.amount !== undefined ?
-                    BigNumber.from(lineageProof.amount) : null,
+                amount: lineageProof.amount ? BigNumber.from(lineageProof.amount) : null,
                 parentName: lineageProof.parentName ?? null,
                 innerPuzzleHash: lineageProof.innerPuzzleHash ?? null,
             };
         }
-        if(syntheticKey !== null && syntheticKey !== undefined) {
+
+        let synthKey: any | null = null;
+        if(publicKey !== null && publicKey !== undefined) {
+            synthKey = Util.sexp.calculateSyntheticPublicKey(
+                Util.key.hexToPublicKey(publicKey),
+            );
+            this.syntheticKey = Util.key.publicKeyToHex(synthKey);
+        } else if(syntheticKey !== null && syntheticKey !== undefined) {
+            synthKey = Util.key.hexToPublicKey(syntheticKey);
             this.syntheticKey = syntheticKey;
-        } else {
-            if(publicKey !== null && publicKey !== undefined) {
-                const publicKeyObj = Util.key.hexToPublicKey(publicKey);
-                const syntheticKeyObj = Util.sexp.calculateSyntheticPublicKey(publicKeyObj);
-                this.syntheticKey = Util.key.publicKeyToHex(syntheticKeyObj);
-            }
         }
 
-        this.constructInnerPuzzle();
+        if(synthKey !== null) {
+            this.syntheticKey = Util.key.publicKeyToHex(synthKey);
+            this.innerPuzzle = Util.sexp.standardCoinPuzzle(synthKey, true);
+        }
+
         this.deriveTAILProgramAndSolutionFromSolution();
         this.constructInnerSolution();
         this.constructPuzzle();
-        this.calculateInnerPuzzleHash();
         this.calculateTAILPuzzleHash();
-    }
-
-    protected constructInnerPuzzle(): void {
-        if(this.syntheticKey === null) return;
-
-        this.innerPuzzle = Util.sexp.standardCoinPuzzle(
-            Util.key.hexToPublicKey(this.syntheticKey),
-            true
-        )
     }
 
     protected deriveTAILProgramAndSolutionFromSolution() {
@@ -146,12 +137,6 @@ export class CAT extends SmartCoin {
         this.calculatePuzzleHash();
     }
 
-    protected calculateInnerPuzzleHash(): void {
-        if(this.innerPuzzle === null) return;
-
-        this.innerPuzzleHash = Util.sexp.sha256tree(this.innerPuzzle);
-    }
-
     protected calculateTAILPuzzleHash(): void {
         if(this.TAILProgram === null) return;
 
@@ -181,7 +166,6 @@ export class CAT extends SmartCoin {
         coin = null,
 
         TAILProgramHash = null,
-        innerPuzzle = null,
 
         innerSolution = null,
 
@@ -199,10 +183,8 @@ export class CAT extends SmartCoin {
             amount: amount ?? this.amount,
             coin: coin,
             TAILProgramHash: TAILProgramHash ?? this.TAILProgramHash,
-            innerPuzzle: innerPuzzle ?? this.innerPuzzle,
             publicKey: publicKey,
-            syntheticKey: publicKey === null || publicKey === undefined ?
-                syntheticKey ?? this.syntheticKey : null,
+            syntheticKey: syntheticKey ?? this.syntheticKey,
             innerSolution: innerSolution ?? this.innerSolution,
             extraDelta: extraDelta ?? this.extraDelta,
             TAILProgram: TAILProgram ?? this.TAILProgram,
@@ -232,12 +214,6 @@ export class CAT extends SmartCoin {
     public withTAILProgramHash(newValue: bytes): CAT {
         return this.copyWith({
             TAILProgramHash: newValue
-        });
-    }
-
-    public withInnerPuzzle(newValue: SExp): CAT {
-        return this.copyWith({
-            innerPuzzle: newValue
         });
     }
 

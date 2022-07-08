@@ -44,7 +44,6 @@ export class StandardCoin extends SmartCoin {
         }
 
         if(synthKey !== null) {
-            this.syntheticKey = Util.key.publicKeyToHex(synthKey);
             this.puzzle = this.getPuzzleForSyntheticPublicKey(synthKey);
             this.calculatePuzzleHash();
         }

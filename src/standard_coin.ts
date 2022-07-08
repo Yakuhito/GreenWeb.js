@@ -103,30 +103,40 @@ export class StandardCoin extends SmartCoin {
         });
     }
 
-    // private createCreateCoinCondition(puzzleHash: bytes, amount: BigNumber): SExp {
-    //     return SExp.to([
-    //         Bytes.from(
-    //             Buffer.from(ConditionOpcode.CREATE_COIN, "hex"),
-    //         ),
-    //         Bytes.from(
-    //             Buffer.from(puzzleHash, "hex"),
-    //         ),
-    //         Bytes.from(
-    //             Util.coin.amountToBytes(amount), "hex"
-    //         ),
-    //     ]);
-    // }
+    public addConditionsToInnerSolution(conditions: SExp[]): StandardCoin {
+        if(this.solution === null) {
+            this.solution = Util.sexp.standardCoinSolution([]);
+        }
 
-    // private createReserveFeeCondition(fee: BigNumber): SExp {
-    //     return SExp.to([
-    //         Bytes.from(
-    //             Buffer.from(ConditionOpcode.RESERVE_FEE, "hex"),
-    //         ),
-    //         Bytes.from(
-    //             Util.coin.amountToBytes(fee), "hex"
-    //         ),
-    //     ]);
-    // }
+        try {
+            const e = [];
+            for(const elem of this.solution.as_iter()) {
+                e.push(elem);
+            }
+            if(e.length !== 3) return this;
+
+            const conditionList: SExp[] = [];
+            const cl = e[1];
+            let first = true;
+
+            for(const elem of cl.as_iter()) {
+                if(first) {
+                    first = false;
+                } else {
+                    conditionList.push(elem);
+                }
+            }
+            for(const elem of conditions) {
+                conditionList.push(elem);
+            }
+
+            return this.copyWith({
+                solution: Util.sexp.standardCoinSolution(conditionList),
+            });
+        } catch(_) {
+            return this;
+        }
+    }
 
     // public send(
     //     addressOrPuzzleHash: string,

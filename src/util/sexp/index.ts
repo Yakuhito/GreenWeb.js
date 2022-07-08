@@ -271,6 +271,13 @@ export class SExpUtil {
             ]
         );
     }
+    public standardCoinSolution(conditions: SExp[]): SExp {
+        return SExp.to([
+            SExp.to([]),
+            SExp.to([1, ...conditions]),
+            SExp.to([])
+        ]);
+    }
 
     // https://github.com/irulast/chia-crypto-utils/blob/f1d8ef4c8ed6134e392f4b42ef9a4e30d449f3d3/lib/src/clvm/program.dart#L158
     // https://github.com/Chia-Network/chia-blockchain/blob/22e47a81dfbed053c7a8044b6dc254b8b152b0ab/chia/types/blockchain_format/program.py#L113

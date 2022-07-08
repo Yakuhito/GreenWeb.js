@@ -1,13 +1,18 @@
 # Changelog
 
 ## 1.1.7
- - Add the `CAT` class (CAT1 support)
- - Create `greenweb.util.spend`
-    - New method: `spendCATs()`
-    - TODO: New method: `spendStandardCoins()`
-    - TODO: New method: `mergeSpendBundles()`
- - Add the `greenweb.util.sexp.uncurry()` method
- - Add tests for the `CAT` class (full coverage)
+ - add the `CAT` class (CAT1 support)
+ - add tests for the `CAT` class (full coverage)
+ - create `greenweb.spend`
+    - new method: `bundleCATs()`
+    - TODO: new method: `bundleStandardCoins()`
+    - TODO: new method: `bundle()`
+    - TODO: new method: `mergeSpendBundles()`
+ - `greenweb.sexp`
+     - add the `uncurry()` method
+     - add the `standardCoinSolution()` method
+     - TODO: add the `CATSolution()` method
+     - TODO: update tests
  - `SmartCoin`: **BREAKING CHANGES**
       - add `solution` property and the `withSolution()` & `isSpendable()` methods
       - spend no longer requires the solution parameter
@@ -17,6 +22,7 @@
       - use `syntheticKey` and `publicKey` parameters instead of `publicKey` and `isSyntheticKey`
       - remove the `forceUsePuzzle` parameter
       - add the `withSyntheticKey()` method
+      - add the `addConditionsToInnerSolution()` method
       - update tests
  - TODO: Add `greenweb.util.hexlify` and `greenweb.util.unhexlify`
  - TODO: bug fix

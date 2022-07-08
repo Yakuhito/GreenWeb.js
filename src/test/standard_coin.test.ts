@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { BigNumber } from "@ethersproject/bignumber";
 import { expect } from "chai";
-import { initializeBLS, SExp } from "clvm";
+import { Bytes, initializeBLS, SExp } from "clvm";
 import { StandardCoin } from "../standard_coin";
 import { Util } from "../util";
 import { Coin } from "../util/serializer/types/coin";
@@ -385,6 +385,81 @@ describe("StandardCoin", () => {
             expect(TEST_VAL.eq(TEST_COIN.amount)).to.be.false;
             sc.withAmount(TEST_VAL);
             expect(sc.amount?.eq(TEST_VAL)).to.be.false;
+        });
+    });
+
+    describe("addConditionsToInnerSolution()", () => {
+        it("Correctly handles solution = null", () => {
+            const c = new StandardCoin({
+                coin: TEST_COIN,
+            });
+            const conditionsToAdd = [SExp.FALSE, SExp.TRUE];
+            const c2 = c.addConditionsToInnerSolution(conditionsToAdd);
+
+            expect(c2.solution).to.not.be.null;
+            expect(
+                Util.sexp.toHex(c2.solution)
+            ).to.equal(
+                Util.sexp.toHex(
+                    Util.sexp.standardCoinSolution(conditionsToAdd)
+                )
+            );
+            expect(c2.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
+        });
+
+        it("Does not modify solution if it is not a list", () => {
+            const c = new StandardCoin({
+                solution: SExp.to(Bytes.from("4242", "hex"))
+            });
+            const c2 = c.addConditionsToInnerSolution([SExp.FALSE, SExp.TRUE]);
+
+            expect(
+                Util.sexp.toHex(c2.solution)
+            ).to.equal("824242");
+        });
+
+        it("Does not modify solution if it is not valid", () => {
+            const c = new StandardCoin({
+                solution: SExp.to([1, 2, 3, 4])
+            });
+            const c2 = c.addConditionsToInnerSolution([SExp.FALSE, SExp.TRUE]);
+
+            expect(
+                Util.sexp.toHex(c2.solution)
+            ).to.equal("ff01ff02ff03ff0480");
+        });
+
+        it("Does not modify solution if it is not valid (#2)", () => {
+            const c = new StandardCoin({
+                solution: SExp.to([1, 2, 3])
+            });
+            const c2 = c.addConditionsToInnerSolution([SExp.FALSE, SExp.TRUE]);
+
+            expect(
+                Util.sexp.toHex(c2.solution)
+            ).to.equal("ff01ff02ff0380");
+        });
+
+        it("Works", () => {
+            const initialConds = [SExp.TRUE, SExp.TRUE];
+            const condsToAdd = [SExp.FALSE, SExp.TRUE, SExp.TRUE];
+            const finalConds = [...initialConds, ...condsToAdd];
+
+            const c = new StandardCoin({
+                solution: Util.sexp.standardCoinSolution(initialConds)
+            });
+            const c2 = c.addConditionsToInnerSolution(condsToAdd);
+
+            expect(
+                Util.sexp.toHex(c.solution)
+            ).to.equal(
+                Util.sexp.toHex(Util.sexp.standardCoinSolution(initialConds)),
+            );
+            expect(
+                Util.sexp.toHex(c2.solution)
+            ).to.equal(
+                Util.sexp.toHex(Util.sexp.standardCoinSolution(finalConds)),
+            );
         });
     });
 });

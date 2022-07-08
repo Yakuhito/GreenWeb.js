@@ -79,34 +79,34 @@ export class SmartCoin {
         });
     }
 
-    public withParentCoinInfo(newValue: string): SmartCoin {
+    public withParentCoinInfo(parentCoinInfo: string): SmartCoin {
         return this.copyWith({
-            parentCoinInfo: newValue
+            parentCoinInfo,
         });
     }
 
-    public withPuzzleHash(newValue: string): SmartCoin {
+    public withPuzzleHash(puzzleHash: string): SmartCoin {
         return this.copyWith({
-            puzzleHash: newValue,
+            puzzleHash,
             puzzle: null
         });
     }
 
-    public withAmount(newValue: uint): SmartCoin {
+    public withAmount(amount: uint): SmartCoin {
         return this.copyWith({
-            amount: BigNumber.from(newValue),
+            amount: BigNumber.from(amount),
         });
     }
 
-    public withPuzzle(newValue: SExp): SmartCoin {
+    public withPuzzle(puzzle: SExp): SmartCoin {
         return this.copyWith({
-            puzzle: newValue,
+            puzzle,
         });
     }
 
-    public withSolution(newValue: SExp): SmartCoin {
+    public withSolution(solution: SExp): SmartCoin {
         return this.copyWith({
-            solution: newValue,
+            solution,
         });
     }
 

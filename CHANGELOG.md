@@ -8,7 +8,16 @@
     - TODO: New method: `mergeSpendBundles()`
  - Add the `greenweb.util.sexp.uncurry()` method
  - Add tests for the `CAT` class (full coverage)
- - TODO: Update `StandardCoin` (**BREAKING CHANGES**)
+ - `SmartCoin`: **BREAKING CHANGES**
+      - add `solution` property and the `withSolution()` & `isSpendable()` methods
+      - spend no longer requires the solution parameter
+      - update tests
+ - `StandardCoin`: **BREAKING CHANGES**
+      - rename `publicKey` to `syntheticKey`
+      - use `syntheticKey` and `publicKey` parameters instead of `publicKey` and `isSyntheticKey`
+      - remove the `forceUsePuzzle` parameter
+      - add the `withSyntheticKey()` method
+      - update tests
  - TODO: Add `greenweb.util.hexlify` and `greenweb.util.unhexlify`
  - TODO: bug fix
  - TODO: update docs to reflect changes

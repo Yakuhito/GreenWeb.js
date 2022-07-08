@@ -8,7 +8,7 @@ import { ConditionOpcode } from "../util/sexp/condition_opcodes";
 import { bytes, Coin } from "../xch/providers/provider_types";
 
 
-describe("CAT", () => {
+describe.only("CAT", () => {
     const TEST_PRIV_KEY_STR = "42".repeat(32);
     
     let TEST_PRIV_KEY: any;
@@ -58,6 +58,9 @@ describe("CAT", () => {
                 TAILProgramHash: TEST_TAIL_HASH,
                 publicKey: TEST_PUB_KEY,
                 innerSolution: SExp.to([]),
+                prevCoinId: "00".repeat(32),
+                nextCoinProof: TEST_COIN,
+                prevSubtotal: 1
             });
 
             expect(
@@ -73,6 +76,16 @@ describe("CAT", () => {
             expect(
                 Util.sexp.toHex(cat.innerSolution)
             ).to.equal("80");
+            expect(cat.prevCoinId).to.equal("00".repeat(32));
+            expect(
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                Util.coin.getId(cat.nextCoinProof!)
+            ).to.equal(
+                Util.coin.getId(TEST_COIN)
+            );
+            expect(
+                BigNumber.from(cat.prevSubtotal).eq(1)
+            ).to.be.true;
             expect(cat.extraDelta).to.be.null;
             expect(cat.TAILProgram).to.be.null;
             expect(cat.TAILSolution).to.be.null;
@@ -90,6 +103,9 @@ describe("CAT", () => {
             expect(c.innerPuzzle).to.be.null;
             expect(c.syntheticKey).to.be.null;
             expect(c.innerSolution).to.be.null;
+            expect(c.prevCoinId).to.be.null;
+            expect(c.nextCoinProof).to.be.null;
+            expect(c.prevSubtotal).to.be.null;
             expect(c.extraDelta).to.be.null;
             expect(c.TAILProgram).to.be.null;
             expect(c.TAILSolution).to.be.null;
@@ -107,6 +123,9 @@ describe("CAT", () => {
             expect(c.innerPuzzle).to.be.null;
             expect(c.syntheticKey).to.be.null;
             expect(c.innerSolution).to.be.null;
+            expect(c.prevCoinId).to.be.null;
+            expect(c.nextCoinProof).to.be.null;
+            expect(c.prevSubtotal).to.be.null;
             expect(c.extraDelta).to.be.null;
             expect(c.TAILProgram).to.be.null;
             expect(c.TAILSolution).to.be.null;
@@ -121,6 +140,9 @@ describe("CAT", () => {
                 coin: undefined,
                 TAILProgramHash: undefined,
                 innerSolution: undefined,
+                prevCoinId: undefined,
+                nextCoinProof: undefined,
+                prevSubtotal: undefined,
                 publicKey: undefined,
                 syntheticKey: undefined,
                 extraDelta: undefined,
@@ -135,6 +157,9 @@ describe("CAT", () => {
             expect(c.puzzle).to.be.null;
             expect(c.TAILProgramHash).to.be.null;
             expect(c.innerPuzzle).to.be.null;
+            expect(c.prevCoinId).to.be.null;
+            expect(c.nextCoinProof).to.be.null;
+            expect(c.prevSubtotal).to.be.null;
             expect(c.syntheticKey).to.be.null;
             expect(c.innerSolution).to.be.null;
             expect(c.extraDelta).to.be.null;
@@ -169,7 +194,7 @@ describe("CAT", () => {
 
             const TAILProgram = Util.sexp.fromHex(TAIL_PROGRAM_HEX);
             const TAILSolution = Util.sexp.fromHex(TAIL_SOLUTION_HEX);
-            const innerSol = SExp.to([
+            const innerSol = Util.sexp.standardCoinSolution([
                 SExp.to([
                     Bytes.from(ConditionOpcode.CREATE_COIN, "hex"),
                     SExp.FALSE,
@@ -191,70 +216,69 @@ describe("CAT", () => {
             ).to.equal(TAIL_SOLUTION_HEX);
         });
 
-        //todo
-        // it("Does not derive TAILProgram and TAILSolution from innerSolution if there is no CREATE_COIN condition", () => {
-        //     const TAIL_PROGRAM_HEX = "ff0eff02ff0580"; // (mod (arg1 arg2) (concat arg1 arg2))
-        //     const TAIL_SOLUTION_HEX = "ff85676f6f6420ff876d6f726e696e6780"; // ("good " "morning")
+        it("Does not derive TAILProgram and TAILSolution from innerSolution if there is no CREATE_COIN condition", () => {
+            const TAIL_PROGRAM_HEX = "ff0eff02ff0580"; // (mod (arg1 arg2) (concat arg1 arg2))
+            const TAIL_SOLUTION_HEX = "ff85676f6f6420ff876d6f726e696e6780"; // ("good " "morning")
 
-        //     const TAILProgram = Util.sexp.fromHex(TAIL_PROGRAM_HEX);
-        //     const TAILSolution = Util.sexp.fromHex(TAIL_SOLUTION_HEX);
-        //     const innerSol = SExp.to([
-        //         SExp.to([
-        //             Bytes.from(ConditionOpcode.AGG_SIG_ME, "hex"),
-        //             SExp.FALSE,
-        //             Bytes.from("8f", "hex"),
-        //             TAILProgram,
-        //             TAILSolution
-        //         ]),
-        //     ]);
-        //     const c = new CAT({
-        //         innerPuzzle: Util.sexp.fromHex("01"), // 1
-        //         innerSolution: innerSol
-        //     });
+            const TAILProgram = Util.sexp.fromHex(TAIL_PROGRAM_HEX);
+            const TAILSolution = Util.sexp.fromHex(TAIL_SOLUTION_HEX);
+            const innerSol = Util.sexp.standardCoinSolution([
+                SExp.to([
+                    Bytes.from(ConditionOpcode.AGG_SIG_ME, "hex"),
+                    SExp.FALSE,
+                    Bytes.from("8f", "hex"),
+                    TAILProgram,
+                    TAILSolution
+                ]),
+            ]);
+            const c = new CAT({
+                publicKey: TEST_PUB_KEY,
+                innerSolution: innerSol
+            });
 
-        //     expect(c.TAILProgram).to.be.null;
-        //     expect(c.TAILSolution).to.be.null;
-        // });
+            expect(c.TAILProgram).to.be.null;
+            expect(c.TAILSolution).to.be.null;
+        });
 
-        // it("Does not derive TAILProgram and TAILSolution from innerSolution if there is no CREATE_COIN -113 condition", () => {
-        //     const TAIL_PROGRAM_HEX = "ff0eff02ff0580"; // (mod (arg1 arg2) (concat arg1 arg2))
-        //     const TAIL_SOLUTION_HEX = "ff85676f6f6420ff876d6f726e696e6780"; // ("good " "morning")
+        it("Does not derive TAILProgram and TAILSolution from innerSolution if there is no CREATE_COIN -113 condition", () => {
+            const TAIL_PROGRAM_HEX = "ff0eff02ff0580"; // (mod (arg1 arg2) (concat arg1 arg2))
+            const TAIL_SOLUTION_HEX = "ff85676f6f6420ff876d6f726e696e6780"; // ("good " "morning")
 
-        //     const TAILProgram = Util.sexp.fromHex(TAIL_PROGRAM_HEX);
-        //     const TAILSolution = Util.sexp.fromHex(TAIL_SOLUTION_HEX);
-        //     const innerSol = SExp.to([
-        //         SExp.to([
-        //             Bytes.from(ConditionOpcode.CREATE_COIN, "hex"),
-        //             SExp.FALSE,
-        //             Bytes.from("8e", "hex"),
-        //             TAILProgram,
-        //             TAILSolution
-        //         ]),
-        //     ]);
-        //     const c = new CAT({
-        //         innerPuzzle: Util.sexp.fromHex("01"), // 1
-        //         innerSolution: innerSol
-        //     });
+            const TAILProgram = Util.sexp.fromHex(TAIL_PROGRAM_HEX);
+            const TAILSolution = Util.sexp.fromHex(TAIL_SOLUTION_HEX);
+            const innerSol = Util.sexp.standardCoinSolution([
+                SExp.to([
+                    Bytes.from(ConditionOpcode.CREATE_COIN, "hex"),
+                    SExp.FALSE,
+                    Bytes.from("8e", "hex"),
+                    TAILProgram,
+                    TAILSolution
+                ]),
+            ]);
+            const c = new CAT({
+                publicKey: TEST_PUB_KEY,
+                innerSolution: innerSol
+            });
 
-        //     expect(c.TAILProgram).to.be.null;
-        //     expect(c.TAILSolution).to.be.null;
-        // });
+            expect(c.TAILProgram).to.be.null;
+            expect(c.TAILSolution).to.be.null;
+        });
 
-        // it("Correctly calculates puzzle and puzzleHash given TAILProgramHash and innerPuzzle", () => {
-        //     const c = new CAT({
-        //         innerPuzzle: TEST_PUZZLE,
-        //         TAILProgramHash: TEST_TAIL_HASH,
-        //     });
+        it("Correctly calculates puzzle and puzzleHash given TAILProgramHash and a public key", () => {
+            const c = new CAT({
+                publicKey: TEST_PUB_KEY,
+                TAILProgramHash: TEST_TAIL_HASH,
+            });
 
-        //     expect(
-        //         Util.sexp.toHex(c.puzzle)
-        //     ).to.equal(
-        //         Util.sexp.toHex(TEST_CAT_PUZZLE)
-        //     );
-        //     expect(
-        //         c.puzzleHash
-        //     ).to.equal(c.puzzleHash);
-        // });
+            expect(
+                Util.sexp.toHex(c.puzzle)
+            ).to.equal(
+                Util.sexp.toHex(TEST_CAT_PUZZLE)
+            );
+            expect(
+                c.puzzleHash
+            ).to.equal(c.puzzleHash);
+        });
 
         it("Correctly calculates TAILProgramHash", () => {
             const c = new CAT({
@@ -358,6 +382,68 @@ describe("CAT", () => {
             
             expect(c.lineageProof?.amount).to.be.null;
         });
+
+        it("Correctly constructs solution", () => {
+            const lp: LineageProof = {
+                amount: TEST_COIN.amount,
+                parentName: TEST_COIN.parentCoinInfo,
+                innerPuzzleHash: TEST_COIN.puzzleHash
+            };
+
+            const cat = new CAT({
+                innerSolution: SExp.to([]),
+                coin: TEST_COIN,
+                publicKey: TEST_PUB_KEY,
+                lineageProof: lp,
+                prevCoinId: Util.coin.getId(TEST_COIN),
+                nextCoinProof: TEST_COIN,
+                prevSubtotal: 1,
+                extraDelta: 2
+            });
+
+            const expectedSolution = Util.sexp.CATSolution(
+                SExp.to([]),
+                Util.coin.toProgram(TEST_COIN),
+                Util.coin.getId(TEST_COIN),
+                TEST_COIN,
+                TEST_COIN,
+                1,
+                2
+            );
+
+            expect(cat.solution).to.not.be.null;
+            expect(
+                Util.sexp.toHex(cat.solution)
+            ).to.equal(
+                Util.sexp.toHex(expectedSolution)
+            );
+        });
+
+        it("Correctly constructs solution (default arguments)", () => {
+            const cat = new CAT({
+                innerSolution: SExp.to([]),
+                coin: TEST_COIN,
+            });
+
+            const expectedSolution = Util.sexp.CATSolution(
+                SExp.to([]),
+                null,
+                Util.coin.getId(TEST_COIN),
+                TEST_COIN,
+                TEST_COIN,
+                0,
+                0
+            );
+
+            expect(cat.solution).to.not.be.null;
+            expect(
+                Util.sexp.toHex(cat.solution)
+            ).to.equal(
+                Util.sexp.toHex(expectedSolution)
+            );
+        });
+
+        
     });
 
     describe("copyWith()", () => {
@@ -369,6 +455,9 @@ describe("CAT", () => {
                 TAILProgramHash: TEST_TAIL_HASH,
                 publicKey: TEST_PUB_KEY,
                 innerSolution: SExp.to([]),
+                prevCoinId: "00".repeat(32),
+                nextCoinProof: TEST_COIN,
+                prevSubtotal: 1337
             });
 
             expect(
@@ -384,6 +473,16 @@ describe("CAT", () => {
             expect(
                 Util.sexp.toHex(cat.innerSolution)
             ).to.equal("80");
+            expect(cat.prevCoinId).to.equal("00".repeat(32));
+            expect(
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                Util.coin.getId(cat.nextCoinProof!)
+            ).to.equal(
+                Util.coin.getId(TEST_COIN),
+            );
+            expect(
+                BigNumber.from(cat.prevSubtotal).eq(1337)
+            ).to.be.true;
             expect(cat.extraDelta).to.be.null;
             expect(cat.TAILProgram).to.be.null;
             expect(cat.TAILSolution).to.be.null;
@@ -401,6 +500,9 @@ describe("CAT", () => {
             expect(c.innerPuzzle).to.be.null;
             expect(c.syntheticKey).to.be.null;
             expect(c.innerSolution).to.be.null;
+            expect(c.prevCoinId).to.be.null;
+            expect(c.nextCoinProof).to.be.null;
+            expect(c.prevSubtotal).to.be.null;
             expect(c.extraDelta).to.be.null;
             expect(c.TAILProgram).to.be.null;
             expect(c.TAILSolution).to.be.null;
@@ -415,6 +517,9 @@ describe("CAT", () => {
                 coin: undefined,
                 TAILProgramHash: undefined,
                 innerSolution: undefined,
+                prevCoinId: undefined,
+                nextCoinProof: undefined,
+                prevSubtotal: undefined,
                 publicKey: undefined,
                 syntheticKey: undefined,
                 extraDelta: undefined,
@@ -431,6 +536,9 @@ describe("CAT", () => {
             expect(c.innerPuzzle).to.be.null;
             expect(c.syntheticKey).to.be.null;
             expect(c.innerSolution).to.be.null;
+            expect(c.prevCoinId).to.be.null;
+            expect(c.nextCoinProof).to.be.null;
+            expect(c.prevSubtotal).to.be.null;
             expect(c.extraDelta).to.be.null;
             expect(c.TAILProgram).to.be.null;
             expect(c.TAILSolution).to.be.null;
@@ -584,58 +692,6 @@ describe("CAT", () => {
         });
     });
 
-    describe("isSpendable()", () => {
-        it("Returns false if there is no coin info", () => {
-            const c = new CAT({
-                innerSolution: SExp.to([]),
-                TAILProgramHash: TEST_TAIL_HASH,
-                publicKey: TEST_PUB_KEY
-            });
-
-            expect(
-                c.isSpendable()
-            ).to.be.false;
-        });
-
-        it("Returns false if coin info is incomplete", () => {
-            const c = new CAT({
-                innerSolution: SExp.to([]),
-                TAILProgramHash: TEST_TAIL_HASH,
-                publicKey: TEST_PUB_KEY,
-                parentCoinInfo: TEST_COIN.parentCoinInfo,
-                puzzleHash: TEST_COIN.puzzleHash,
-            });
-
-            expect(
-                c.isSpendable()
-            ).to.be.false;
-        });
-
-        it("Returns false if required CAT info is incomplete", () => {
-            const c = new CAT({
-                coin: TEST_COIN,
-                TAILProgramHash: TEST_TAIL_HASH,
-            });
-
-            expect(
-                c.isSpendable()
-            ).to.be.false;
-        });
-
-        it("Returns true if required info is available", () => {
-            const c = new CAT({
-                coin: TEST_COIN,
-                TAILProgramHash: TEST_TAIL_HASH,
-                innerSolution: SExp.to([]),
-                publicKey: TEST_PUB_KEY
-            });
-
-            expect(
-                c.isSpendable()
-            ).to.be.true;
-        });
-    });
-
     describe("addConditionsToInnerSolution()", () => {
         it("Correctly handles innerSolution = null", () => {
             const c = new CAT({
@@ -647,7 +703,7 @@ describe("CAT", () => {
             expect(
                 Util.sexp.toHex(c2.innerSolution)
             ).to.equal(
-                Util.sexp.toHex(SExp.to([SExp.FALSE, SExp.TRUE]))
+                Util.sexp.toHex(Util.sexp.standardCoinSolution([SExp.FALSE, SExp.TRUE]))
             );
             expect(c2.parentCoinInfo).to.equal(TEST_COIN.parentCoinInfo);
         });
@@ -663,25 +719,36 @@ describe("CAT", () => {
             ).to.equal("824242");
         });
 
+        it("Does not modify innerSolution if it is not valid", () => {
+            const c = new CAT({
+                innerSolution: SExp.to([1, 2, 3, 4])
+            });
+            const c2 = c.addConditionsToInnerSolution([SExp.FALSE, SExp.TRUE]);
+
+            expect(
+                Util.sexp.toHex(c2.innerSolution)
+            ).to.equal("ff01ff02ff03ff0480");
+        });
+
         it("Works", () => {
             const initialConds = [SExp.TRUE, SExp.TRUE];
             const condsToAdd = [SExp.FALSE, SExp.TRUE, SExp.TRUE];
             const finalConds = [...initialConds, ...condsToAdd];
 
             const c = new CAT({
-                innerSolution: SExp.to(initialConds),
+                innerSolution: Util.sexp.standardCoinSolution(initialConds),
             });
             const c2 = c.addConditionsToInnerSolution(condsToAdd);
 
             expect(
                 Util.sexp.toHex(c.innerSolution)
             ).to.equal(
-                Util.sexp.toHex(SExp.to(initialConds)),
+                Util.sexp.toHex(Util.sexp.standardCoinSolution(initialConds)),
             );
             expect(
                 Util.sexp.toHex(c2.innerSolution)
             ).to.equal(
-                Util.sexp.toHex(SExp.to(finalConds)),
+                Util.sexp.toHex(Util.sexp.standardCoinSolution(finalConds)),
             );
         });
     });

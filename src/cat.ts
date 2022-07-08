@@ -27,7 +27,7 @@ export type CATConstructorArgs = {
     innerSolution?: SExp | null,
     prevCoinId?: bytes | null,
     nextCoinProof?: Coin | null,
-    prevSubotal?: BigNumberish | null,
+    prevSubtotal?: BigNumberish | null,
     // spend extra
     extraDelta?: uint | null,
     TAILProgram?: SExp | null,
@@ -45,7 +45,7 @@ export class CAT extends SmartCoin {
     public innerSolution: SExp | null = null;
     public prevCoinId: bytes | null = null;
     public nextCoinProof: Coin | null = null;
-    public prevSubotal: BigNumberish | null = null;
+    public prevSubtotal: BigNumberish | null = null;
 
     public extraDelta: uint | null = null;
     public TAILProgram: SExp | null = null;
@@ -66,7 +66,7 @@ export class CAT extends SmartCoin {
         innerSolution = null,
         prevCoinId = null,
         nextCoinProof = null,
-        prevSubotal = null,
+        prevSubtotal = null,
 
         extraDelta = null,
         TAILProgram = null,
@@ -81,8 +81,8 @@ export class CAT extends SmartCoin {
         this.innerSolution = innerSolution;
         this.prevCoinId = prevCoinId;
         this.nextCoinProof = nextCoinProof;
-        if(prevSubotal !== null && prevSubotal !== undefined) {
-            this.prevSubotal = BigNumber.from(prevSubotal);
+        if(prevSubtotal !== null && prevSubtotal !== undefined) {
+            this.prevSubtotal = BigNumber.from(prevSubtotal);
         }
         if(extraDelta !== null && extraDelta !== undefined) {
             this.extraDelta = BigNumber.from(extraDelta);
@@ -174,11 +174,12 @@ export class CAT extends SmartCoin {
         ]);
     }
 
-    protected lineageProofAsCoin(): Coin | null {
+    protected lineageProofToProgram(): SExp | null {
         if(
-            this.lineageProof?.amount === null ||
-            this.lineageProof?.innerPuzzleHash === null ||
-            this.lineageProof?.parentName === null
+            !this.lineageProof ||
+            !this.lineageProof.amount ||
+            !this.lineageProof.innerPuzzleHash ||
+            !this.lineageProof.parentName
         ) {
             return null;
         }
@@ -191,29 +192,23 @@ export class CAT extends SmartCoin {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         c.amount = this.lineageProof!.amount!;
 
-        return c;
+        return Util.coin.toProgram(c);
     }
 
     protected constructSolution(): void {
-        if(
-            this.innerSolution === null ||
-            this.lineageProof === null ||
-            this.prevCoinId === null ||
-            !this.hasCoinInfo() ||
-            this.nextCoinProof === null ||
-            this.prevSubotal === null ||
-            this.extraDelta === null
-        ) return;
+        if(this.innerSolution === null || !this.hasCoinInfo()) return;
 
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const thisCoin = this.toCoin()!;
         this.solution = Util.sexp.CATSolution(
             this.innerSolution,
-            this.lineageProofAsCoin(),
-            this.prevCoinId,
+            this.lineageProofToProgram(),
+            this.prevCoinId ?? Util.coin.getId(thisCoin),
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             this.toCoin()!,
-            this.nextCoinProof,
-            this.prevSubotal,
-            this.extraDelta
+            this.nextCoinProof ?? thisCoin,
+            this.prevSubtotal ?? 0,
+            this.extraDelta ?? 0
         );
     }
 
@@ -228,7 +223,7 @@ export class CAT extends SmartCoin {
         innerSolution = null,
         prevCoinId = null,
         nextCoinProof = null,
-        prevSubotal = null,
+        prevSubtotal = null,
 
         publicKey = null,
         syntheticKey = null,
@@ -249,7 +244,7 @@ export class CAT extends SmartCoin {
             innerSolution: innerSolution ?? this.innerSolution,
             prevCoinId: prevCoinId ?? this.prevCoinId,
             nextCoinProof: nextCoinProof ?? this.nextCoinProof,
-            prevSubotal: prevSubotal ?? this.prevSubotal,
+            prevSubtotal: prevSubtotal ?? this.prevSubtotal,
             extraDelta: extraDelta ?? this.extraDelta,
             TAILProgram: TAILProgram ?? this.TAILProgram,
             TAILSolution: TAILSolution ?? this.TAILSolution,
@@ -321,14 +316,6 @@ export class CAT extends SmartCoin {
         return this.copyWith({
             lineageProof: newValue
         });
-    }
-
-    public isSpendable(): boolean {
-        if(!this.hasCoinInfo()) return false;
-
-        if(this.puzzle !== null && this.solution !== null) return true;
-
-        return false;
     }
 
     public addConditionsToInnerSolution(conditions: SExp[]): CAT {

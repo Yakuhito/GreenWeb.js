@@ -393,7 +393,7 @@ export class SExpUtil {
     }
     public CATSolution(
         innerPuzzleSolution: SExp,
-        lineageProof: Coin | null,
+        lineageProof: SExp | null,
         prevCoinId: bytes,
         thisCoinInfo: Coin,
         nextCoinProof: Coin,
@@ -402,7 +402,7 @@ export class SExpUtil {
     ): SExp {
         return SExp.to([
             innerPuzzleSolution,
-            lineageProof === null ? SExp.FALSE : Util.coin.toProgram(lineageProof),
+            lineageProof ?? SExp.FALSE,
             Bytes.from(prevCoinId, "hex"),
             Util.coin.toProgram(thisCoinInfo),
             Util.coin.toProgram(nextCoinProof),

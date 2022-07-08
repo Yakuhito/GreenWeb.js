@@ -8,10 +8,11 @@
     - TODO: new method: `bundleStandardCoins()`
     - TODO: new method: `bundle()`
     - TODO: new method: `mergeSpendBundles()`
+    - TODO: tests
  - `greenweb.sexp`
      - add the `uncurry()` method
      - add the `standardCoinSolution()` method
-     - TODO: add the `CATSolution()` method
+     - add the `CATSolution()` method
      - TODO: update tests
  - `SmartCoin`: **BREAKING CHANGES**
       - add `solution` property and the `withSolution()` & `isSpendable()` methods

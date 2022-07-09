@@ -10,7 +10,7 @@ describe("CoinUtil", () => {
     describe("amountToBytes", () => {
         it("Works as expected", () => {
             const inputs = [0, 1, -1, -11, 0x7f, 0x80, 0xff, -0x7f, -0x80, -0xff, -0x808080, 0x808080, 0xff010203, -0xff010203, -0xffffffffff];
-            const expected_outputs = ["", "01", "ff", "f5", "7f", "0080", "00ff", "81", "80", "ff01", "ff7f7f80", "00808080", "00ff010203", "ff00fefdfd", "ff0000000001"];
+            const expected_outputs = ["00", "01", "ff", "f5", "7f", "0080", "00ff", "81", "80", "ff01", "ff7f7f80", "00808080", "00ff010203", "ff00fefdfd", "ff0000000001"];
 
             for(let i = 0; i < inputs.length; ++i) {
                 expect(

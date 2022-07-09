@@ -12,8 +12,21 @@
  - `greenweb.sexp`
      - add the `uncurry()` method
      - add the `standardCoinSolution()` method
-     - add the `CATSolution()` method
-     - TODO: update tests
+     - add the `CATPuzzle()` and `CATSolution()` methods
+     - rename `P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM` to `P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM_MOD`
+     - add more puzzle constants:
+          - `CAT_PROGRAM_MOD`
+          - `CAT_PROGRAM_MOD_HASH`
+          - `GENESIS_BY_COIN_ID_TAIL_MOD`
+          - `GENESIS_BY_PUZZLE_HASH_TAIL_MOD`
+          - `EVERYTHING_WITH_SIGNATURE_TAIL_MOD`
+          - `DELEGATED_TAIL_MOD`
+     - add TAIL-building helper methods:
+          -`genesisByCoinIdTAIL()`
+          - `genesisByPuzzleHashTAIL()`
+          - `everythingWithSignatureTAIL()`
+          - `delegatedTAIL()`
+     - update tests
  - `SmartCoin`: **BREAKING CHANGES**
       - add `solution` property and the `withSolution()` & `isSpendable()` methods
       - spend no longer requires the solution parameter

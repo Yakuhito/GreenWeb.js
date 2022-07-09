@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { SpendModule } from "../../spend";
 import { Util } from "../../util";
 
-describe.only("SpendModule", () => {
+describe("SpendModule", () => {
     describe("createCoinCondition()", () => {
         it("Works", () => {
             const r = SpendModule.createCoinCondition(

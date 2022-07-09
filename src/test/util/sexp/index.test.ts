@@ -8,6 +8,7 @@ import { bytes } from "../../../util/serializer/basic_types";
 import { ConditionsDict, SExpUtil } from "../../../util/sexp";
 import { ConditionOpcode } from "../../../util/sexp/condition_opcodes";
 import { ConditionWithArgs } from "../../../util/sexp/condition_with_args";
+import { Coin } from "../../../xch/providers/provider_types";
 
 const sexpUtil = new SExpUtil();
 
@@ -620,8 +621,8 @@ describe("SExpUtil", () => {
             "eb4ead6576048c9d730b5ced00646c7fdd390649cfdf48a00de1590cdd8ee18f"
         );
         sha256Correct(
-            "P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM",
-            sexpUtil.P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM,
+            "P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM_MOD",
+            sexpUtil.P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM_MOD,
             // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clvm.hex.sha256tree
             "e9aaa49f45bad5c889b86ee3341550c155cfdd10c3a6757de618d20612fffd52"
         );
@@ -635,6 +636,12 @@ describe("SExpUtil", () => {
             sexpUtil.CALCULATE_SYNTHETIC_PUBLIC_KEY_PROGRAM,
             // https://github.com/Chia-Network/chia-blockchain/blob/5f4e39480e2312dc93a7b3609bcea576a9a758f9/chia/wallet/puzzles/calculate_synthetic_public_key.clvm.hex.sha256tree
             "624c5d5704d0decadfc0503e71bbffb6cdfe45025bce7cf3e6864d1eafe8f65e"
+        );
+        sha256Correct(
+            "P2_CONDITIONS_PROGRAM",
+            sexpUtil.P2_CONDITIONS_PROGRAM,
+            // https://github.com/Chia-Network/chia-blockchain/blob/5f4e39480e2312dc93a7b3609bcea576a9a758f9/chia/wallet/puzzles/p2_conditions.clvm.hex.sha256tree
+            "1c77d7d5efde60a7a1d2d27db6d746bc8e568aea1ef8586ca967a0d60b83cc36"
         );
         sha256Correct(
             "CAT_PROGRAM_MOD",
@@ -794,6 +801,34 @@ describe("SExpUtil", () => {
         });
     });
 
+    describe("standardCoinSolution()", () => {
+        it("Works", () => {
+            const conditions: SExp[] = [
+                sexpUtil.fromHex("ff33ff42ff01ffff11ff22ff33ff448080"),
+                sexpUtil.fromHex("ff34ff2a80"),
+            ];
+
+            const res = sexpUtil.standardCoinSolution(conditions);
+            const items = [];
+            for(const i of res.as_iter()) {
+                items.push(i);
+            }
+
+            expect(items.length).to.equal(3);
+            expect(
+                sexpUtil.toHex(items[0])
+            ).to.equal("80");
+            expect(
+                sexpUtil.toHex(items[1])
+            ).to.equal(
+                "ff01ffff33ff42ff01ffff11ff22ff33ff448080ffff34ff2a8080"
+            );
+            expect(
+                sexpUtil.toHex(items[2])
+            ).to.equal("80");
+        });
+    });
+
     describe("uncurry()", () => {
         it("Returns null when given a program that is not curried (wrong instruction)", () => {
             const program: SExp = sexpUtil.fromHex("ff04ff01ff8080"); // (c 1 ())
@@ -920,6 +955,72 @@ describe("SExpUtil", () => {
             expect(sexpUtil.toHex(f_0)).to.equal(sexpUtil.toHex(f));
             expect(args_0.length).to.equal(args.length);
             expect(sexpUtil.toHex(args[0])).to.equal("ff10ffff0132ffff013c80");
+        });
+    });
+
+    describe("CATPuzzle()", () => {
+        it("Works", () => {
+            const TAIL_RPOGRAM_HASH = "42".repeat(32);
+            const innerPuzzle = SExp.FALSE;
+            const res = sexpUtil.CATPuzzle(TAIL_RPOGRAM_HASH, innerPuzzle);
+        
+            expect(
+                sexpUtil.toHex(res)
+            ).to.equal("ff02ffff01ff02ffff01ff02ff5effff04ff02ffff04ffff04ff05ffff04ffff0bff2cff0580ffff04ff0bff80808080ffff04ffff02ff17ff2f80ffff04ff5fffff04ffff02ff2effff04ff02ffff04ff17ff80808080ffff04ffff0bff82027fff82057fff820b7f80ffff04ff81bfffff04ff82017fffff04ff8202ffffff04ff8205ffffff04ff820bffff80808080808080808080808080ffff04ffff01ffffffff81ca3dff46ff0233ffff3c04ff01ff0181cbffffff02ff02ffff03ff05ffff01ff02ff32ffff04ff02ffff04ff0dffff04ffff0bff22ffff0bff2cff3480ffff0bff22ffff0bff22ffff0bff2cff5c80ff0980ffff0bff22ff0bffff0bff2cff8080808080ff8080808080ffff010b80ff0180ffff02ffff03ff0bffff01ff02ffff03ffff09ffff02ff2effff04ff02ffff04ff13ff80808080ff820b9f80ffff01ff02ff26ffff04ff02ffff04ffff02ff13ffff04ff5fffff04ff17ffff04ff2fffff04ff81bfffff04ff82017fffff04ff1bff8080808080808080ffff04ff82017fff8080808080ffff01ff088080ff0180ffff01ff02ffff03ff17ffff01ff02ffff03ffff20ff81bf80ffff0182017fffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff04ffff04ff05ff2780ffff04ffff10ff0bff5780ff778080ff02ffff03ff05ffff01ff02ffff03ffff09ffff02ffff03ffff09ff11ff7880ffff0159ff8080ff0180ffff01818f80ffff01ff02ff7affff04ff02ffff04ff0dffff04ff0bffff04ffff04ff81b9ff82017980ff808080808080ffff01ff02ff5affff04ff02ffff04ffff02ffff03ffff09ff11ff7880ffff01ff04ff78ffff04ffff02ff36ffff04ff02ffff04ff13ffff04ff29ffff04ffff0bff2cff5b80ffff04ff2bff80808080808080ff398080ffff01ff02ffff03ffff09ff11ff2480ffff01ff04ff24ffff04ffff0bff20ff2980ff398080ffff010980ff018080ff0180ffff04ffff02ffff03ffff09ff11ff7880ffff0159ff8080ff0180ffff04ffff02ff7affff04ff02ffff04ff0dffff04ff0bffff04ff17ff808080808080ff80808080808080ff0180ffff01ff04ff80ffff04ff80ff17808080ff0180ffffff02ffff03ff05ffff01ff04ff09ffff02ff26ffff04ff02ffff04ff0dffff04ff0bff808080808080ffff010b80ff0180ff0bff22ffff0bff2cff5880ffff0bff22ffff0bff22ffff0bff2cff5c80ff0580ffff0bff22ffff02ff32ffff04ff02ffff04ff07ffff04ffff0bff2cff2c80ff8080808080ffff0bff2cff8080808080ffff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff2effff04ff02ffff04ff09ff80808080ffff02ff2effff04ff02ffff04ff0dff8080808080ffff01ff0bff2cff058080ff0180ffff04ffff04ff28ffff04ff5fff808080ffff02ff7effff04ff02ffff04ffff04ffff04ff2fff0580ffff04ff5fff82017f8080ffff04ffff02ff7affff04ff02ffff04ff0bffff04ff05ffff01ff808080808080ffff04ff17ffff04ff81bfffff04ff82017fffff04ffff0bff8204ffffff02ff36ffff04ff02ffff04ff09ffff04ff820affffff04ffff0bff2cff2d80ffff04ff15ff80808080808080ff8216ff80ffff04ff8205ffffff04ff820bffff808080808080808080808080ff02ff2affff04ff02ffff04ff5fffff04ff3bffff04ffff02ffff03ff17ffff01ff09ff2dffff0bff27ffff02ff36ffff04ff02ffff04ff29ffff04ff57ffff04ffff0bff2cff81b980ffff04ff59ff80808080808080ff81b78080ff8080ff0180ffff04ff17ffff04ff05ffff04ff8202ffffff04ffff04ffff04ff24ffff04ffff0bff7cff2fff82017f80ff808080ffff04ffff04ff30ffff04ffff0bff81bfffff0bff7cff15ffff10ff82017fffff11ff8202dfff2b80ff8202ff808080ff808080ff138080ff80808080808080808080ff018080ffff04ffff01a072dec062874cd4d3aab892a0906688a1ae412b0109982e1797a170add88bdcdcffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff0180ff0180808080");
+        });
+    });
+
+    describe("CATSolution()", () => {
+        it("Works (no lineage proof)", () => {
+            const TEST_COIN = new Coin();
+            TEST_COIN.parentCoinInfo = "01".repeat(32);
+            TEST_COIN.puzzleHash = "02".repeat(32);
+            TEST_COIN.amount = 42;
+
+            const TEST_COIN2 = new Coin();
+            TEST_COIN2.parentCoinInfo = "03".repeat(32);
+            TEST_COIN2.puzzleHash = "04".repeat(32);
+            TEST_COIN2.amount = 43;
+
+            const res = sexpUtil.CATSolution(
+                SExp.TRUE,
+                null,
+                "42".repeat(32),
+                TEST_COIN,
+                TEST_COIN2,
+                1000,
+                0
+            );
+        
+            expect(
+                sexpUtil.toHex(res)
+            ).to.equal("ff01ff80ffa04242424242424242424242424242424242424242424242424242424242424242ffffa00101010101010101010101010101010101010101010101010101010101010101ffa00202020202020202020202020202020202020202020202020202020202020202ff2a80ffffa00303030303030303030303030303030303030303030303030303030303030303ffa00404040404040404040404040404040404040404040404040404040404040404ff2b80ff8203e8ff0080");
+        });
+
+        it("Works (with lineage proof)", () => {
+            const TEST_COIN = new Coin();
+            TEST_COIN.parentCoinInfo = "01".repeat(32);
+            TEST_COIN.puzzleHash = "02".repeat(32);
+            TEST_COIN.amount = 42;
+
+            const TEST_COIN2 = new Coin();
+            TEST_COIN2.parentCoinInfo = "03".repeat(32);
+            TEST_COIN2.puzzleHash = "04".repeat(32);
+            TEST_COIN2.amount = 43;
+
+            const res = sexpUtil.CATSolution(
+                SExp.TRUE,
+                SExp.to(Bytes.from("4242", "hex")),
+                "42".repeat(32),
+                TEST_COIN,
+                TEST_COIN2,
+                1000,
+                0
+            );
+        
+            expect(
+                sexpUtil.toHex(res)
+            ).to.equal("ff01ff824242ffa04242424242424242424242424242424242424242424242424242424242424242ffffa00101010101010101010101010101010101010101010101010101010101010101ffa00202020202020202020202020202020202020202020202020202020202020202ff2a80ffffa00303030303030303030303030303030303030303030303030303030303030303ffa00404040404040404040404040404040404040404040404040404040404040404ff2b80ff8203e8ff0080");
         });
     });
 

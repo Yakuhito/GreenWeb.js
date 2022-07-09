@@ -484,7 +484,7 @@ describe("Serializer", () => {
             );
         });
         
-        it("est_parse_str", () => {
+        it("test_parse_str", () => {
             assert.equal(
                 Serializer.deserialize(TestClassStr, Buffer.from([0, 0, 0, 0])).a,
                 ""

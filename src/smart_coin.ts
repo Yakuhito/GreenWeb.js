@@ -40,13 +40,8 @@ export class SmartCoin {
             this.amount = amount !== null ? BigNumber.from(amount) : null;
         }
 
-        if(puzzle !== undefined) {
-            this.puzzle = puzzle;
-        }
-
-        if(solution !== undefined) {
-            this.solution = solution;
-        }
+        this.puzzle = puzzle;
+        this.solution = solution;
 
         this.calculatePuzzleHash();
     }

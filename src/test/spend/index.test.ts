@@ -79,4 +79,43 @@ describe.only("SpendModule", () => {
             );
         });
     });
+
+    describe("assertCoinAnnouncementCondition()", () => {
+        it("Works", () => {
+            const r = SpendModule.assertCoinAnnouncementCondition("31333337");
+
+            expect(
+                Util.sexp.toHex(r)
+            ).to.equal(
+                // brun '(q 61 0x31333337)'
+                "ff3dff843133333780"
+            );
+        });
+    });
+
+    describe("createPuzzleAnnouncementCondition()", () => {
+        it("Works", () => {
+            const r = SpendModule.createPuzzleAnnouncementCondition("31333337");
+
+            expect(
+                Util.sexp.toHex(r)
+            ).to.equal(
+                // brun '(q 62 "1337")'
+                "ff3eff843133333780"
+            );
+        });
+    });
+
+    describe("assertPuzzleAnnouncementCondition()", () => {
+        it("Works", () => {
+            const r = SpendModule.assertPuzzleAnnouncementCondition("31333337");
+
+            expect(
+                Util.sexp.toHex(r)
+            ).to.equal(
+                // brun '(q 63 "1337")'
+                "ff3fff843133333780"
+            );
+        });
+    });
 });

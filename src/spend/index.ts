@@ -69,7 +69,7 @@ export class SpendModule {
     public static assertCoinAnnouncementCondition(announcementId: bytes): SExp {
         return SExp.to([
             Bytes.from(
-                Buffer.from(ConditionOpcode.CREATE_COIN_ANNOUNCEMENT, "hex"),
+                Buffer.from(ConditionOpcode.ASSERT_COIN_ANNOUNCEMENT, "hex"),
             ),
             Bytes.from(
                 announcementId, "hex"
@@ -91,7 +91,7 @@ export class SpendModule {
     public static assertPuzzleAnnouncementCondition(announcementId: bytes): SExp {
         return SExp.to([
             Bytes.from(
-                Buffer.from(ConditionOpcode.CREATE_PUZZLE_ANNOUNCEMENT, "hex"),
+                Buffer.from(ConditionOpcode.ASSERT_PUZZLE_ANNOUNCEMENT, "hex"),
             ),
             Bytes.from(
                 announcementId, "hex"

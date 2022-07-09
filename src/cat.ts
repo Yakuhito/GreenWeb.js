@@ -26,7 +26,7 @@ export type CATConstructorArgs = {
     // spend
     innerSolution?: SExp | null,
     prevCoinId?: bytes | null,
-    nextCoinProof?: Coin | null,
+    nextCoin?: Coin | null,
     prevSubtotal?: BigNumberish | null,
     // spend extra
     extraDelta?: uint | null,
@@ -39,12 +39,13 @@ export class CAT extends SmartCoin {
     public TAILProgramHash: bytes | null = null;
 
     public innerPuzzle: SExp | null = null;
+    public innerPuzzleHash: bytes | null = null;
 
     public syntheticKey: bytes | null = null;
 
     public innerSolution: SExp | null = null;
     public prevCoinId: bytes | null = null;
-    public nextCoinProof: Coin | null = null;
+    public nextCoin: Coin | null = null;
     public prevSubtotal: BigNumberish | null = null;
 
     public extraDelta: uint | null = null;
@@ -65,7 +66,7 @@ export class CAT extends SmartCoin {
 
         innerSolution = null,
         prevCoinId = null,
-        nextCoinProof = null,
+        nextCoin = null,
         prevSubtotal = null,
 
         extraDelta = null,
@@ -80,7 +81,7 @@ export class CAT extends SmartCoin {
         this.TAILProgramHash = TAILProgramHash;
         this.innerSolution = innerSolution;
         this.prevCoinId = prevCoinId;
-        this.nextCoinProof = nextCoinProof;
+        this.nextCoin = nextCoin;
         if(prevSubtotal !== null && prevSubtotal !== undefined) {
             this.prevSubtotal = BigNumber.from(prevSubtotal);
         }
@@ -111,6 +112,7 @@ export class CAT extends SmartCoin {
         if(synthKey !== null) {
             this.syntheticKey = Util.key.publicKeyToHex(synthKey);
             this.innerPuzzle = Util.sexp.standardCoinPuzzle(synthKey, true);
+            this.innerPuzzleHash = Util.sexp.sha256tree(this.innerPuzzle);
         }
 
         this.deriveTAILProgramAndSolutionFromSolution();
@@ -206,7 +208,7 @@ export class CAT extends SmartCoin {
             this.prevCoinId ?? Util.coin.getId(thisCoin),
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             this.toCoin()!,
-            this.nextCoinProof ?? thisCoin,
+            this.nextCoin ?? thisCoin,
             this.prevSubtotal ?? 0,
             this.extraDelta ?? 0
         );
@@ -222,7 +224,7 @@ export class CAT extends SmartCoin {
 
         innerSolution = null,
         prevCoinId = null,
-        nextCoinProof = null,
+        nextCoin = null,
         prevSubtotal = null,
 
         publicKey = null,
@@ -243,7 +245,7 @@ export class CAT extends SmartCoin {
             syntheticKey: syntheticKey ?? this.syntheticKey,
             innerSolution: innerSolution ?? this.innerSolution,
             prevCoinId: prevCoinId ?? this.prevCoinId,
-            nextCoinProof: nextCoinProof ?? this.nextCoinProof,
+            nextCoin: nextCoin ?? this.nextCoin,
             prevSubtotal: prevSubtotal ?? this.prevSubtotal,
             extraDelta: extraDelta ?? this.extraDelta,
             TAILProgram: TAILProgram ?? this.TAILProgram,

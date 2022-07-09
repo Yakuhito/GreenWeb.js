@@ -103,7 +103,7 @@ export class StandardCoin extends SmartCoin {
         });
     }
 
-    public addConditionsToInnerSolution(conditions: SExp[]): StandardCoin {
+    public addConditionsToSolution(conditions: SExp[]): StandardCoin {
         if(this.solution === null) {
             this.solution = Util.sexp.standardCoinSolution([]);
         }

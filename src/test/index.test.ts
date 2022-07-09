@@ -15,6 +15,10 @@ describe("GreenWeb.js module", () => {
         expect(GreenWeb.util).to.not.be.undefined;
     });
 
+    it("Exports 'spend'", () => {
+        expect(GreenWeb.spend).to.not.be.undefined;
+    });
+
     it("Exports 'BigNumber'", () => {
         expect(GreenWeb.BigNumber).to.not.be.undefined;
     });

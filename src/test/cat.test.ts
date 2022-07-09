@@ -8,7 +8,7 @@ import { ConditionOpcode } from "../util/sexp/condition_opcodes";
 import { bytes, Coin } from "../xch/providers/provider_types";
 
 
-describe.only("CAT", () => {
+describe("CAT", () => {
     const TEST_PRIV_KEY_STR = "42".repeat(32);
     
     let TEST_PRIV_KEY: any;
@@ -59,7 +59,7 @@ describe.only("CAT", () => {
                 publicKey: TEST_PUB_KEY,
                 innerSolution: SExp.to([]),
                 prevCoinId: "00".repeat(32),
-                nextCoinProof: TEST_COIN,
+                nextCoin: TEST_COIN,
                 prevSubtotal: 1
             });
 
@@ -71,6 +71,9 @@ describe.only("CAT", () => {
             expect(
                 Util.sexp.toHex(cat.innerPuzzle)
             ).to.equal(TEST_PUZZLE_STR);
+            expect(cat.innerPuzzleHash).to.equal(
+                Util.sexp.sha256tree(TEST_PUZZLE)
+            );
             expect(cat.TAILProgramHash).to.equal(TEST_TAIL_HASH);
             expect(cat.syntheticKey).to.equal(TEST_SYNTH_KEY);
             expect(
@@ -79,7 +82,7 @@ describe.only("CAT", () => {
             expect(cat.prevCoinId).to.equal("00".repeat(32));
             expect(
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                Util.coin.getId(cat.nextCoinProof!)
+                Util.coin.getId(cat.nextCoin!)
             ).to.equal(
                 Util.coin.getId(TEST_COIN)
             );
@@ -101,10 +104,11 @@ describe.only("CAT", () => {
             expect(c.puzzle).to.be.null;
             expect(c.TAILProgramHash).to.be.null;
             expect(c.innerPuzzle).to.be.null;
+            expect(c.innerPuzzleHash).to.be.null;
             expect(c.syntheticKey).to.be.null;
             expect(c.innerSolution).to.be.null;
             expect(c.prevCoinId).to.be.null;
-            expect(c.nextCoinProof).to.be.null;
+            expect(c.nextCoin).to.be.null;
             expect(c.prevSubtotal).to.be.null;
             expect(c.extraDelta).to.be.null;
             expect(c.TAILProgram).to.be.null;
@@ -121,10 +125,11 @@ describe.only("CAT", () => {
             expect(c.puzzle).to.be.null;
             expect(c.TAILProgramHash).to.be.null;
             expect(c.innerPuzzle).to.be.null;
+            expect(c.innerPuzzleHash).to.be.null;
             expect(c.syntheticKey).to.be.null;
             expect(c.innerSolution).to.be.null;
             expect(c.prevCoinId).to.be.null;
-            expect(c.nextCoinProof).to.be.null;
+            expect(c.nextCoin).to.be.null;
             expect(c.prevSubtotal).to.be.null;
             expect(c.extraDelta).to.be.null;
             expect(c.TAILProgram).to.be.null;
@@ -141,7 +146,7 @@ describe.only("CAT", () => {
                 TAILProgramHash: undefined,
                 innerSolution: undefined,
                 prevCoinId: undefined,
-                nextCoinProof: undefined,
+                nextCoin: undefined,
                 prevSubtotal: undefined,
                 publicKey: undefined,
                 syntheticKey: undefined,
@@ -157,8 +162,9 @@ describe.only("CAT", () => {
             expect(c.puzzle).to.be.null;
             expect(c.TAILProgramHash).to.be.null;
             expect(c.innerPuzzle).to.be.null;
+            expect(c.innerPuzzleHash).to.be.null;
             expect(c.prevCoinId).to.be.null;
-            expect(c.nextCoinProof).to.be.null;
+            expect(c.nextCoin).to.be.null;
             expect(c.prevSubtotal).to.be.null;
             expect(c.syntheticKey).to.be.null;
             expect(c.innerSolution).to.be.null;
@@ -176,6 +182,9 @@ describe.only("CAT", () => {
             expect(
                 Util.sexp.toHex(c.innerPuzzle)
             ).to.equal(TEST_PUZZLE_STR);
+            expect(c.innerPuzzleHash).to.equal(
+                Util.sexp.sha256tree(TEST_PUZZLE)
+            );
         });
 
         it("Correctly sets innerPuzzle if given syntheticKey", () => {
@@ -186,6 +195,9 @@ describe.only("CAT", () => {
             expect(
                 Util.sexp.toHex(c.innerPuzzle)
             ).to.equal(TEST_PUZZLE_STR);
+            expect(c.innerPuzzleHash).to.equal(
+                Util.sexp.sha256tree(TEST_PUZZLE)
+            );
         });
 
         it("Correctly derives TAILProgram and TAILSolution from innerSolution", () => {
@@ -396,7 +408,7 @@ describe.only("CAT", () => {
                 publicKey: TEST_PUB_KEY,
                 lineageProof: lp,
                 prevCoinId: Util.coin.getId(TEST_COIN),
-                nextCoinProof: TEST_COIN,
+                nextCoin: TEST_COIN,
                 prevSubtotal: 1,
                 extraDelta: 2
             });
@@ -456,7 +468,7 @@ describe.only("CAT", () => {
                 publicKey: TEST_PUB_KEY,
                 innerSolution: SExp.to([]),
                 prevCoinId: "00".repeat(32),
-                nextCoinProof: TEST_COIN,
+                nextCoin: TEST_COIN,
                 prevSubtotal: 1337
             });
 
@@ -476,7 +488,7 @@ describe.only("CAT", () => {
             expect(cat.prevCoinId).to.equal("00".repeat(32));
             expect(
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                Util.coin.getId(cat.nextCoinProof!)
+                Util.coin.getId(cat.nextCoin!)
             ).to.equal(
                 Util.coin.getId(TEST_COIN),
             );
@@ -501,7 +513,7 @@ describe.only("CAT", () => {
             expect(c.syntheticKey).to.be.null;
             expect(c.innerSolution).to.be.null;
             expect(c.prevCoinId).to.be.null;
-            expect(c.nextCoinProof).to.be.null;
+            expect(c.nextCoin).to.be.null;
             expect(c.prevSubtotal).to.be.null;
             expect(c.extraDelta).to.be.null;
             expect(c.TAILProgram).to.be.null;
@@ -518,7 +530,7 @@ describe.only("CAT", () => {
                 TAILProgramHash: undefined,
                 innerSolution: undefined,
                 prevCoinId: undefined,
-                nextCoinProof: undefined,
+                nextCoin: undefined,
                 prevSubtotal: undefined,
                 publicKey: undefined,
                 syntheticKey: undefined,
@@ -537,7 +549,7 @@ describe.only("CAT", () => {
             expect(c.syntheticKey).to.be.null;
             expect(c.innerSolution).to.be.null;
             expect(c.prevCoinId).to.be.null;
-            expect(c.nextCoinProof).to.be.null;
+            expect(c.nextCoin).to.be.null;
             expect(c.prevSubtotal).to.be.null;
             expect(c.extraDelta).to.be.null;
             expect(c.TAILProgram).to.be.null;

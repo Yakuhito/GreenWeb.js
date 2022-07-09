@@ -5,9 +5,9 @@
  - add tests for the `CAT` class (full coverage)
  - create `greenweb.spend`
     - new method: `bundleCATs()`
-    - TODO: new method: `bundleStandardCoins()`
-    - TODO: new method: `bundle()`
-    - TODO: new method: `mergeSpendBundles()`
+    - new method: `bundleStandardCoins()`
+    - new method: `bundle()`
+    - new method: `mergeSpendBundles()`
     - TODO: tests
  - `greenweb.sexp`
      - add the `uncurry()` method

@@ -388,13 +388,13 @@ describe("StandardCoin", () => {
         });
     });
 
-    describe("addConditionsToInnerSolution()", () => {
+    describe("addConditionsToSolution()", () => {
         it("Correctly handles solution = null", () => {
             const c = new StandardCoin({
                 coin: TEST_COIN,
             });
             const conditionsToAdd = [SExp.FALSE, SExp.TRUE];
-            const c2 = c.addConditionsToInnerSolution(conditionsToAdd);
+            const c2 = c.addConditionsToSolution(conditionsToAdd);
 
             expect(c2.solution).to.not.be.null;
             expect(
@@ -411,7 +411,7 @@ describe("StandardCoin", () => {
             const c = new StandardCoin({
                 solution: SExp.to(Bytes.from("4242", "hex"))
             });
-            const c2 = c.addConditionsToInnerSolution([SExp.FALSE, SExp.TRUE]);
+            const c2 = c.addConditionsToSolution([SExp.FALSE, SExp.TRUE]);
 
             expect(
                 Util.sexp.toHex(c2.solution)
@@ -422,7 +422,7 @@ describe("StandardCoin", () => {
             const c = new StandardCoin({
                 solution: SExp.to([1, 2, 3, 4])
             });
-            const c2 = c.addConditionsToInnerSolution([SExp.FALSE, SExp.TRUE]);
+            const c2 = c.addConditionsToSolution([SExp.FALSE, SExp.TRUE]);
 
             expect(
                 Util.sexp.toHex(c2.solution)
@@ -433,7 +433,7 @@ describe("StandardCoin", () => {
             const c = new StandardCoin({
                 solution: SExp.to([1, 2, 3])
             });
-            const c2 = c.addConditionsToInnerSolution([SExp.FALSE, SExp.TRUE]);
+            const c2 = c.addConditionsToSolution([SExp.FALSE, SExp.TRUE]);
 
             expect(
                 Util.sexp.toHex(c2.solution)
@@ -448,7 +448,7 @@ describe("StandardCoin", () => {
             const c = new StandardCoin({
                 solution: Util.sexp.standardCoinSolution(initialConds)
             });
-            const c2 = c.addConditionsToInnerSolution(condsToAdd);
+            const c2 = c.addConditionsToSolution(condsToAdd);
 
             expect(
                 Util.sexp.toHex(c.solution)

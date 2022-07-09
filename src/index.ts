@@ -7,6 +7,9 @@ export * as clvm from "clvm";
 // greenweb.util
 export { Util as util } from "./util";
 
+// greenweb.spend
+export { SpendModule as spend } from "./spend";
+
 // greenweb.BigNumber
 export { BigNumber } from "@ethersproject/bignumber";
 

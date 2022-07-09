@@ -275,7 +275,7 @@ export class SExpUtil {
     public standardCoinSolution(conditions: SExp[]): SExp {
         return SExp.to([
             SExp.to([]),
-            SExp.to([1, ...conditions]),
+            SExp.to([1, ...conditions]), // 1 = q (this is a puzzle, not a solution)
             SExp.to([])
         ]);
     }

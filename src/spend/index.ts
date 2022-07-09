@@ -40,7 +40,7 @@ export class SpendModule {
             Bytes.from(ConditionOpcode.CREATE_COIN, "hex"),
             Bytes.from(puzzleHash, "hex"),
             Bytes.from(Util.coin.amountToBytes(amount), "hex"),
-            ...memos.map(e => Bytes.from(e, "hex"))
+            ...(memos.length > 0 ? [SExp.to(memos.map(e => Bytes.from(e, "hex")))] : []),
         ]);
     }
 

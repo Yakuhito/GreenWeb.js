@@ -32,6 +32,12 @@ export class Announcement {
     }
 }
 
+export type BundleArgs = {
+    standardCoinOutputConditions?: SExp[],
+    CATOutputConditions?: SExp[],
+    fee?: uint,
+};
+
 export class SpendModule {
     public static Announcement = Announcement;
 
@@ -135,6 +141,10 @@ export class SpendModule {
             );
             const c = CATs[index];
 
+            if(c.TAILProgramHash !== CATs[0].TAILProgramHash) {
+                throw new Error("CATs with different TAILs cannot be bundled together");
+            }
+            if(!c.innerPuzzle || !c.innerSolution || !c.amount) continue;
             const res = Util.sexp.conditionsDictForSolution(
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 c.innerPuzzle!,
@@ -142,7 +152,9 @@ export class SpendModule {
                 c.innerSolution!,
                 Util.sexp.MAX_BLOCK_COST_CLVM
             );
-            if(res[0]) continue;
+            if(res[0]) {
+                throw new Error("innerPuzzle returned an error");
+            }
 
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const conditionsDict: ConditionsDict = res[1]!;
@@ -154,10 +166,10 @@ export class SpendModule {
                 }
             }
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            deltas.push(c.amount!.sub(total));
+            deltas.push(BigNumber.from(c.amount!).sub(total));
         }
 
-        if(!deltas.reduce((acc, x) => acc.add(x)).eq(0)) {
+        if(deltas.length === 0 || !deltas.reduce((acc, x) => acc.add(x)).eq(0)) {
             throw new Error("input and output amounts don't match");
         }
 
@@ -177,7 +189,7 @@ export class SpendModule {
 
         const coinSpends = [];
         for(let index = 0; index < N; ++index) {
-            const prevIndex = (index - 1) % N;
+            const prevIndex = (index - 1 + N) % N;
             const nextIndex = (index + 1) % N;
             const prevId = ids[prevIndex];
             const myInfo = infosForMe[index];
@@ -219,11 +231,11 @@ export class SpendModule {
 
     public static bundle(
         things: Array<CAT | StandardCoin>,
-        standardCoinOutputConditions: SExp[] = [],
-        CATOutputConditions: SExp[] = [],
-        fee: uint = 0,
-        coinAnnouncementsToConsume: Announcement[] = [],
-        puzzleAnnouncementsToConsume: Announcement[] = [],
+        {
+            standardCoinOutputConditions = [],
+            CATOutputConditions = [],
+            fee = 0
+        }: BundleArgs = {},
     ): CoinSpend[] {
         if(things.length === 0) return [];
         const coinSpends: CoinSpend[] = [];
@@ -232,15 +244,13 @@ export class SpendModule {
         const standardCoins: StandardCoin[] = things.filter(e => e instanceof StandardCoin) as StandardCoin[];
         let feeIncluded = false;
 
-        const conditionsFromParams = [
-            ...coinAnnouncementsToConsume.map(e => this.assertCoinAnnouncementCondition(e.name())),
-            ...puzzleAnnouncementsToConsume.map(e => this.assertPuzzleAnnouncementCondition(e.name()))
-        ];
         const feeBN: BigNumber = BigNumber.from(fee);
         const theHash = Util.stdHash(
-            things.map(c => c.getName() ?? "").join()
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            things.map(c => c.getName()!).join("")
         );
         const haveCATs = CATs.length > 0;
+        const haveStandardCoins = standardCoins.length > 0;
         const ann = new Announcement(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             haveCATs ? CATs[0].getId()! : standardCoins[0].getId()!,
@@ -250,14 +260,14 @@ export class SpendModule {
         );
 
         if(haveCATs) {
-            const firstCoinConditions = [...conditionsFromParams, ...CATOutputConditions];
-            const otherCoinsConditions = conditionsFromParams;
-            firstCoinConditions.push(
-                this.createCoinAnnouncementCondition(theHash),
-            );
-            otherCoinsConditions.push(
-                this.assertCoinAnnouncementCondition(ann.name()),
-            );
+            const firstCoinConditions: SExp[] = CATOutputConditions;
+            const otherCoinsConditions: SExp[] = [];
+            if(haveStandardCoins) {
+                firstCoinConditions.push(
+                    this.createCoinAnnouncementCondition(theHash),
+                );
+            }
+            
 
             if(feeBN.gt(0)) {
                 firstCoinConditions.push(
@@ -272,9 +282,9 @@ export class SpendModule {
             r.forEach(e => coinSpends.push(e));
         }
 
-        if(standardCoins.length > 0) {
-            const firstCoinConditions = [...conditionsFromParams, ...standardCoinOutputConditions];
-            const otherCoinsConditions = conditionsFromParams;
+        if(haveStandardCoins) {
+            const firstCoinConditions: SExp[] = standardCoinOutputConditions;
+            const otherCoinsConditions: SExp[] = [];
             if(haveCATs) {
                 firstCoinConditions.push(
                     this.assertCoinAnnouncementCondition(ann.name()),

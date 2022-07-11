@@ -320,7 +320,7 @@ describe("CAT", () => {
             ).to.be.true;
         });
 
-        it("Correctly constructs the inner solution when extraDelta != 0", () => {
+        it("Correctly constructs the innerSolution when extraDelta != 0", () => {
             const solution = SExp.to([
                 Bytes.from("4242", "hex")
             ]);
@@ -337,7 +337,7 @@ describe("CAT", () => {
             const innerSolution: SExp = c.innerSolution!;
             const innerSolutionHex = Util.sexp.toHex(innerSolution);
             // eslint-disable-next-line max-len
-            expect(innerSolutionHex).to.equal("ffff33ffa079616b756869746f79616b756869746f79616b756869746f79616b756869746fff818fffff02ffff01ff02ffff01ff04ffff04ff02ffff04ff05ffff04ff5fff80808080ff8080ffff04ffff0132ff018080ffff04ffff01b0b1caabfef7a350bd3d39910f30d844c613916b0d70585f65ba37fec4eefbbc797a5b147f5ab730b77e104cb5ad9d875fff018080ffff824242808080");
+            expect(innerSolutionHex).to.equal("ff80ffff01ffff33ffa079616b756869746f79616b756869746f79616b756869746f79616b756869746fff818fffff02ffff01ff02ffff01ff04ffff04ff02ffff04ff05ffff04ff5fff80808080ff8080ffff04ffff0132ff018080ffff04ffff01b0b1caabfef7a350bd3d39910f30d844c613916b0d70585f65ba37fec4eefbbc797a5b147f5ab730b77e104cb5ad9d875fff018080ffff824242808080ff8080");
         });
 
         it("Does not construct the inner solution when extraDelta === 0", () => {

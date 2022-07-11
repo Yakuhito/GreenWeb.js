@@ -165,7 +165,7 @@ export class CAT extends SmartCoin {
         if(this.TAILProgram === null || this.TAILSolution === null) return;
         if(this.extraDelta === null || BigNumber.from(this.extraDelta).eq(0)) return;
 
-        this.innerSolution = SExp.to([
+        this.innerSolution = Util.sexp.standardCoinSolution([
             SExp.to([
                 Bytes.from(ConditionOpcode.CREATE_COIN, "hex"),
                 Bytes.from("yakuhitoyakuhitoyakuhitoyakuhito"),

@@ -8,7 +8,7 @@
     - new method: `bundleStandardCoins()`
     - new method: `bundle()`
     - new method: `mergeSpendBundles()`
-    - TODO: tests
+    - add tests
  - `greenweb.sexp`
      - add the `uncurry()` method
      - add the `standardCoinSolution()` method
@@ -35,6 +35,7 @@
       - rename `publicKey` to `syntheticKey`
       - use `syntheticKey` and `publicKey` parameters instead of `publicKey` and `isSyntheticKey`
       - remove the `forceUsePuzzle` parameter
+      - remove the `send()` and `multisend()` methods (replacement: `greenweb.spend.bundle()`)
       - add the `withSyntheticKey()` method
       - add the `addConditionsToInnerSolution()` method
       - update tests

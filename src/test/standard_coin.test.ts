@@ -464,7 +464,7 @@ describe("StandardCoin", () => {
             const SYNTHETIC_KEY = "88e139287dc4d359ac66bf928458e91afd4a68905ec44e8fc71e86d06bc7470f44466c062e9247619906845b834b05ad";
 
             // eslint-disable-next-line max-len
-            const SOLUTION_STR = "ff80ffff01ffff33ffa0099fb6be4707dde8e4ca595d34fbe8fa99cb30ca756d99c63a4d3dac1fd899f0ff8500540be40080ffff33ffa054801b54fbae6bef63a77bd40222efe1fb1c78e8accf94f5271794be70d8b3b6ff840208d4cc80ffff34ff648080ff8080";
+            const SOLUTION_STR = "ff80ffff01ffff33ffa0099fb6be4707dde8e4ca595d34fbe8fa99cb30ca756d99c63a4d3dac1fd899f0ff8502540be40080ffff33ffa054801b54fbae6bef63a77bd40222efe1fb1c78e8accf94f5271794be70d8b3b6ff840208d4cc80ffff34ff648080ff8080";
 
             const PUZZLE_HASH = "0e60706bf819526a5e2fada4a5dfc14c894f0dc91f03a2e0bcbe43a33ebf9aca";
             const PARENT_COIN_INFO = "eba93c93bd683c90b1863f7e9c4965d99d156607fcbe6b2c70501e5ff7860808";

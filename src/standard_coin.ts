@@ -119,7 +119,7 @@ export class StandardCoin extends SmartCoin {
             Bytes.from(
                 Buffer.from(puzzleHash, "hex"),
             ),
-            amount.toNumber(),
+            Bytes.from(Util.coin.amountToBytes(amount), "hex"),
         ]);
     }
 

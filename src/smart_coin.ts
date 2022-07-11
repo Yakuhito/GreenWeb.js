@@ -31,12 +31,12 @@ export class SmartCoin {
         solution = null,
     }: SmartCoinConstructorArgs = {}) {
         if(coin !== null && coin !== undefined) {
-            this.parentCoinInfo = coin.parentCoinInfo;
-            this.puzzleHash = coin.puzzleHash;
+            this.parentCoinInfo = Util.hex.dehexlify(coin.parentCoinInfo);
+            this.puzzleHash = Util.hex.dehexlify(coin.puzzleHash);
             this.amount = BigNumber.from(coin.amount);
         } else {
-            this.parentCoinInfo = parentCoinInfo;
-            this.puzzleHash = puzzleHash;
+            this.parentCoinInfo = Util.hex.dehexlify(parentCoinInfo);
+            this.puzzleHash = Util.hex.dehexlify(puzzleHash);
             this.amount = amount !== null ? BigNumber.from(amount) : null;
         }
 

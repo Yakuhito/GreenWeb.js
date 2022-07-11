@@ -1,6 +1,27 @@
 # StandardCoin
 
-`StandardCoin` inherits [`SmartCoin`](smart-coin.md) and can be used to create standard transactions. It contains a standard `Coin`, plus its puzzle. The latter can be automatically determined using a wallet public key or a synthetic public key.
+`StandardCoin` inherits [`SmartCoin`](smart-coin.md) and can be used to create 'standard' transactions (`p2_delegated_puzzle_or_hidden_puzzle`). The `puzzle` can be automatically determined using a wallet public key or a synthetic public key and new conditions can be added to the `solution` by using a helper function.
+
+
+Attributes:
+
+  - `parentCoinInfo` (inherited from `SmartCoin`)
+  - `puzzleHash` (inherited from `SmartCoin`)
+  - `amount` (inherited from `SmartCoin`)
+  - `puzzle` (inherited from `SmartCoin`)
+  - `solution` (inherited from `SmartCoin`)
+  - `syntheticKey`
+
+Methods inherited from `SmartCoin`:
+
+  - `withPuzzle()`
+  - `withSolution()`
+  - `toCoin()`
+  - `spend()`
+  - `getId()`
+  - `getName()`
+  - `curry()`
+  - `isSpendable()`
 
 ### Arguments
 
@@ -9,16 +30,14 @@ export type StandardCoinConstructorArgs = {
     parentCoinInfo?: bytes | null,
     puzzleHash?: bytes | null,
     amount?: uint | null,
-    puzzle?: SExp | null,
     coin?: Coin | null,
+    solution?: SExp | null,
     publicKey?: bytes | null,
-    isSyntheticKey?: boolean,
-    forceUsePuzzle?: boolean,
+    syntheticKey?: bytes | null
 };
 ```
 
-`isSyntheticKey` should be set to `true` if the given `publicKey` has already been transformed to a synthetic key. If your public key comes from a function such as `masterSkToWallerSk`, leave this parameter unset or set it to `false`.
-`forceUsePuzzle` should be set to `true` if you wish to overwrite a `StandardCoin`s puzzle and ignore the one computed from the public key. Using this parameter is not recommended.
+If your public key comes from a function such as `masterSkToWallerSk`, pass it as `publicKey`.
 
 ### Returns
 
@@ -31,7 +50,7 @@ let sc = new greenweb.StandardCoin({
   parentCoinInfo: "9a92bb8da325f91f5ba7e3a02cfe6a6793aae1e02cc806ab15abaa31e834ba84",
 });
 console.log(sc);
-// f {parentCoinInfo: '9a92bb8da325f91f5ba7e3a02cfe6a6793aae1e02cc806ab15abaa31e834ba84', puzzleHash: null, amount: null, puzzle: null, publicKey: null}
+// f {parentCoinInfo: '9a92bb8da325f91f5ba7e3a02cfe6a6793aae1e02cc806ab15abaa31e834ba84', puzzleHash: null, amount: null, puzzle: null, syntheticKey: null}
 ```
 
 ---
@@ -48,10 +67,9 @@ public copyWith({
     puzzleHash = null,
     amount = null,
     coin = null,
-    puzzle = null,
+    solution = null,
     publicKey = null,
-    isSyntheticKey = false,
-    forceUsePuzzle = false,
+    syntheticKey = null,
 }: StandardCoinConstructorArgs): StandardCoin {
 ```
 
@@ -65,19 +83,31 @@ A `StandardCoin` instance.
 const sc = new greenweb.StandardCoin({parentCoinInfo: "test", amount: 1});
 const sc2 = sc.copyWith({amount: 2});
 console.log(sc2);
-// f {parentCoinInfo: 'test', puzzleHash: null, amount: B, puzzle: null, publicKey: null}
+// f {parentCoinInfo: 'test', puzzleHash: null, amount: B, puzzle: null, syntheticKey: null}
 ```
 
 ---
 
 ## withPublicKey
 
-Creates a new `StandardCoin` instance with a new value for `publicKey`.
+Creates a `StandardCoin` instance with a new value for `syntheticKey`, which is computed from the given `publicKey`. `puzzle` and `puzzleHash` are automatically updated.
 
 ### Definition
 
 ```js
-public withPublicKey(publicKey: bytes, isSyntheticKey: boolean = false) : StandardCoin {
+public withPublicKey(publicKey: bytes) : StandardCoin {
+```
+
+---
+
+## withSyntheticKey
+
+Creates a `StandardCoin` instance with a new value for `syntheticKey`. `puzzle` and `puzzleHash` are automatically updated.
+
+### Definition
+
+```js
+public withSyntheticKey(syntheticKey: bytes) : StandardCoin {
 ```
 
 ---
@@ -118,33 +148,12 @@ public withAmount(newValue: uint): StandardCoin {
 
 ---
 
-## send
+## addConditionsToSolution
 
-Returns a `CoinSpend` that, when signed, will 'send' the given amount to the given address. The change will be transferred to the current puzzle hash if `changeAddressOrPuzzleHash` is not set. `fee` is 0 by default and `amount` is the current coin's amount unless overwritten via the 3rd parameter.
-
-### Definition
-
-```js
-public send(
-    addressOrPuzzleHash: string,
-    fee?: BigNumberish,
-    amount?: BigNumberish,
-    changeAddressOrPuzzleHash?: string
-): CoinSpend | null {
-```
-
----
-
-## multisend
-
-Returns a `CoinSpend` that, when signed, will 'split send' the coin's amount to to given list of addresses. The change will be transferred to the current puzzle hash if `changeAddressOrPuzzleHash` is not set. `fee` is 0 by default. A recipient can either be given as a valid address or a puzzle hash.
+Recommended way of updating a `SmartCoin`'s `solution`. Returns a new instance that adds the given list of conditions to the one present in the current coin's `solution`.
 
 ### Definition
 
 ```js
-public multisend(
-    recipientsAndAmounts: Array<[string, BigNumberish]>,
-    fee?: BigNumberish,
-    changeAddressOrPuzzleHash?: string
-): CoinSpend | null {
+public addConditionsToSolution(conditions: SExp[]): StandardCoin {
 ```

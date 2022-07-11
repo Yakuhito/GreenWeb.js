@@ -10,7 +10,7 @@ describe("CoinUtil", () => {
     describe("amountToBytes", () => {
         it("Works as expected", () => {
             const inputs = [0, 1, -1, -11, 0x7f, 0x80, 0xff, -0x7f, -0x80, -0xff, -0x808080, 0x808080, 0xff010203, -0xff010203, -0xffffffffff];
-            const expected_outputs = ["", "01", "ff", "f5", "7f", "0080", "00ff", "81", "80", "ff01", "ff7f7f80", "00808080", "00ff010203", "ff00fefdfd", "ff0000000001"];
+            const expected_outputs = ["00", "01", "ff", "f5", "7f", "0080", "00ff", "81", "80", "ff01", "ff7f7f80", "00808080", "00ff010203", "ff00fefdfd", "ff0000000001"];
 
             for(let i = 0; i < inputs.length; ++i) {
                 expect(
@@ -79,6 +79,24 @@ describe("CoinUtil", () => {
                 coinUtil.getName(coin),
                 "7200b9a8a799717b2b54809b7ed6bd2bacfa113dcf9564569a8182bd7f588cf8"
             );
+        });
+    });
+
+    describe("toProgram()", () => {
+        it("Works", () => {
+            const coin: Coin = new Coin();
+            coin.amount = 87;
+            coin.puzzleHash = "b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664";
+            coin.parentCoinInfo = "8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01";
+
+            const program = coinUtil.toProgram(coin);
+            const programHex = Util.sexp.toHex(program);
+
+            /*
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ brun -x 01 ffa08c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff5780
+            (0x8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 87)
+            */
+            expect(programHex).to.equal("ffa08c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff5780");
         });
     });
 });

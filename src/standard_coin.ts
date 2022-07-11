@@ -97,51 +97,6 @@ export class StandardCoin extends SmartCoin {
         });
     }
 
-
-    private createCreateCoinCondition(puzzleHash: bytes, amount: BigNumber): SExp {
-        return SExp.to([
-            Bytes.from(
-                Buffer.from(ConditionOpcode.CREATE_COIN, "hex"),
-            ),
-            Bytes.from(
-                Buffer.from(puzzleHash, "hex"),
-            ),
-            Bytes.from(Util.coin.amountToBytes(amount), "hex"),
-        ]);
-    }
-
-    private createReserveFeeCondition(fee: BigNumber): SExp {
-        return SExp.to([
-            Bytes.from(
-                Buffer.from(ConditionOpcode.RESERVE_FEE, "hex"),
-            ),
-            Bytes.from(
-                Buffer.from(fee.toHexString().slice(2), "hex")
-            ),
-        ]);
-    }
-
-    public send(
-        addressOrPuzzleHash: string,
-        fee?: BigNumberish,
-        amount?: BigNumberish,
-        changeAddressOrPuzzleHash?: string
-    ): CoinSpend | null {
-        if(amount === undefined) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            amount = this.amount!;
-        }
-
-        const recipientsAndAmounts: Array<[string, BigNumberish]> = [
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            [addressOrPuzzleHash, amount!]
-        ];
-        return this.multisend(
-            recipientsAndAmounts,
-            fee,
-            changeAddressOrPuzzleHash
-        );
-
     public withAmount(amount: uint): StandardCoin {
         return this.copyWith({
             amount: BigNumber.from(amount),

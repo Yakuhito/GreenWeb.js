@@ -78,10 +78,16 @@ export class CAT extends SmartCoin {
             parentCoinInfo, puzzleHash, amount, coin
         });
 
-        this.TAILProgramHash = TAILProgramHash;
+        this.TAILProgramHash = Util.dehexlify(TAILProgramHash);
         this.innerSolution = innerSolution;
-        this.prevCoinId = prevCoinId;
-        this.nextCoin = nextCoin;
+        this.prevCoinId = Util.dehexlify(prevCoinId);
+        if(nextCoin !== null && nextCoin !== undefined) {
+            this.nextCoin = nextCoin;
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.nextCoin.parentCoinInfo = Util.dehexlify(nextCoin.parentCoinInfo)!;
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.nextCoin.puzzleHash = Util.dehexlify(nextCoin.puzzleHash)!;
+        }
         if(prevSubtotal !== null && prevSubtotal !== undefined) {
             this.prevSubtotal = BigNumber.from(prevSubtotal);
         }
@@ -93,8 +99,8 @@ export class CAT extends SmartCoin {
         if(lineageProof !== null && lineageProof !== undefined) {
             this.lineageProof = {
                 amount: lineageProof.amount ? BigNumber.from(lineageProof.amount) : null,
-                parentName: lineageProof.parentName ?? null,
-                innerPuzzleHash: lineageProof.innerPuzzleHash ?? null,
+                parentName: Util.dehexlify(lineageProof.parentName ?? null),
+                innerPuzzleHash: Util.dehexlify(lineageProof.innerPuzzleHash ?? null),
             };
         }
 

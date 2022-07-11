@@ -2,7 +2,6 @@ import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { AddressUtil } from "./address";
 import { CoinUtil } from "./coin";
 import { GobyUtil } from "./goby";
-import { Hex } from "./hex";
 import { KeyUtil } from "./key";
 import { NetworkUtil } from "./network";
 import { SerializerUtil } from "./serializer";
@@ -19,7 +18,6 @@ export class Util {
     public static goby: GobyUtil = new GobyUtil();
     public static key: KeyUtil = new KeyUtil();
     public static mojoPerXCH: BigNumber = BigNumber.from(1000000000000);
-    public static hex: Hex = new Hex();
 
     public static formatToken(amount: BigNumberish, amountPerUnit: BigNumberish = 1000): string {
         try {
@@ -111,4 +109,15 @@ export class Util {
             )
         );
     }
+
+    public static hexlify(value: string): string {
+        return value.startsWith("0x") ? value : `0x${value}`;
+    }
+
+    public static dehexlify(value: string | null): string | null {
+        if(value === null) return null;
+        return value.startsWith("0x") ? value.slice(2) : value;
+    }
+
+    public static unhexlify = this.dehexlify;
 }

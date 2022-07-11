@@ -61,6 +61,7 @@ greenweb.util.formatToken(12345, 100);
 ## parseToken
 
 Takes a token amount as input (`string`) and returns `uint` representing the number of units in that amount.
+
 ```js
 greenweb.util.parseToken("0.001");
 // 1
@@ -78,7 +79,41 @@ greenweb.util.parseToken("12", 100);
 ## stdHash
 
 Takes a `bytes` / hex string as input and returns the value of Chia's `std_hash` function as a hex-encoded stirng.
+
 ```js
 greenweb.util.stdHash('31333337')
 // "5db1fee4b5703808c48078a76768b155b421b210c0761cd6a5d223f4d99f1eaa" 
+```
+
+## hexlify
+
+Takes a hex string and makes sure it starts with '0x'.
+
+```js
+public static hexlify(value: string): string {
+    return value.startsWith("0x") ? value : `0x${value}`;
+}
+
+    
+
+    
+```
+
+## dehexlify
+
+Takes a hex string and makes sure it does NOT start with '0x'.
+
+```js
+public static dehexlify(value: string | null): string | null {
+    if(value === null) return null;
+    return value.startsWith("0x") ? value.slice(2) : value;
+}
+```
+
+## unhexlify
+
+Wrapper for `dehexlify`. Made available for those coming from other libraries / programming languages.
+
+```js
+public static unhexlify = this.dehexlify;
 ```

@@ -39,10 +39,10 @@
       - add the `withSyntheticKey()` method
       - add the `addConditionsToInnerSolution()` method
       - update tests
- - TODO: Add `greenweb.util.hexlify` and `greenweb.util.unhexlify`
- - TODO: bug fix
- - TODO: update docs to reflect changes
- - bump version to 1.1.7
+ - Add `greenweb.util.hexlify` and `greenweb.util.unhexlify`
+ - Fix `SmartCoin` bug (thanks, `polkom21`)
+ - Update docs to reflect changes
+ - Bump version to 1.1.7
 
 ## 1.1.6
  - Add a changelog (`CHANGELOG.md`)

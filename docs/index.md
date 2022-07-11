@@ -12,11 +12,13 @@ The main javascript files exports a single object, `greenweb`. It has the follow
  - [`greenweb.xch`](xch/index.md): Used to interact with the Chia blockchain.
  - [`greenweb.clvm`](clvm/index.md): Export of [https://github.com/Chia-Mine/clvm-js](https://github.com/Chia-Mine/clvm-js)
  - [`greenweb.util`](util/index.md): Some util functions that might come in handy
+ - [`greenweb.spend`](spend/index.md): Spend-related helper functions (`bundleCATs()`, `bundleStandardCoins()`, `merge()`, etc.)
 
 The object also exports the following classes as properties:
 
  - [`SmartCoin`](smart-coin.md): GreenWeb.js's `SmartCoin` class - click on the link for more info!
  - [`StandardCoin`](standard-coin.md): Helper class used for making standard coins easier to use.
+ - [`CAT`](CAT.md): Helper class used for making Chia Asset Tokens (CATs) easier to use.
  - [`BigNumber`](https://docs.ethers.io/v5/api/utils/bignumber/): Export of the class that GreenWeb.js uses to handle big numbers (thanks to the `ethers` project for publishing their solution as a package).
  - `Coin`: The `Coin` class, as used by the Chia blockchain.
  - `CoinSpend`: The `CoinSpend` class, as used by the Chia blockchain.

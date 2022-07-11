@@ -2,6 +2,15 @@
 
 `SmartCoin` is a class that can be used to create `CoinSpend`s more easily. It represents a standard `Coin`, plus its puzzle (the solution is only required to spend it). This class also exposes helper methods, such as `curry()` and `getId()`.
 
+
+Attributes:
+
+  - `parentCoinInfo`
+  - `puzzleHash`
+  - `amount`
+  - `puzzle`
+  - `solution`
+
 ## constructor
 
 Used to initialize a new class instance. All parameters are optional.
@@ -14,7 +23,8 @@ export type SmartCoinConstructorArgs = {
     puzzleHash?: string | null,
     amount?: uint | null,
     coin?: Coin | null,
-    puzzle?: SExp | null
+    puzzle?: SExp | null,
+    solution?: SExp | null,
 };
 ```
 
@@ -36,7 +46,7 @@ console.log(sc);
 
 ## copyWith
 
-Used to create a new `SmartCoin` object that inherits some of its properties from the instance on which it was called. Overwrite properties by giving them as arguments.
+Used to create a new `SmartCoin` object that inherits some of its properties from the instance on which it was called. Overwrite properties by passing them as arguments.
 
 ### Definition
 
@@ -47,6 +57,7 @@ public copyWith({
     amount = null,
     coin = null,
     puzzle = null,
+    solution = null,
 }: SmartCoinConstructorArgs): SmartCoin {
 ```
 
@@ -72,7 +83,7 @@ Creates a new `SmartCoin` instance with a new value for `parentCoinInfo`.
 ### Definition
 
 ```js
-public withParentCoinInfo(newValue: string): SmartCoin {
+public withParentCoinInfo(parentCoinInfo: string): SmartCoin {
 ```
 
 ---
@@ -84,7 +95,7 @@ Creates a new `SmartCoin` instance with a new value for `puzzleHash`. `puzzle` w
 ### Definition
 
 ```js
-public withPuzzleHash(newValue: string): SmartCoin {
+public withPuzzleHash(puzzleHash: string): SmartCoin {
 ```
 
 ---
@@ -96,7 +107,7 @@ Creates a new `SmartCoin` instance with a new value for `amount`.
 ### Definition
 
 ```js
-public withAmount(newValue: uint): SmartCoin {
+public withAmount(amount: uint): SmartCoin {
 ```
 
 ---
@@ -108,7 +119,19 @@ Creates a new `SmartCoin` instance with a new value for `puzzle`. `puzzleHash` i
 ### Definition
 
 ```js
-public withPuzzle(newValue: SExp): SmartCoin {
+public withPuzzle(puzzle: SExp): SmartCoin {
+```
+
+---
+
+## withSolution
+
+Creates a new `SmartCoin` instance with a new value for `solution`. 
+
+### Definition
+
+```js
+public withSolution(solution: SExp): SmartCoin {
 ```
 
 ---
@@ -127,12 +150,12 @@ public toCoin(): Coin | null {
 
 ## spend
 
-Builds a `CoinSpend` based on the coin's info and the given solution. Returns null if `parentCoinInfo`, `puzzleHash`, `puzzle` or `amount` are not set (`null`).
+Builds a `CoinSpend` based on the coin's info and the given solution. Returns null if `parentCoinInfo`, `puzzleHash`, `puzzle`, `solution` or `amount` are not set (`null`).
 
 ### Definition
 
 ```js
-public spend(solution: SExp): CoinSpend | null {
+public spend(): CoinSpend | null {
 ```
 
 ---
@@ -169,4 +192,16 @@ Curries the given list of arguments into the coin's puzzle and returns a new `Sm
 
 ```js
 public curry(args: SExp[]): SmartCoin | null {
+```
+
+---
+
+## isSpendable
+
+Returns true if the `SmartCoin` can be spent (or: returns true if the coin info, puzzle and solution are set). False otherwise.
+
+### Definition
+
+```js
+public isSpendable(): boolean {
 ```

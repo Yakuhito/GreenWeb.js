@@ -74,3 +74,11 @@ greenweb.util.parseToken("123.45", 100);
 greenweb.util.parseToken("12", 100);
 // 1200
 ```
+
+## stdHash
+
+Takes a `bytes` / hex string as input and returns the value of Chia's `std_hash` function as a hex-encoded stirng.
+```js
+greenweb.util.stdHash('31333337')
+// "5db1fee4b5703808c48078a76768b155b421b210c0761cd6a5d223f4d99f1eaa" 
+```

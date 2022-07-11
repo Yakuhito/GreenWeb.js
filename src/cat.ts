@@ -254,69 +254,69 @@ export class CAT extends SmartCoin {
         });
     }
 
-    public withParentCoinInfo(newValue: string): CAT {
+    public withParentCoinInfo(parentCoinInfo: bytes): CAT {
         return this.copyWith({
-            parentCoinInfo: newValue
+            parentCoinInfo,
         });
     }
 
-    public withPuzzleHash(newValue: string): CAT {
+    public withPuzzleHash(puzzleHash: bytes): CAT {
         return this.copyWith({
-            puzzleHash: newValue,
+            puzzleHash,
         });
     }
 
-    public withAmount(newValue: uint): CAT {
+    public withAmount(amount: uint): CAT {
         return this.copyWith({
-            amount: newValue,
+            amount,
         });
     }
 
-    public withTAILProgramHash(newValue: bytes): CAT {
+    public withTAILProgramHash(TAILProgramHash: bytes): CAT {
         return this.copyWith({
-            TAILProgramHash: newValue
+            TAILProgramHash,
         });
     }
 
-    public withPublicKey(newValue: bytes): CAT {
+    public withPublicKey(publicKey: bytes): CAT {
         return this.copyWith({
-            publicKey: newValue
+            publicKey,
         });
     }
 
-    public withSyntheticKey(newValue: bytes): CAT {
+    public withSyntheticKey(syntheticKey: bytes): CAT {
         return this.copyWith({
-            syntheticKey: newValue
+            syntheticKey,
         });
     }
 
-    public withInnerSolution(newValue: SExp): CAT {
+    public withInnerSolution(innerSolution: SExp): CAT {
         return this.copyWith({
-            innerSolution: newValue
+            innerSolution,
         });
     }
 
-    public withExtraDelta(newValue: uint): CAT {
+    public withExtraDelta(extraDelta: uint): CAT {
         return this.copyWith({
-            extraDelta: newValue
+            extraDelta,
         });
     }
 
-    public withTAILProgram(newValue: SExp): CAT {
+    public withTAILProgram(TAILProgram: SExp): CAT {
         return this.copyWith({
-            TAILProgram: newValue
+            TAILProgram,
         });
     }
 
-    public withTAILSolution(newValue: SExp): CAT {
+    public withTAILSolution(TAILSolution: SExp): CAT {
         return this.copyWith({
-            TAILSolution: newValue
+            TAILSolution,
         });
     }
 
-    public withLineageProof(newValue: LineageProof): CAT {
+    public withLineageProof(lineageProof: LineageProof): CAT {
         return this.copyWith({
-            lineageProof: newValue
+            lineageProof,
         });
     }
 

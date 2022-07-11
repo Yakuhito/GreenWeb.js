@@ -122,10 +122,74 @@ public calculateSyntheticPublicKey(publicKey: any, hiddenPuzzleHash = this.DEFAU
 
 ## standardCoinPuzzle
 
-A wrapper for `P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM`.
+A wrapper for `P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM_MOD`.
 
 ```js
 public standardCoinPuzzle(key: any, isSyntheticKey: boolean = false): SExp {
+```
+
+## standardCoinSolution
+
+Returns a valid standard coin solution (`SExp`) derived from the given list of conditions.
+
+```js
+public standardCoinSolution(conditions: SExp[]): SExp {
+```
+
+## CATPuzzle
+
+A wrapper for `CAT_PROGRAM_MOD`.
+
+```js
+public CATPuzzle(TAILProgramHash: bytes, innerPuzzle: SExp): SExp {
+```
+
+## CATSolution
+
+Returns a valid solution (`SExp`) for the `CAT` puzzle.
+
+```js
+public CATSolution(
+    innerPuzzleSolution: SExp,
+    lineageProof: SExp | null,
+    prevCoinId: bytes,
+    thisCoinInfo: Coin,
+    nextCoinProof: Coin,
+    prevSubtotal: BigNumberish,
+    extraDelta: BigNumberish
+): SExp {
+```
+
+## genesisByCoinIdTAIL
+
+A wrapper for `GENESIS_BY_COIN_ID_TAIL_MOD`.
+
+```js
+public genesisByCoinIdTAIL(genesisId: bytes): SExp {
+```
+
+## genesisByPuzzleHashTAIL
+
+A wrapper for `GENESIS_BY_PUZZLE_HASH_TAIL_MOD`.
+
+```js
+public genesisByPuzzleHashTAIL(puzzleHash: bytes): SExp {
+```
+
+## everythingWithSignatureTAIL
+
+A wrapper for `EVERYTHING_WITH_SIGNATURE_TAIL_MOD`.
+
+```js
+public everythingWithSignatureTAIL(pubKey: bytes): SExp {
+```
+
+## delegatedTAIL
+
+A wrapper for `DELEGATED_TAIL_MOD`.
+
+```js
+public delegatedTAIL(pubKey: bytes): SExp {
 ```
 
 # Programs
@@ -133,6 +197,14 @@ This class also exposes the following 'standard' programs as `SExp` objects:
 
  - `SHA256TREE_MODULE_PROGRAM`
  - `CURRY_PROGRAM`
- - `P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM`
+ - `P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM_MOD`
+ - `P2_CONDITIONS_PROGRAM`
  - `DEFAULT_HIDDEN_PUZZLE_PROGRAM`
  - `CALCULATE_SYNTHETIC_PUBLIC_KEY_PROGRAM`
+ - `CAT_PROGRAM_MOD`
+ - `CAT_PROGRAM_MOD_HASH`
+ - `GENESIS_BY_COIN_ID_TAIL_MOD`
+ - `GENESIS_BY_PUZZLE_HASH_TAIL_MOD`
+ - `EVERYTHING_WITH_SIGNATURE_TAIL_MOD`
+ - `DELEGATED_TAIL_MOD`
+ 

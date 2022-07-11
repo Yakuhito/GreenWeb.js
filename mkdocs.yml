@@ -20,8 +20,11 @@ nav:
             - 'sexp': 'util/sexp.md'
             - 'goby': 'util/goby.md'
             - 'key': 'util/key.md'
+        - 'spend':
+            - 'Module Overview': 'spend/index.md'
     - SmartCoin: 'smart-coin.md'
     - StandardCoin: 'standard-coin.md'
+    - CAT: 'CAT.md'
     - License: 'license.md'
 
 markdown_extensions:

@@ -10,7 +10,8 @@ export type SmartCoinConstructorArgs = {
     puzzleHash?: string | null,
     amount?: uint | null,
     coin?: Coin | null,
-    puzzle?: SExp | null
+    puzzle?: SExp | null,
+    solution?: SExp | null,
 };
 
 export class SmartCoin {
@@ -19,6 +20,7 @@ export class SmartCoin {
     public amount: BigNumber | null = null;
 
     public puzzle: SExp | null = null;
+    public solution: SExp | null = null;
     
     constructor({
         parentCoinInfo = null,
@@ -26,6 +28,7 @@ export class SmartCoin {
         amount = null,
         coin = null,
         puzzle = null,
+        solution = null,
     }: SmartCoinConstructorArgs = {}) {
         if(coin !== null && coin !== undefined) {
             this.parentCoinInfo = Util.hex.dehexlify(coin.parentCoinInfo);
@@ -37,9 +40,8 @@ export class SmartCoin {
             this.amount = amount !== null ? BigNumber.from(amount) : null;
         }
 
-        if(puzzle !== null && puzzle !== undefined) {
-            this.puzzle = puzzle;
-        }
+        this.puzzle = puzzle;
+        this.solution = solution;
 
         this.calculatePuzzleHash();
     }
@@ -56,42 +58,50 @@ export class SmartCoin {
         amount = null,
         coin = null,
         puzzle = null,
+        solution = null,
     }: SmartCoinConstructorArgs): SmartCoin {
         const puzzleSupplied = puzzle !== undefined && puzzle !== null;
         const puzzleHashSupplied = puzzleHash !== undefined && puzzleHash !== null;
         const givePuzzle = puzzleSupplied || (puzzleHashSupplied && this.puzzleHash !== puzzleHash);
 
         return new SmartCoin({
-            parentCoinInfo: parentCoinInfo !== undefined && parentCoinInfo !== null ? parentCoinInfo : this.parentCoinInfo,
+            parentCoinInfo: parentCoinInfo ?? this.parentCoinInfo,
             puzzleHash: puzzleHashSupplied ? puzzleHash : this.puzzleHash,
-            amount: amount !== undefined && amount !== null ? amount : this.amount,
+            amount: amount ?? this.amount,
             puzzle: givePuzzle ? puzzle : this.puzzle,
-            coin: coin !== undefined && coin !== null ? coin : null,
+            coin: coin ?? null,
+            solution: solution ?? this.solution,
         });
     }
 
-    public withParentCoinInfo(newValue: string): SmartCoin {
+    public withParentCoinInfo(parentCoinInfo: string): SmartCoin {
         return this.copyWith({
-            parentCoinInfo: newValue
+            parentCoinInfo,
         });
     }
 
-    public withPuzzleHash(newValue: string): SmartCoin {
+    public withPuzzleHash(puzzleHash: string): SmartCoin {
         return this.copyWith({
-            puzzleHash: newValue,
+            puzzleHash,
             puzzle: null
         });
     }
 
-    public withAmount(newValue: uint): SmartCoin {
+    public withAmount(amount: uint): SmartCoin {
         return this.copyWith({
-            amount: BigNumber.from(newValue),
+            amount: BigNumber.from(amount),
         });
     }
 
-    public withPuzzle(newValue: SExp): SmartCoin {
+    public withPuzzle(puzzle: SExp): SmartCoin {
         return this.copyWith({
-            puzzle: newValue,
+            puzzle,
+        });
+    }
+
+    public withSolution(solution: SExp): SmartCoin {
+        return this.copyWith({
+            solution,
         });
     }
 
@@ -117,20 +127,20 @@ export class SmartCoin {
         return c;
     }
 
-    public spend(solution: SExp): CoinSpend | null {
-        if(this.puzzle === null) {
+    public spend(): CoinSpend | null {
+        if(!this.isSpendable()) {
             return null;
         }
 
-        const c = this.toCoin();
-        if(c === null) {
-            return null;
-        }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const c = this.toCoin()!;
 
         const cs = new CoinSpend();
         cs.coin = c;
-        cs.puzzleReveal = this.puzzle;
-        cs.solution = solution;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        cs.puzzleReveal = this.puzzle!;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        cs.solution = this.solution!;
 
         return cs;
     }
@@ -160,5 +170,9 @@ export class SmartCoin {
         const sc = new SmartCoin({ coin: c, puzzle: newPuzzle });
 
         return sc;
+    }
+
+    public isSpendable(): boolean {
+        return this.hasCoinInfo() && this.puzzle !== null && this.solution !== null;
     }
 }

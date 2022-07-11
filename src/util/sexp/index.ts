@@ -1,7 +1,8 @@
 /* eslint-disable max-len */
+import { BigNumberish } from "@ethersproject/bignumber";
 import { Bytes, CLVMType, getBLSModule, OPERATOR_LOOKUP, run_program, SExp, sexp_from_stream, Stream } from "clvm";
 import { Util } from "..";
-import { bytes } from "../../xch/providers/provider_types";
+import { bytes, Coin } from "../../xch/providers/provider_types";
 import { ConditionOpcode } from "./condition_opcodes";
 import { ConditionWithArgs } from "./condition_with_args";
 
@@ -138,19 +139,19 @@ export class SExpUtil {
         sexp: SExp,
     ): bytes[] {
         const items = [];
-        let obj = sexp;
         // eslint-disable-next-line no-constant-condition
-        while(true) {
-            const pair = obj.pair;
-            if(pair === null || pair === undefined) {
-                break;
+        try {
+            for(const e of sexp.as_iter()) {
+                if(e.atom) {
+                    items.push(e.atom.hex());
+                } else {
+                    items.push(
+                        this.toHex(SExp.to(e))
+                    );
+                }
             }
-            const atom = pair[0].atom;
-            if(atom === null || atom === undefined) {
-                break;
-            }
-            items.push(atom.hex());
-            obj = pair[1];
+        } catch(_) {
+            // do nothing
         }
 
         return items;
@@ -234,7 +235,7 @@ export class SExpUtil {
     }
 
     // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clvm.hex
-    public readonly P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM = this.fromHex("ff02ffff01ff02ffff03ff0bffff01ff02ffff03ffff09ff05ffff1dff0bffff1effff0bff0bffff02ff06ffff04ff02ffff04ff17ff8080808080808080ffff01ff02ff17ff2f80ffff01ff088080ff0180ffff01ff04ffff04ff04ffff04ff05ffff04ffff02ff06ffff04ff02ffff04ff17ff80808080ff80808080ffff02ff17ff2f808080ff0180ffff04ffff01ff32ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff06ffff04ff02ffff04ff09ff80808080ffff02ff06ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080");
+    public readonly P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM_MOD = this.fromHex("ff02ffff01ff02ffff03ff0bffff01ff02ffff03ffff09ff05ffff1dff0bffff1effff0bff0bffff02ff06ffff04ff02ffff04ff17ff8080808080808080ffff01ff02ff17ff2f80ffff01ff088080ff0180ffff01ff04ffff04ff04ffff04ff05ffff04ffff02ff06ffff04ff02ffff04ff17ff80808080ff80808080ffff02ff17ff2f808080ff0180ffff04ffff01ff32ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff06ffff04ff02ffff04ff09ff80808080ffff02ff06ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080");
     // https://github.com/Chia-Network/chia-blockchain/blob/5f4e39480e2312dc93a7b3609bcea576a9a758f9/chia/wallet/puzzles/p2_delegated_puzzle_or_hidden_puzzle.py#L70
     public readonly DEFAULT_HIDDEN_PUZZLE_PROGRAM = this.fromHex("ff0980");
     public readonly DEFAULT_HIDDEN_PUZZLE_HASH = "711d6c4e32c92e53179b199484cf8c897542bc57f2b22582799f9d657eec4699";
@@ -265,11 +266,25 @@ export class SExpUtil {
             key : this.calculateSyntheticPublicKey(key, this.DEFAULT_HIDDEN_PUZZLE_HASH);
 
         return this.curry(
-            this.P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM,
+            this.P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM_MOD,
             [
                 SExp.to(Bytes.from(Util.key.publicKeyToHex(syntheticPublicKey), "hex")),
             ]
         );
+    }
+    // https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/puzzles/p2_conditions.clvm.hex
+    public readonly P2_CONDITIONS_PROGRAM = this.fromHex("ff04ffff0101ff0280");
+    public standardCoinSolution(conditions: SExp[]): SExp {
+        return SExp.to([
+            SExp.to([]),
+            this.run(
+                this.P2_CONDITIONS_PROGRAM,
+                SExp.to([
+                    SExp.to(conditions),
+                ])
+            ),
+            SExp.to([])
+        ]);
     }
 
     // https://github.com/irulast/chia-crypto-utils/blob/f1d8ef4c8ed6134e392f4b42ef9a4e30d449f3d3/lib/src/clvm/program.dart#L158
@@ -367,5 +382,83 @@ export class SExpUtil {
             return cons[1];
         }
         return null;
+    }
+
+    // https://github.com/Chia-Network/chia-blockchain/blob/d0de8038cd95b71fa050f79e3685c51dcf05e13e/chia/wallet/puzzles/cat.clvm.hex
+    public readonly CAT_PROGRAM_MOD = this.fromHex("ff02ffff01ff02ff5effff04ff02ffff04ffff04ff05ffff04ffff0bff2cff0580ffff04ff0bff80808080ffff04ffff02ff17ff2f80ffff04ff5fffff04ffff02ff2effff04ff02ffff04ff17ff80808080ffff04ffff0bff82027fff82057fff820b7f80ffff04ff81bfffff04ff82017fffff04ff8202ffffff04ff8205ffffff04ff820bffff80808080808080808080808080ffff04ffff01ffffffff81ca3dff46ff0233ffff3c04ff01ff0181cbffffff02ff02ffff03ff05ffff01ff02ff32ffff04ff02ffff04ff0dffff04ffff0bff22ffff0bff2cff3480ffff0bff22ffff0bff22ffff0bff2cff5c80ff0980ffff0bff22ff0bffff0bff2cff8080808080ff8080808080ffff010b80ff0180ffff02ffff03ff0bffff01ff02ffff03ffff09ffff02ff2effff04ff02ffff04ff13ff80808080ff820b9f80ffff01ff02ff26ffff04ff02ffff04ffff02ff13ffff04ff5fffff04ff17ffff04ff2fffff04ff81bfffff04ff82017fffff04ff1bff8080808080808080ffff04ff82017fff8080808080ffff01ff088080ff0180ffff01ff02ffff03ff17ffff01ff02ffff03ffff20ff81bf80ffff0182017fffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff04ffff04ff05ff2780ffff04ffff10ff0bff5780ff778080ff02ffff03ff05ffff01ff02ffff03ffff09ffff02ffff03ffff09ff11ff7880ffff0159ff8080ff0180ffff01818f80ffff01ff02ff7affff04ff02ffff04ff0dffff04ff0bffff04ffff04ff81b9ff82017980ff808080808080ffff01ff02ff5affff04ff02ffff04ffff02ffff03ffff09ff11ff7880ffff01ff04ff78ffff04ffff02ff36ffff04ff02ffff04ff13ffff04ff29ffff04ffff0bff2cff5b80ffff04ff2bff80808080808080ff398080ffff01ff02ffff03ffff09ff11ff2480ffff01ff04ff24ffff04ffff0bff20ff2980ff398080ffff010980ff018080ff0180ffff04ffff02ffff03ffff09ff11ff7880ffff0159ff8080ff0180ffff04ffff02ff7affff04ff02ffff04ff0dffff04ff0bffff04ff17ff808080808080ff80808080808080ff0180ffff01ff04ff80ffff04ff80ff17808080ff0180ffffff02ffff03ff05ffff01ff04ff09ffff02ff26ffff04ff02ffff04ff0dffff04ff0bff808080808080ffff010b80ff0180ff0bff22ffff0bff2cff5880ffff0bff22ffff0bff22ffff0bff2cff5c80ff0580ffff0bff22ffff02ff32ffff04ff02ffff04ff07ffff04ffff0bff2cff2c80ff8080808080ffff0bff2cff8080808080ffff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff2effff04ff02ffff04ff09ff80808080ffff02ff2effff04ff02ffff04ff0dff8080808080ffff01ff0bff2cff058080ff0180ffff04ffff04ff28ffff04ff5fff808080ffff02ff7effff04ff02ffff04ffff04ffff04ff2fff0580ffff04ff5fff82017f8080ffff04ffff02ff7affff04ff02ffff04ff0bffff04ff05ffff01ff808080808080ffff04ff17ffff04ff81bfffff04ff82017fffff04ffff0bff8204ffffff02ff36ffff04ff02ffff04ff09ffff04ff820affffff04ffff0bff2cff2d80ffff04ff15ff80808080808080ff8216ff80ffff04ff8205ffffff04ff820bffff808080808080808080808080ff02ff2affff04ff02ffff04ff5fffff04ff3bffff04ffff02ffff03ff17ffff01ff09ff2dffff0bff27ffff02ff36ffff04ff02ffff04ff29ffff04ff57ffff04ffff0bff2cff81b980ffff04ff59ff80808080808080ff81b78080ff8080ff0180ffff04ff17ffff04ff05ffff04ff8202ffffff04ffff04ffff04ff24ffff04ffff0bff7cff2fff82017f80ff808080ffff04ffff04ff30ffff04ffff0bff81bfffff0bff7cff15ffff10ff82017fffff11ff8202dfff2b80ff8202ff808080ff808080ff138080ff80808080808080808080ff018080");
+    // https://github.com/Chia-Network/chia-blockchain/blob/d0de8038cd95b71fa050f79e3685c51dcf05e13e/chia/wallet/puzzles/cat.clvm.hex.sha256tree
+    public readonly CAT_PROGRAM_MOD_HASH = this.sha256tree(this.CAT_PROGRAM_MOD);
+    public CATPuzzle(TAILProgramHash: bytes, innerPuzzle: SExp): SExp {
+        return this.curry(
+            this.CAT_PROGRAM_MOD,
+            [
+                SExp.to(Bytes.from(this.CAT_PROGRAM_MOD_HASH, "hex")),
+                SExp.to(Bytes.from(TAILProgramHash, "hex")),
+                innerPuzzle
+            ]
+        );
+    }
+    public CATSolution(
+        innerPuzzleSolution: SExp,
+        lineageProof: SExp | null,
+        prevCoinId: bytes,
+        thisCoinInfo: Coin,
+        nextCoinProof: Coin,
+        prevSubtotal: BigNumberish,
+        extraDelta: BigNumberish
+    ): SExp {
+        return SExp.to([
+            innerPuzzleSolution,
+            lineageProof ?? SExp.FALSE,
+            Bytes.from(prevCoinId, "hex"),
+            Util.coin.toProgram(thisCoinInfo),
+            Util.coin.toProgram(nextCoinProof),
+            Bytes.from(Util.coin.amountToBytes(prevSubtotal), "hex"),
+            Bytes.from(Util.coin.amountToBytes(extraDelta), "hex"),
+        ]);
+    }
+
+    // https://github.com/Chia-Network/chia-blockchain/blob/d0de8038cd95b71fa050f79e3685c51dcf05e13e/chia/wallet/puzzles/genesis_by_coin_id.clvm.hex
+    public readonly GENESIS_BY_COIN_ID_TAIL_MOD = this.fromHex("ff02ffff03ff2fffff01ff0880ffff01ff02ffff03ffff09ff2dff0280ff80ffff01ff088080ff018080ff0180");
+    public genesisByCoinIdTAIL(genesisId: bytes): SExp {
+        return this.curry(
+            this.GENESIS_BY_COIN_ID_TAIL_MOD,
+            [
+                SExp.to(Bytes.from(genesisId, "hex"))
+            ]
+        );
+    }
+
+    // https://github.com/Chia-Network/chia-blockchain/blob/d0de8038cd95b71fa050f79e3685c51dcf05e13e/chia/wallet/puzzles/genesis_by_puzzle_hash.clvm.hex
+    public readonly GENESIS_BY_PUZZLE_HASH_TAIL_MOD = this.fromHex("ff02ffff03ff2fffff01ff0880ffff01ff02ffff03ffff09ffff0bff82013fff02ff8202bf80ff2d80ff80ffff01ff088080ff018080ff0180");
+    public genesisByPuzzleHashTAIL(puzzleHash: bytes): SExp {
+        return this.curry(
+            this.GENESIS_BY_PUZZLE_HASH_TAIL_MOD,
+            [
+                SExp.to(Bytes.from(puzzleHash, "hex"))
+            ]
+        );
+    }
+
+    // https://github.com/Chia-Network/chia-blockchain/blob/d0de8038cd95b71fa050f79e3685c51dcf05e13e/chia/wallet/puzzles/everything_with_signature.clvm.hex
+    public readonly EVERYTHING_WITH_SIGNATURE_TAIL_MOD = this.fromHex("ff02ffff01ff04ffff04ff02ffff04ff05ffff04ff5fff80808080ff8080ffff04ffff0132ff018080");
+    public everythingWithSignatureTAIL(pubKey: bytes): SExp {
+        return this.curry(
+            this.EVERYTHING_WITH_SIGNATURE_TAIL_MOD,
+            [
+                SExp.to(Bytes.from(pubKey, "hex"))
+            ]
+        );
+    }
+
+    // https://github.com/Chia-Network/chia-blockchain/blob/d0de8038cd95b71fa050f79e3685c51dcf05e13e/chia/wallet/puzzles/delegated_tail.clvm.hex
+    public readonly DELEGATED_TAIL_MOD = this.fromHex("ff02ffff01ff04ffff04ff04ffff04ff05ffff04ffff02ff06ffff04ff02ffff04ff82027fff80808080ff80808080ffff02ff82027fffff04ff0bffff04ff17ffff04ff2fffff04ff5fffff04ff81bfff82057f80808080808080ffff04ffff01ff31ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff06ffff04ff02ffff04ff09ff80808080ffff02ff06ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080");
+    public delegatedTAIL(pubKey: bytes): SExp {
+        return this.curry(
+            this.DELEGATED_TAIL_MOD,
+            [
+                SExp.to(Bytes.from(pubKey, "hex"))
+            ]
+        );
     }
 }

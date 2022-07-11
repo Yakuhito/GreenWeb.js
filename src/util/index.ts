@@ -7,6 +7,8 @@ import { KeyUtil } from "./key";
 import { NetworkUtil } from "./network";
 import { SerializerUtil } from "./serializer";
 import { SExpUtil } from "./sexp";
+import CryptoJS from "crypto-js";
+import { bytes } from "./serializer/basic_types";
 
 export class Util {
     public static address: AddressUtil = new AddressUtil();
@@ -98,5 +100,15 @@ export class Util {
 
     public static parseChia(s: string): BigNumberish {
         return Util.parseToken(s, Util.mojoPerXCH);
+    }
+
+    public static stdHash(toHash: bytes): bytes {
+        return CryptoJS.enc.Hex.stringify(
+            CryptoJS.SHA256(
+                CryptoJS.enc.Hex.parse(
+                    toHash,
+                )
+            )
+        );
     }
 }

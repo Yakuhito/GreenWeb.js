@@ -252,7 +252,8 @@ describe("PrivateKeyProvider", () => {
                 parentCoinInfo: "00".repeat(32),
                 puzzleHash: "00".repeat(32), // will be computed automagically
                 amount: 1337,
-                puzzle
+                puzzle,
+                solution
             });
             const messageToSign: Buffer = Buffer.concat([
                 Buffer.from("yakuhito"),
@@ -265,7 +266,7 @@ describe("PrivateKeyProvider", () => {
             );
 
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const cs: CoinSpend = c.spend(solution)!;
+            const cs: CoinSpend = c.spend()!;
             const provider = new PrivateKeyProvider(privKey);
             await provider.connect();
 
@@ -310,7 +311,8 @@ describe("PrivateKeyProvider", () => {
                 parentCoinInfo: "00".repeat(32),
                 puzzleHash: "00".repeat(32), // will be computed automagically
                 amount: 1337,
-                puzzle
+                puzzle,
+                solution
             });
             const messageToSign: Buffer = Buffer.concat([
                 Buffer.from("yakuhito"),
@@ -323,7 +325,7 @@ describe("PrivateKeyProvider", () => {
             );
 
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const cs: CoinSpend = c.spend(solution)!;
+            const cs: CoinSpend = c.spend()!;
             const provider = new PrivateKeyProvider(privKey, Network.testnet10);
             await provider.connect();
 
@@ -363,11 +365,12 @@ describe("PrivateKeyProvider", () => {
                 parentCoinInfo: "00".repeat(32),
                 puzzleHash: "00".repeat(32), // will be computed automagically
                 amount: 1337,
-                puzzle
+                puzzle,
+                solution
             });
 
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const cs: CoinSpend = c.spend(solution)!;
+            const cs: CoinSpend = c.spend()!;
             const provider = new PrivateKeyProvider(privKey);
             await provider.connect();
 
@@ -412,7 +415,8 @@ describe("PrivateKeyProvider", () => {
                 parentCoinInfo: "00".repeat(32),
                 puzzleHash: "00".repeat(32), // will be computed automagically
                 amount: 1337,
-                puzzle
+                puzzle,
+                solution,
             });
             const messageToSign: Buffer = Buffer.from("yakuhito");
             const signedMessage = AugSchemeMPL.sign(
@@ -421,7 +425,7 @@ describe("PrivateKeyProvider", () => {
             );
 
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const cs: CoinSpend = c.spend(solution)!;
+            const cs: CoinSpend = c.spend()!;
             const provider = new PrivateKeyProvider(privKey);
             await provider.connect();
 
@@ -461,11 +465,12 @@ describe("PrivateKeyProvider", () => {
                 parentCoinInfo: "00".repeat(32),
                 puzzleHash: "00".repeat(32), // will be computed automagically
                 amount: 1337,
-                puzzle
+                puzzle,
+                solution
             });
 
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const cs: CoinSpend = c.spend(solution)!;
+            const cs: CoinSpend = c.spend()!;
             const provider = new PrivateKeyProvider(privKey);
             await provider.connect();
 
@@ -504,11 +509,12 @@ describe("PrivateKeyProvider", () => {
                 parentCoinInfo: "00".repeat(32),
                 puzzleHash: "00".repeat(32), // will be computed automagically
                 amount: 1337,
-                puzzle
+                puzzle,
+                solution
             });
 
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const cs: CoinSpend = c.spend(solution)!;
+            const cs: CoinSpend = c.spend()!;
             const provider = new PrivateKeyProvider(privKey);
             await provider.connect();
 
@@ -548,11 +554,12 @@ describe("PrivateKeyProvider", () => {
                 parentCoinInfo: "00".repeat(32),
                 puzzleHash: "00".repeat(32), // will be computed automagically
                 amount: 1337,
-                puzzle
+                puzzle,
+                solution
             });
 
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const cs: CoinSpend = c.spend(solution)!;
+            const cs: CoinSpend = c.spend()!;
             const provider = new PrivateKeyProvider(privKey);
             await provider.connect();
 

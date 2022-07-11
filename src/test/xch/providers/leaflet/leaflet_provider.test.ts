@@ -31,7 +31,9 @@ const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 const addressUtil = new AddressUtil();
 const coinUtil = new CoinUtil();
 
-describe("LeafletProvider", () => {
+describe("LeafletProvider", function () {
+    this.timeout(4000);
+
     let openProvider: LeafletProvider;
     const _setup: (onMessageSent: (msg: Message) => void) => Promise<[LeafletProvider, (msg: Message) => void]> =
         async (onMessageSent) => {

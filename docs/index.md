@@ -30,7 +30,7 @@ The object also exports the following classes as properties:
 Use the following snippet to include GreenWeb.js on a page:
 
 ```html
-<script src="https://assets.fireacademy.io/greenweb-1.1.6.js"></script>
+<script src="https://assets.fireacademy.io/greenweb-1.1.7.js"></script>
 ```
 
 Or just use the latest version (not recommended):

@@ -42,7 +42,7 @@
  - TODO: Add `greenweb.util.hexlify` and `greenweb.util.unhexlify`
  - TODO: bug fix
  - TODO: update docs to reflect changes
- - TODO: bump version to 1.1.7
+ - bump version to 1.1.7
 
 ## 1.1.6
  - Add a changelog (`CHANGELOG.md`)

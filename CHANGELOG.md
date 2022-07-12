@@ -4,6 +4,7 @@
  - todo: add the `Singleton` class (Singleton v1.1 support)
  - todo: add tests for the `Singleton` class (full coverage)
  - `greenweb.sexp`:
+     - add the `singletonPuzzle()` method
      - add more puzzle constants:
           - `SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD`
           - `SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD_HASH`

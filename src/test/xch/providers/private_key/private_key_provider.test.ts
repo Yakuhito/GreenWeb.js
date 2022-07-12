@@ -286,6 +286,65 @@ describe("PrivateKeyProvider", () => {
             ).to.equal(spendBundle?.aggregatedSignature);
         });
 
+        it("Correctly signs AGG_SIG_ME data (mainnet, custom genesis challenge)", async () => {
+            const privKey = "01".repeat(32);
+            await initialize();
+            const { PrivateKey, AugSchemeMPL } = getBLSModule();
+            const sk = PrivateKey.from_bytes(
+                Buffer.from(privKey, "hex"),
+                false
+            );
+            const pubKey = Buffer.from(sk.get_g1().serialize()).toString("hex");
+            
+            /*
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ run '(mod () (list (list 50 0xa37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37 "yakuhito") (list 51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 313337)))'
+            (q (50 0xa37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37 "yakuhito") (51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 0x04c7f9))
+            (venv) yakuhito@catstation:~/projects/clvm_tools$ opc '(q (50 0xa37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37 "yakuhito") (51 0xb6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664 0x04c7f9))'
+            ff01ffff32ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f80ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff8304c7f98080
+            */
+            let puzz: string = "ff01ffff32ffb0a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37ff8879616b756869746f80ffff33ffa0b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664ff8304c7f98080";
+            puzz = puzz.replace("a37901780f3d6a13990bb17881d68673c64e36e5f0ae02922afe9b3743c1935765074d237507020c3177bd9476384a37", pubKey);
+            const puzzle = Util.sexp.fromHex(puzz);
+            const solution = Util.sexp.fromHex("80"); // ()  
+
+            const c = new SmartCoin({
+                parentCoinInfo: "00".repeat(32),
+                puzzleHash: "00".repeat(32), // will be computed automagically
+                amount: 1337,
+                puzzle,
+                solution
+            });
+            const messageToSign: Buffer = Buffer.concat([
+                Buffer.from("yakuhito"),
+                Buffer.from(c.getId() ?? "", "hex"),
+                Buffer.from("0123456789abcdef", "hex") // mainnet additional data
+            ]);
+            const signedMessage = AugSchemeMPL.sign(
+                sk,
+                messageToSign
+            );
+
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const cs: CoinSpend = c.spend()!;
+            const provider = new PrivateKeyProvider(privKey);
+            await provider.connect();
+
+            const spendBundle = await provider.signCoinSpends({
+                coinSpends: [cs]
+            }, "0123456789abcdef");
+
+            expect(spendBundle?.coinSpends.length).to.equal(1);
+
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const cs2 = spendBundle!.coinSpends[0];
+            expect(
+                Serializer.serialize(cs2).toString("hex")
+            ).to.equal(Serializer.serialize(cs).toString("hex")); // big brain damage (thanks tabnine pro for the 3rd word)
+            expect(
+                Buffer.from(signedMessage.serialize()).toString("hex")
+            ).to.equal(spendBundle?.aggregatedSignature);
+        });
+
         it("Correctly signs AGG_SIG_ME data (testnet10)", async () => {
             const privKey = "01".repeat(32);
             await initialize();

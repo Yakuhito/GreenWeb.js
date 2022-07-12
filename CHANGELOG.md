@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.8
+ - `PrivateKeyProvider`: the `signCoinSpends` now accepts a second, optional argument: `customGenesisChallenge`
+
 ## 1.1.7
  - add the `CAT` class (CAT1 support)
  - add tests for the `CAT` class (full coverage)

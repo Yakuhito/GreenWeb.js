@@ -1,6 +1,7 @@
 import { bytes, Coin } from "../xch/providers/provider_types";
-import CryptoJS from "crypto-js";
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
+import { Bytes, SExp } from "clvm";
+import { Util } from ".";
 
 export class CoinUtil {
     public amountToBytes(amount: BigNumberish): bytes {
@@ -8,7 +9,7 @@ export class CoinUtil {
         const initialHexLength = amount.toHexString().length;
 
         if(amount.eq(0)) {
-            return "";
+            return "00";
         }
 
         const isNegative: boolean = amount.lt(0);
@@ -35,21 +36,20 @@ export class CoinUtil {
     }
 
     public getId(coin: Coin): bytes {
-        const toHash: Buffer = Buffer.from(
-            coin.parentCoinInfo + coin.puzzleHash + this.amountToBytes(coin.amount),
-            "hex"
-        );
+        const toHash = coin.parentCoinInfo + coin.puzzleHash + this.amountToBytes(coin.amount);
 
-        return CryptoJS.enc.Hex.stringify(
-            CryptoJS.SHA256(
-                CryptoJS.enc.Hex.parse(
-                    toHash.toString("hex")
-                )
-            )
-        );
+        return Util.stdHash(toHash);
     }
 
     public getName(coin: Coin): bytes {
         return this.getId(coin);
+    }
+
+    public toProgram(coin: Coin): SExp {
+        return SExp.to([
+            Bytes.from(coin.parentCoinInfo, "hex"),
+            Bytes.from(coin.puzzleHash, "hex"),
+            Bytes.from(this.amountToBytes(coin.amount), "hex"),
+        ]);
     }
 }

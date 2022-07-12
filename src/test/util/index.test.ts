@@ -154,4 +154,42 @@ describe("Util", function() {
             ).to.be.true;
         });
     });
+
+    describe("hexlify()", () => {
+        it("Works for hex values that don't start with 0x", () => {
+            expect(util.hexlify("1234")).to.equal("0x1234");
+        });
+
+        it("Works for hex values that start with 0x", () => {
+            expect(util.hexlify("0x1234")).to.equal("0x1234");
+        });
+    });
+
+    describe("dehexlify()", () => {
+        it("Works for hex values that don't start with 0x", () => {
+            expect(util.dehexlify("1234")).to.equal("1234");
+        });
+
+        it("Works for hex values that start with 0x", () => {
+            expect(util.dehexlify("0x1234")).to.equal("1234");
+        });
+
+        it("Works with 'null'", () => {
+            expect(util.dehexlify(null)).to.be.null;
+        });
+    });
+
+    describe("unhexlify()", () => {
+        it("Works for hex values that don't start with 0x", () => {
+            expect(util.unhexlify("1234")).to.equal("1234");
+        });
+
+        it("Works for hex values that start with 0x", () => {
+            expect(util.unhexlify("0x1234")).to.equal("1234");
+        });
+
+        it("Works with 'null'", () => {
+            expect(util.unhexlify(null)).to.be.null;
+        });
+    });
 });

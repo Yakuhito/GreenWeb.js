@@ -15,6 +15,10 @@ describe("GreenWeb.js module", () => {
         expect(GreenWeb.util).to.not.be.undefined;
     });
 
+    it("Exports 'spend'", () => {
+        expect(GreenWeb.spend).to.not.be.undefined;
+    });
+
     it("Exports 'BigNumber'", () => {
         expect(GreenWeb.BigNumber).to.not.be.undefined;
     });
@@ -33,5 +37,9 @@ describe("GreenWeb.js module", () => {
 
     it("Exports 'StandardCoin'", () => {
         expect(GreenWeb.StandardCoin).to.not.be.undefined;
+    });
+
+    it("Exports 'CAT'", () => {
+        expect(GreenWeb.CAT).to.not.be.undefined;
     });
 });

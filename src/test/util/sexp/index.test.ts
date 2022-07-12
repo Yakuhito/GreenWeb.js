@@ -673,6 +673,12 @@ describe("SExpUtil", () => {
             // https://github.com/Chia-Network/chia-blockchain/blob/d0de8038cd95b71fa050f79e3685c51dcf05e13e/chia/wallet/puzzles/delegated_tail.clvm.hex.sha256tree
             "999c3696e167f8a79d938adc11feba3a3dcb39ccff69a426d570706e7b8ec399"
         );
+        sha256Correct(
+            "SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD",
+            sexpUtil.SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD,
+            // https://github.com/Chia-Network/chia-blockchain/blob/280f462071e5fe1b7883cefac73712789e22b664/chia/wallet/puzzles/singleton_top_layer_v1_1.clvm.hex.sha256tree
+            "7faa3253bfddd1e0decb0906b2dc6247bbc4cf608f58345d173adb63e8b47c9f"
+        );
     });
 
     describe("DEFAULT_HIDDEN_PUZZLE_HASH", () => {
@@ -683,11 +689,19 @@ describe("SExpUtil", () => {
         });
     });
 
-    describe("CAT_PROGRAM_MOD", () => {
-        it("Is equal to the sha256tree hash of CAT_PROGRAM_MOD_HASH", () => {
+    describe("CAT_PROGRAM_MOD_HASH", () => {
+        it("Is equal to the sha256tree hash of CAT_PROGRAM_MOD", () => {
             const hash = sexpUtil.sha256tree(sexpUtil.CAT_PROGRAM_MOD);
 
             expect(hash).to.equal(sexpUtil.CAT_PROGRAM_MOD_HASH);
+        });
+    });
+
+    describe("SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD_HASH", () => {
+        it("Is equal to the sha256tree hash of SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD", () => {
+            const hash = sexpUtil.sha256tree(sexpUtil.SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD);
+
+            expect(hash).to.equal(sexpUtil.SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD_HASH);
         });
     });
 

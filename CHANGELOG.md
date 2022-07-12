@@ -7,6 +7,9 @@
      - add more puzzle constants:
           - `SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD`
           - `SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD_HASH`
+          - `SINGLETON_LAUNCHER_PROGRAM`
+          - `SINGLETON_LAUNCHER_PROGRAM_HASH`
+          - `P2_SINGLETON_PROGRAM_MOD`
  - todo: update docs to reflect changes
 
 ## 1.1.8

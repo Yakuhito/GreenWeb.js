@@ -679,6 +679,18 @@ describe("SExpUtil", () => {
             // https://github.com/Chia-Network/chia-blockchain/blob/280f462071e5fe1b7883cefac73712789e22b664/chia/wallet/puzzles/singleton_top_layer_v1_1.clvm.hex.sha256tree
             "7faa3253bfddd1e0decb0906b2dc6247bbc4cf608f58345d173adb63e8b47c9f"
         );
+        sha256Correct(
+            "SINGLETON_LAUNCHER_PROGRAM",
+            sexpUtil.SINGLETON_LAUNCHER_PROGRAM,
+            // https://github.com/Chia-Network/chia-blockchain/blob/280f462071e5fe1b7883cefac73712789e22b664/chia/wallet/puzzles/singleton_launcher.clvm.hex.sha256tree
+            "eff07522495060c066f66f32acc2a77e3a3e737aca8baea4d1a64ea4cdc13da9"
+        );
+        sha256Correct(
+            "P2_SINGLETON_PROGRAM_MOD",
+            sexpUtil.P2_SINGLETON_PROGRAM_MOD,
+            // https://github.com/Chia-Network/chia-blockchain/blob/280f462071e5fe1b7883cefac73712789e22b664/chia/wallet/puzzles/p2_singleton.clvm.hex.sha256tree
+            "40f828d8dd55603f4ff9fbf6b73271e904e69406982f4fbefae2c8dcceaf9834"
+        );
     });
 
     describe("DEFAULT_HIDDEN_PUZZLE_HASH", () => {
@@ -702,6 +714,14 @@ describe("SExpUtil", () => {
             const hash = sexpUtil.sha256tree(sexpUtil.SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD);
 
             expect(hash).to.equal(sexpUtil.SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD_HASH);
+        });
+    });
+
+    describe("SINGLETON_LAUNCHER_PROGRAM_HASH", () => {
+        it("Is equal to the sha256tree hash of SINGLETON_LAUNCHER_PROGRAM", () => {
+            const hash = sexpUtil.sha256tree(sexpUtil.SINGLETON_LAUNCHER_PROGRAM);
+
+            expect(hash).to.equal(sexpUtil.SINGLETON_LAUNCHER_PROGRAM_HASH);
         });
     });
 

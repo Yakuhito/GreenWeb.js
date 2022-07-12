@@ -18,7 +18,7 @@ Arguments:
 
 ## signCoinSpends
 
-The `signCoinSpends` method accepts a second parameter, `customGenesisChallenge`. This can be used to overwrite the genesis challenge used to sign the given list of coin spends - if used correctly, it allows developers to sign spends for other Chia forks.
+The `signCoinSpends` method accepts a second parameter, `customGenesisChallenge` - it overwrite the genesis challenge used to sign the given list of coin spends. If used correctly, the last argument allows developers to sign spends for other Chia forks.
 
 ```js
 public async signCoinSpends(

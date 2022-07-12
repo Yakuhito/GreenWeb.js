@@ -15,3 +15,14 @@ Arguments:
  - `privateKey`: A 32-byte string representing the private key
  - `network`: Default `"mainnet"`; is used when signing `AGG_SIG_ME` messages
  
+
+## signCoinSpends
+
+The `signCoinSpends` method accepts a second parameter, `customGenesisChallenge`. This can be used to overwrite the genesis challenge used to sign the given list of coin spends - if used correctly, it allows developers to sign spends for other Chia forks.
+
+```js
+public async signCoinSpends(
+    { coinSpends }: signCoinSpendsArgs,
+    customGenesisChallenge: bytes | null = null
+): Promise<Optional<SpendBundle>> {
+```

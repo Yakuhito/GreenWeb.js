@@ -64,10 +64,11 @@ export class PrivateKeyProvider implements Provider {
     public async acceptOffer(args: acceptOfferArgs): Promise<Optional<SpendBundle>> { return this._doesNotImplementError(); }
     public subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void { return this._doesNotImplementError(); }
 
-    public async signCoinSpends({ coinSpends }: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
-        // todo
-        // network genesis challenge
-        const networkData: string = Util.network.getGenesisChallenge(this.network);
+    public async signCoinSpends(
+        { coinSpends }: signCoinSpendsArgs,
+        customGenesisChallenge: bytes | null = null
+    ): Promise<Optional<SpendBundle>> {
+        const networkData: bytes = customGenesisChallenge ?? Util.network.getGenesisChallenge(this.network);
 
         const { AugSchemeMPL } = getBLSModule();
 

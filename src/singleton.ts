@@ -169,4 +169,19 @@ export class Singleton extends SmartCoin {
             innerSolution,
         });
     }
+
+    public getPayToPuzzleHash(): bytes | null {
+        if(this.launcherId === null) return null;
+
+        return Util.sexp.sha256tree(
+            Util.sexp.payToSingletonPuzzle(this.launcherId)
+        );
+    }
+
+    public getPayToAddress(): string | null {
+        const ph = this.getPayToPuzzleHash();
+        if(ph === null) return null;
+        
+        return Util.address.puzzleHashToAddress(ph);
+    }
 }

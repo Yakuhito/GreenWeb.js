@@ -1,10 +1,13 @@
 # Changelog
 
 ## 1.1.9
- - todo: add the `Singleton` class (Singleton v1.1 support)
+ - add the `Singleton` class (Singleton v1.1 support)
  - todo: add tests for the `Singleton` class (full coverage)
  - `greenweb.sexp`:
-     - add the `singletonPuzzle()` method
+     - add new helper method: `bytesToAtom()`
+     - add the `singletonPuzzle()` and `singletonSolution()` methods
+     - add the `singletonLauncherSolution()` method
+     - add the `payToSingletonPuzzle()` method
      - add more puzzle constants:
           - `SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD`
           - `SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD_HASH`

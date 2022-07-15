@@ -2,7 +2,7 @@
 
 ## 1.1.9
  - add the `Singleton` class (Singleton v1.1 support)
- - todo: add tests for the `Singleton` class (full coverage)
+ - add tests for the `Singleton` class (full coverage)
  - `greenweb.sexp`:
      - add new helper method: `bytesToAtom()`
      - add the `singletonPuzzle()` and `singletonSolution()` methods
@@ -14,6 +14,7 @@
           - `SINGLETON_LAUNCHER_PROGRAM`
           - `SINGLETON_LAUNCHER_PROGRAM_HASH`
           - `P2_SINGLETON_PROGRAM_MOD`
+ - add more tests to ensure full code coverage (100%)
  - todo: update docs to reflect changes
 
 ## 1.1.8

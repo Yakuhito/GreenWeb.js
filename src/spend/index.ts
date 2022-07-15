@@ -44,65 +44,45 @@ export class SpendModule {
 
     public static createCoinCondition(puzzleHash: bytes, amount: uint, memos: bytes[] = []): SExp {
         return SExp.to([
-            Bytes.from(ConditionOpcode.CREATE_COIN, "hex"),
-            Bytes.from(puzzleHash, "hex"),
-            Bytes.from(Util.coin.amountToBytes(amount), "hex"),
-            ...(memos.length > 0 ? [SExp.to(memos.map(e => Bytes.from(e, "hex")))] : []),
+            Util.sexp.bytesToAtom(ConditionOpcode.CREATE_COIN),
+            Util.sexp.bytesToAtom(puzzleHash),
+            Util.sexp.bytesToAtom(Util.coin.amountToBytes(amount)),
+            ...(memos.length > 0 ? [SExp.to(memos.map(e => Util.sexp.bytesToAtom(e)))] : []),
         ]);
     }
 
     public static reserveFeeCondition(fee: uint): SExp {
         return SExp.to([
-            Bytes.from(
-                Buffer.from(ConditionOpcode.RESERVE_FEE, "hex"),
-            ),
-            Bytes.from(
-                Util.coin.amountToBytes(fee), "hex"
-            ),
+            Util.sexp.bytesToAtom(ConditionOpcode.RESERVE_FEE),
+            Util.sexp.bytesToAtom(Util.coin.amountToBytes(fee)),
         ]);
     }
 
     public static createCoinAnnouncementCondition(message: bytes): SExp {
         return SExp.to([
-            Bytes.from(
-                Buffer.from(ConditionOpcode.CREATE_COIN_ANNOUNCEMENT, "hex"),
-            ),
-            Bytes.from(
-                message, "hex"
-            ),
+            Util.sexp.bytesToAtom(ConditionOpcode.CREATE_COIN_ANNOUNCEMENT),
+            Util.sexp.bytesToAtom(message),
         ]);
     }
 
     public static assertCoinAnnouncementCondition(announcementId: bytes): SExp {
         return SExp.to([
-            Bytes.from(
-                Buffer.from(ConditionOpcode.ASSERT_COIN_ANNOUNCEMENT, "hex"),
-            ),
-            Bytes.from(
-                announcementId, "hex"
-            ),
+            Util.sexp.bytesToAtom(ConditionOpcode.ASSERT_COIN_ANNOUNCEMENT),
+            Util.sexp.bytesToAtom(announcementId),
         ]);
     }
 
     public static createPuzzleAnnouncementCondition(message: bytes): SExp {
         return SExp.to([
-            Bytes.from(
-                Buffer.from(ConditionOpcode.CREATE_PUZZLE_ANNOUNCEMENT, "hex"),
-            ),
-            Bytes.from(
-                message, "hex"
-            ),
+            Util.sexp.bytesToAtom(ConditionOpcode.CREATE_PUZZLE_ANNOUNCEMENT),
+            Util.sexp.bytesToAtom(message),
         ]);
     }
 
     public static assertPuzzleAnnouncementCondition(announcementId: bytes): SExp {
         return SExp.to([
-            Bytes.from(
-                Buffer.from(ConditionOpcode.ASSERT_PUZZLE_ANNOUNCEMENT, "hex"),
-            ),
-            Bytes.from(
-                announcementId, "hex"
-            ),
+            Util.sexp.bytesToAtom(ConditionOpcode.ASSERT_PUZZLE_ANNOUNCEMENT),
+            Util.sexp.bytesToAtom(announcementId),
         ]);
     }
 
@@ -433,7 +413,7 @@ export class SpendModule {
             innerPuzzle,
             lineageProof
         });
-        
+
         return [
             singleton,
             [ cs, ...otherCoinSpends ]

@@ -23,6 +23,10 @@ export class SExpUtil {
         return sexp?.as_bin().hex() ?? "";
     }
 
+    public bytesToAtom(data: bytes): SExp {
+        return SExp.to(Bytes.from(data, "hex"));
+    }
+
     public run(program: SExp, solution: SExp, max_cost?: number): SExp {
         const res: CLVMType = run_program(
             program,
@@ -249,8 +253,8 @@ export class SExpUtil {
         const r = this.run(
             this.CALCULATE_SYNTHETIC_PUBLIC_KEY_PROGRAM,
             SExp.to([
-                Bytes.from(Util.key.publicKeyToHex(publicKey), "hex"),
-                Bytes.from(hiddenPuzzleHash, "hex")
+                this.bytesToAtom(Util.key.publicKeyToHex(publicKey)),
+                this.bytesToAtom(hiddenPuzzleHash)
             ]),
         );
 
@@ -268,7 +272,7 @@ export class SExpUtil {
         return this.curry(
             this.P2_DELEGATED_PUZZLE_OR_HIDDEN_PUZZLE_PROGRAM_MOD,
             [
-                SExp.to(Bytes.from(Util.key.publicKeyToHex(syntheticPublicKey), "hex")),
+                this.bytesToAtom(Util.key.publicKeyToHex(syntheticPublicKey)),
             ]
         );
     }
@@ -392,8 +396,8 @@ export class SExpUtil {
         return this.curry(
             this.CAT_PROGRAM_MOD,
             [
-                SExp.to(Bytes.from(this.CAT_PROGRAM_MOD_HASH, "hex")),
-                SExp.to(Bytes.from(TAILProgramHash, "hex")),
+                this.bytesToAtom(this.CAT_PROGRAM_MOD_HASH),
+                this.bytesToAtom(TAILProgramHash),
                 innerPuzzle
             ]
         );
@@ -410,11 +414,11 @@ export class SExpUtil {
         return SExp.to([
             innerPuzzleSolution,
             lineageProof ?? SExp.FALSE,
-            Bytes.from(prevCoinId, "hex"),
+            this.bytesToAtom(prevCoinId),
             Util.coin.toProgram(thisCoinInfo),
             Util.coin.toProgram(nextCoinProof),
-            Bytes.from(Util.coin.amountToBytes(prevSubtotal), "hex"),
-            Bytes.from(Util.coin.amountToBytes(extraDelta), "hex"),
+            this.bytesToAtom(Util.coin.amountToBytes(prevSubtotal)),
+            this.bytesToAtom(Util.coin.amountToBytes(extraDelta)),
         ]);
     }
 
@@ -424,7 +428,7 @@ export class SExpUtil {
         return this.curry(
             this.GENESIS_BY_COIN_ID_TAIL_MOD,
             [
-                SExp.to(Bytes.from(genesisId, "hex"))
+                this.bytesToAtom(genesisId)
             ]
         );
     }
@@ -435,7 +439,7 @@ export class SExpUtil {
         return this.curry(
             this.GENESIS_BY_PUZZLE_HASH_TAIL_MOD,
             [
-                SExp.to(Bytes.from(puzzleHash, "hex"))
+                this.bytesToAtom(puzzleHash)
             ]
         );
     }
@@ -446,7 +450,7 @@ export class SExpUtil {
         return this.curry(
             this.EVERYTHING_WITH_SIGNATURE_TAIL_MOD,
             [
-                SExp.to(Bytes.from(pubKey, "hex"))
+                this.bytesToAtom(pubKey)
             ]
         );
     }
@@ -457,7 +461,7 @@ export class SExpUtil {
         return this.curry(
             this.DELEGATED_TAIL_MOD,
             [
-                SExp.to(Bytes.from(pubKey, "hex"))
+                this.bytesToAtom(pubKey)
             ]
         );
     }
@@ -475,10 +479,10 @@ export class SExpUtil {
             this.SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD,
             [
                 SExp.to([ // SINGLETON_STRUCT
-                    Bytes.from(this.SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD_HASH, "hex"),
+                    this.bytesToAtom(this.SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD_HASH),
                     SExp.to([
-                        Bytes.from(launcherId, "hex"),
-                        Bytes.from(this.SINGLETON_LAUNCHER_PROGRAM_HASH, "hex"),
+                        this.bytesToAtom(launcherId),
+                        this.bytesToAtom(this.SINGLETON_LAUNCHER_PROGRAM_HASH),
                     ]),
                 ]),
                 innerPuzzle
@@ -489,7 +493,7 @@ export class SExpUtil {
     public singletonSolution(lineageProof: SExp, amount: uint, innerSolution: SExp): SExp {
         return SExp.to([
             lineageProof,
-            Bytes.from(Util.coin.amountToBytes(amount), "hex"),
+            this.bytesToAtom(Util.coin.amountToBytes(amount)),
             innerSolution
         ]);
     }
@@ -505,12 +509,22 @@ export class SExpUtil {
         }
 
         return SExp.to([
-            Bytes.from(singletonFullPuzzleHash, "hex"),
-            Bytes.from(Util.coin.amountToBytes(amount), "hex"),
+            this.bytesToAtom(singletonFullPuzzleHash),
+            this.bytesToAtom(Util.coin.amountToBytes(amount)),
             SExp.to(l)
         ]);
     }
-    
+
     // https://github.com/Chia-Network/chia-blockchain/blob/280f462071e5fe1b7883cefac73712789e22b664/chia/wallet/puzzles/p2_singleton.clvm.hex
     public readonly P2_SINGLETON_PROGRAM_MOD = this.fromHex("ff02ffff01ff04ffff04ff18ffff04ffff0bffff02ff2effff04ff02ffff04ff05ffff04ff2fffff04ffff02ff3effff04ff02ffff04ffff04ff05ffff04ff0bff178080ff80808080ff808080808080ff5f80ff808080ffff04ffff04ff2cffff01ff248080ffff04ffff04ff10ffff04ff5fff808080ff80808080ffff04ffff01ffffff463fff02ff3c04ffff01ff0102ffff02ffff03ff05ffff01ff02ff16ffff04ff02ffff04ff0dffff04ffff0bff3affff0bff12ff3c80ffff0bff3affff0bff3affff0bff12ff2a80ff0980ffff0bff3aff0bffff0bff12ff8080808080ff8080808080ffff010b80ff0180ffff0bff3affff0bff12ff1480ffff0bff3affff0bff3affff0bff12ff2a80ff0580ffff0bff3affff02ff16ffff04ff02ffff04ff07ffff04ffff0bff12ff1280ff8080808080ffff0bff12ff8080808080ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff3effff04ff02ffff04ff09ff80808080ffff02ff3effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080");
+    public payToSingletonPuzzle(launcherId: bytes): SExp {
+        return this.curry(
+            this.P2_SINGLETON_PROGRAM_MOD,
+            [
+                this.bytesToAtom(this.SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD_HASH),
+                this.bytesToAtom(launcherId),
+                this.bytesToAtom(this.SINGLETON_LAUNCHER_PROGRAM_HASH)
+            ]
+        );
+    }
 }

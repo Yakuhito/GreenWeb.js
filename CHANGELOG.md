@@ -12,6 +12,7 @@
      - add the `singletonPuzzle()` and `singletonSolution()` methods
      - add the `singletonLauncherSolution()` method (the puzzle is the same for all singletons)
      - add the `payToSingletonPuzzle()` and `payToSingletonSolution()` methods
+     - add the `DIDInnerPuzzleProgram()` and `DIDInnerPuzzleSolution()` methods
      - add more puzzle constants:
           - `SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD`
           - `SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD_HASH`
@@ -21,11 +22,13 @@
           - `DID_INNERPUZ_PROGRAM_MOD`
           - `DID_INNERPUZ_PROGRAM_MOD_HASH`
       - add tests
+      - todo: update docs page
  - `greenweb.spend`:
       - add the `singletonLaunchConditionsAndCoinSol()` method
       - add the `launchSingleton()` method
       - add the `useP2SingletonCoinsConditionsAndCoinSol()` method
       - add tests
+      - todo: update docs page
  - todo: add more tests to ensure full code coverage (100%)
  - todo: update docs to reflect changes
 

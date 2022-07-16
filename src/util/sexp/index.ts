@@ -478,16 +478,20 @@ export class SExpUtil {
         return this.curry(
             this.SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD,
             [
-                SExp.to(new Tuple<SExp, SExp>(// SINGLETON_STRUCT
-                    this.bytesToAtom(this.SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD_HASH),
-                    SExp.to(new Tuple<SExp, SExp>(
-                        this.bytesToAtom(launcherId),
-                        this.bytesToAtom(this.SINGLETON_LAUNCHER_PROGRAM_HASH),
-                    )),
-                )),
+                this.singletonStruct(launcherId),
                 innerPuzzle
             ]
         );
+    }
+
+    private singletonStruct(launcherId: bytes): SExp {
+        return SExp.to(new Tuple<SExp, SExp>(
+            this.bytesToAtom(this.SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD_HASH),
+            SExp.to(new Tuple<SExp, SExp>(
+                this.bytesToAtom(launcherId),
+                this.bytesToAtom(this.SINGLETON_LAUNCHER_PROGRAM_HASH),
+            )),
+        ));
     }
 
     public singletonSolution(lineageProof: SExp, amount: uint, innerSolution: SExp): SExp {
@@ -539,4 +543,48 @@ export class SExpUtil {
     public readonly DID_INNERPUZ_PROGRAM_MOD = this.fromHex("ff02ffff01ff02ffff03ff81bfffff01ff02ff05ff82017f80ffff01ff02ffff03ffff22ffff09ffff02ff7effff04ff02ffff04ff8217ffff80808080ff0b80ffff15ff17ff808080ffff01ff04ffff04ff28ffff04ff82017fff808080ffff04ffff04ff34ffff04ff8202ffffff04ff82017fffff04ffff04ff8202ffff8080ff8080808080ffff04ffff04ff38ffff04ff822fffff808080ffff02ff26ffff04ff02ffff04ff2fffff04ff17ffff04ff8217ffffff04ff822fffffff04ff8202ffffff04ff8205ffffff04ff820bffffff01ff8080808080808080808080808080ffff01ff088080ff018080ff0180ffff04ffff01ffffffff313dff4946ffff0233ff3c04ffffff0101ff02ff02ffff03ff05ffff01ff02ff3affff04ff02ffff04ff0dffff04ffff0bff2affff0bff22ff3c80ffff0bff2affff0bff2affff0bff22ff3280ff0980ffff0bff2aff0bffff0bff22ff8080808080ff8080808080ffff010b80ff0180ffffff02ffff03ff17ffff01ff02ffff03ff82013fffff01ff04ffff04ff30ffff04ffff0bffff0bffff02ff36ffff04ff02ffff04ff05ffff04ff27ffff04ff82023fffff04ff82053fffff04ff820b3fff8080808080808080ffff02ff7effff04ff02ffff04ffff02ff2effff04ff02ffff04ff2fffff04ff5fffff04ff82017fff808080808080ff8080808080ff2f80ff808080ffff02ff26ffff04ff02ffff04ff05ffff04ff0bffff04ff37ffff04ff2fffff04ff5fffff04ff8201bfffff04ff82017fffff04ffff10ff8202ffffff010180ff808080808080808080808080ffff01ff02ff26ffff04ff02ffff04ff05ffff04ff37ffff04ff2fffff04ff5fffff04ff8201bfffff04ff82017fffff04ff8202ffff8080808080808080808080ff0180ffff01ff02ffff03ffff15ff8202ffffff11ff0bffff01018080ffff01ff04ffff04ff20ffff04ff82017fffff04ff5fff80808080ff8080ffff01ff088080ff018080ff0180ff0bff17ffff02ff5effff04ff02ffff04ff09ffff04ff2fffff04ffff02ff7effff04ff02ffff04ffff04ff09ffff04ff0bff1d8080ff80808080ff808080808080ff5f80ffff04ffff0101ffff04ffff04ff2cffff04ff05ff808080ffff04ffff04ff20ffff04ff17ffff04ff0bff80808080ff80808080ffff0bff2affff0bff22ff2480ffff0bff2affff0bff2affff0bff22ff3280ff0580ffff0bff2affff02ff3affff04ff02ffff04ff07ffff04ffff0bff22ff2280ff8080808080ffff0bff22ff8080808080ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff7effff04ff02ffff04ff09ff80808080ffff02ff7effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080");
     // https://github.com/Chia-Network/chia-blockchain/blob/03b4bacb5c8c769f5086885f4c3a9c4fbb1fe9d3/chia/wallet/puzzles/did_innerpuz.clvm.hex.sha256tree
     public readonly DID_INNERPUZ_PROGRAM_MOD_HASH = "33143d2bef64f14036742673afd158126b94284b4530a28c354fac202b0c910e";
+    public DIDInnerPuzzleProgram(
+        innerPuzzle: SExp,
+        recoveryDIDListHash: bytes,
+        numVerificationsRequired: uint,
+        launcherId: bytes,
+        metadata: Array<[string, string]>,
+    ): SExp {
+        const metadataSExp = SExp.to(
+            metadata.map(e => SExp.to(
+                new Tuple<string, string>(e[0], e[1])
+            ))
+        );
+
+        return this.curry(
+            this.DID_INNERPUZ_PROGRAM_MOD,
+            [
+                innerPuzzle,
+                this.bytesToAtom(recoveryDIDListHash),
+                this.bytesToAtom(Util.coin.amountToBytes(numVerificationsRequired)),
+                this.singletonStruct(launcherId),
+                metadataSExp
+            ]
+        );
+    }
+
+    public DIDInnerPuzzleSolution(
+        mode: uint,
+        myAmountOrInnerSolution: uint | SExp,
+        newInnerPuzHash: bytes,
+        parentInnerPuzHashAmountsForRecoveryIds: SExp[],
+        pubKey: bytes,
+        recoveryListReveal: bytes[],
+        myId: bytes
+    ): SExp {
+        return SExp.to([
+            this.bytesToAtom(Util.coin.amountToBytes(mode)),
+            myAmountOrInnerSolution instanceof SExp ? myAmountOrInnerSolution : this.bytesToAtom(Util.coin.amountToBytes(myAmountOrInnerSolution)),
+            this.bytesToAtom(newInnerPuzHash),
+            SExp.to(parentInnerPuzHashAmountsForRecoveryIds),
+            this.bytesToAtom(pubKey),
+            SExp.to(recoveryListReveal.map(e => this.bytesToAtom(e))),
+            this.bytesToAtom(myId)
+        ]);
+    }
 }

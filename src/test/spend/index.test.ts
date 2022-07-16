@@ -9,9 +9,10 @@ import { StandardCoin } from "../../standard_coin";
 import { Util } from "../../util";
 import { CoinSpend } from "../../util/serializer/types/coin_spend";
 import { SpendBundle } from "../../util/serializer/types/spend_bundle";
+import { ConditionOpcode } from "../../util/sexp/condition_opcodes";
 import { bytes, Coin } from "../../xch/providers/provider_types";
 
-describe.only("SpendModule", function () {
+describe("SpendModule", function () {
     this.timeout(5000);
 
     const TEST_PRIV_KEY_STR = "42".repeat(32);
@@ -810,7 +811,299 @@ describe.only("SpendModule", function () {
         });
     });
 
-    describe.only("singletonLaunchConditionsAndCoinSol()", () => {
-        // pass
+    describe("singletonLaunchConditionsAndCoinSol()", () => {
+        const TEST_INNER_PUZZLE = Util.sexp.bytesToAtom("01");
+
+        const TEST_COIN = new Coin();
+        TEST_COIN.amount = 13;
+        TEST_COIN.puzzleHash = Util.sexp.sha256tree(TEST_INNER_PUZZLE);
+        TEST_COIN.parentCoinInfo = "42".repeat(32);
+
+        const TEST_AMOUNT = 17;
+        const TEST_COMMENT: Array<[string, string]> = [["yaku", "hito"]];
+
+        it("Throws correct error if amount is even", () => {
+            _expectToThrow(
+                () => SpendModule.singletonLaunchConditionsAndCoinSol(
+                    TEST_COIN,
+                    TEST_INNER_PUZZLE,
+                    TEST_AMOUNT + 1
+                ),
+                "Coin amount cannot be even. Subtract one mojo."
+            );
+        });
+
+        it("Works", () => {
+            const res = SpendModule.singletonLaunchConditionsAndCoinSol(
+                TEST_COIN,
+                TEST_INNER_PUZZLE,
+                TEST_AMOUNT,
+                TEST_COMMENT
+            );
+
+            const launcher = new Coin();
+            launcher.parentCoinInfo = Util.coin.getId(TEST_COIN);
+            launcher.puzzleHash = Util.sexp.SINGLETON_LAUNCHER_PROGRAM_HASH;
+            launcher.amount = TEST_AMOUNT;
+            
+            const launcherId = Util.coin.getId(launcher);
+            const singletonPuzzle = Util.sexp.singletonPuzzle(
+                launcherId,
+                TEST_INNER_PUZZLE
+            );
+            const singletonPuzzleHash = Util.sexp.sha256tree(singletonPuzzle);
+            
+            const conditions = res[0];
+            expect(conditions.length).to.equal(2);
+            expect(
+                Util.sexp.toHex(conditions[0])
+            ).to.equal(
+                Util.sexp.toHex(
+                    SpendModule.createCoinCondition(Util.sexp.SINGLETON_LAUNCHER_PROGRAM_HASH, TEST_AMOUNT)
+                )
+            );
+
+            const ann = new Announcement(
+                launcherId,
+                Util.sexp.sha256tree(
+                    Util.sexp.singletonLauncherSolution(singletonPuzzleHash, TEST_AMOUNT, TEST_COMMENT)
+                )
+            );
+            expect(
+                Util.sexp.toHex(conditions[1])
+            ).to.equal(
+                Util.sexp.toHex(
+                    SpendModule.assertCoinAnnouncementCondition(ann.name())
+                )
+            );
+
+            const cs = res[1];
+            expect(
+                Util.coin.getId(cs.coin)
+            ).to.equal(launcherId);
+            const runRes = Util.sexp.run(cs.puzzleReveal, cs.solution);
+            const outputConds: SExp[] = [];
+            for(const c of runRes.as_iter()) {
+                outputConds.push(c);
+            }
+
+            expect(outputConds.length).to.equal(2);
+            expect(
+                Util.sexp.toHex(outputConds[0])
+            ).to.equal(
+                Util.sexp.toHex(
+                    SpendModule.createCoinCondition(singletonPuzzleHash, TEST_AMOUNT)
+                )
+            );
+
+            expect(
+                Util.sexp.toHex(outputConds[1])
+            ).to.equal(
+                Util.sexp.toHex(
+                    SpendModule.createCoinAnnouncementCondition(
+                        Util.sexp.sha256tree(
+                            Util.sexp.singletonLauncherSolution(singletonPuzzleHash, TEST_AMOUNT, TEST_COMMENT)
+                        )
+                    )
+                )
+            );
+        });
+    });
+
+    describe("launchSingleton()", () => {
+        const TEST_INNER_PUZZLE = Util.sexp.bytesToAtom("01");
+        const TEST_COMMENT: Array<[string, string]> = [["yaku", "hito"]];
+        const TEST_AMOUNT = 13;
+
+        let TEST_STANDARD_COIN: StandardCoin;
+
+        beforeEach(() => {
+            const g1Elem = TEST_PRIV_KEY.get_g1();
+
+            TEST_STANDARD_COIN = new StandardCoin({
+                amount: 17,
+                parentCoinInfo: "42".repeat(32),
+                publicKey: Util.key.publicKeyToHex(g1Elem)
+            });
+        });
+
+        it("Throws correct error if first StandardCoin cannot be converted to Coin", () => {
+            _expectToThrow(
+                () => SpendModule.launchSingleton(
+                    [new StandardCoin()],
+                    TEST_INNER_PUZZLE,
+                    TEST_AMOUNT
+                ),
+                "Coin that is supposed to launch the singleton launcher does not have enough info."
+            );
+        });
+
+        it("Works", () => {
+            const res = SpendModule.launchSingleton(
+                [TEST_STANDARD_COIN, ],
+                TEST_INNER_PUZZLE,
+                TEST_AMOUNT,
+                BigNumber.from(TEST_STANDARD_COIN.amount).sub(TEST_AMOUNT),
+                [
+                    SpendModule.createCoinAnnouncementCondition("42".repeat(7))
+                ],
+                TEST_COMMENT
+            );
+
+            const launcher = new Coin();
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            launcher.parentCoinInfo = TEST_STANDARD_COIN.getId()!;
+            launcher.puzzleHash = Util.sexp.SINGLETON_LAUNCHER_PROGRAM_HASH;
+            launcher.amount = TEST_AMOUNT;
+            
+            const launcherId = Util.coin.getId(launcher);
+            const singletonPuzzle = Util.sexp.singletonPuzzle(
+                launcherId,
+                TEST_INNER_PUZZLE
+            );
+            const singletonPuzzleHash = Util.sexp.sha256tree(singletonPuzzle);
+            
+            const singleton = res[0];
+            expect(singleton.launcherId).to.equal(launcherId);
+            expect(singleton.parentCoinInfo).to.equal(launcherId);
+            expect(singleton.puzzleHash).to.equal(singletonPuzzleHash);
+            expect(
+                BigNumber.from(singleton.amount).eq(TEST_AMOUNT)
+            ).to.be.true;
+            expect(singleton.lineageProof?.innerPuzzleHash).to.be.null;
+            expect(singleton.innerPuzzleHash).to.equal(
+                Util.sexp.sha256tree(TEST_INNER_PUZZLE)
+            );
+
+            const coinSpends = res[1];
+            expect(coinSpends.length).to.equal(2);
+            const stdCoinSpend = coinSpends[0];
+            expect(
+                Util.coin.getId(stdCoinSpend.coin)
+            ).to.equal(TEST_STANDARD_COIN.getId());
+            const outputConds = Util.sexp.run(stdCoinSpend.puzzleReveal, stdCoinSpend.solution);
+            expect(
+                Util.sexp.toHex(outputConds)
+            // explaination below
+            ).to.equal("ffff32ffb097d665fea5042789583ca580a5c5bc8da921387811aca72fa9395489ef0d3cc5b18d9a7c86e8bd277049ca4b7bfe0945ffa02333bc424df9902308348fcf5d911ae8e307274956c027bbf12cdfc109cc7e6c80ffff33ffa0eff07522495060c066f66f32acc2a77e3a3e737aca8baea4d1a64ea4cdc13da9ff0d80ffff3dffa0568fa415caaba94b9fbb95c399a887da16e71741bf30b7fd31bd00cea1c8adb680ffff3cff874242424242424280ffff34ff048080");
+            // ((50 0x97d665fea5042789583ca580a5c5bc8da921387811aca72fa9395489ef0d3cc5b18d9a7c86e8bd277049ca4b7bfe0945 0x2333bc424df9902308348fcf5d911ae8e307274956c027bbf12cdfc109cc7e6c) (51 0xeff07522495060c066f66f32acc2a77e3a3e737aca8baea4d1a64ea4cdc13da9 13) (61 0x568fa415caaba94b9fbb95c399a887da16e71741bf30b7fd31bd00cea1c8adb6) (60 "BBBBBBB") (52 4))
+            // 50 - AGG_SIG_ME from the standard coin puzzle
+            // 51 - the CREATE_COIN condition that creates the launcher
+            // 61 - ASSERT_COIN_ANNOUNCEMENT
+            // 60 - additionalInitialCoinConditions
+            // 52 - RESERVE_FEE
+
+            expect(
+                Util.coin.getId(coinSpends[1].coin)
+            ).to.equal(launcherId);
+        });
+    });
+
+    describe("useP2SingletonCoinsConditionsAndCoinSol()", () => {
+        it("Works", () => {
+            const stdCoin = new StandardCoin({
+                coin: TEST_COIN,
+                publicKey: TEST_PUB_KEY
+            });
+            const [singleton, ] = SpendModule.launchSingleton(
+                [stdCoin, ],
+                Util.sexp.bytesToAtom("01"),
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                stdCoin.amount!,
+            );
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const singletonP2PuzzleHash = singleton.getPayToPuzzleHash()!;
+
+            const coins = [];
+            for(const i of ["f1", "f2", "f3"]) {
+                const c = new Coin();
+                c.amount = 1;
+                c.parentCoinInfo = i.repeat(32);
+                c.puzzleHash = singletonP2PuzzleHash;
+
+                coins.push(c);
+            }
+
+            const res = SpendModule.useP2SingletonCoinsConditionsAndCoinSol(
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                singleton.launcherId!,
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                singleton.innerPuzzleHash!,
+                coins
+            );
+
+            const conditions = res[0];
+            expect(conditions.length).to.equal(6);
+            for(let i = 0; i < 3; i += 1) {
+                const assertCoinAnnCondition = conditions[2 * i];
+                const createPuzzleAnnCondition = conditions[2 * i + 1];
+
+                expect(
+                    Util.sexp.toHex(assertCoinAnnCondition)
+                ).to.equal(
+                    Util.sexp.toHex(
+                        SpendModule.assertCoinAnnouncementCondition(
+                            Util.stdHash(
+                                // b'$'.hex() == '24'
+                                Util.coin.getId(coins[i]) + "24"
+                            )
+                        )
+                    )
+                );
+
+                expect(
+                    Util.sexp.toHex(createPuzzleAnnCondition)
+                ).to.equal(
+                    Util.sexp.toHex(
+                        SpendModule.createPuzzleAnnouncementCondition(Util.coin.getId(coins[i]))
+                    )
+                );
+            }
+
+            const coinSpends = res[1];
+            expect(coinSpends.length).to.equal(3);
+
+            for(let i = 0;i < 3; ++i) {
+                const cs = coinSpends[i];
+                expect(
+                    Util.coin.getId(cs.coin)
+                ).to.equal(
+                    Util.coin.getId(coins[i])
+                );
+
+                const res = Util.sexp.run(cs.puzzleReveal, cs.solution);
+                const outputConditions = [];
+                for(const c of res.as_iter()) {
+                    outputConditions.push(c);
+                }
+
+                expect(outputConditions.length).to.equal(3);
+                expect(
+                    Util.sexp.toHex(outputConditions[0])
+                ).to.equal(
+                    Util.sexp.toHex(
+                        SpendModule.assertPuzzleAnnouncementCondition(
+                            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                            Util.stdHash(singleton.puzzleHash! + Util.coin.getId(coins[i]))
+                        )
+                    )
+                );
+                expect(
+                    Util.sexp.toHex(outputConditions[1])
+                ).to.equal(
+                    Util.sexp.toHex(
+                        SpendModule.createCoinAnnouncementCondition("24") // '$'
+                    )
+                );
+                expect(
+                    Util.sexp.toHex(outputConditions[2])
+                ).to.equal(
+                    Util.sexp.toHex(SExp.to([
+                        Util.sexp.bytesToAtom(ConditionOpcode.ASSERT_MY_COIN_ID),
+                        Util.sexp.bytesToAtom(Util.coin.getId(coins[i])),
+                    ]))
+                );
+            }
+        });
     });
 });

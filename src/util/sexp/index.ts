@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import { BigNumberish } from "@ethersproject/bignumber";
-import { Bytes, CLVMType, getBLSModule, OPERATOR_LOOKUP, run_program, SExp, sexp_from_stream, Stream } from "clvm";
+import { Bytes, CLVMType, getBLSModule, OPERATOR_LOOKUP, run_program, SExp, sexp_from_stream, Stream, Tuple } from "clvm";
 import { Util } from "..";
 import { bytes, Coin, uint } from "../../xch/providers/provider_types";
 import { ConditionOpcode } from "./condition_opcodes";
@@ -478,13 +478,13 @@ export class SExpUtil {
         return this.curry(
             this.SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD,
             [
-                SExp.to([ // SINGLETON_STRUCT
+                SExp.to(new Tuple<SExp, SExp>(// SINGLETON_STRUCT
                     this.bytesToAtom(this.SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD_HASH),
-                    SExp.to([
+                    SExp.to(new Tuple<SExp, SExp>(
                         this.bytesToAtom(launcherId),
                         this.bytesToAtom(this.SINGLETON_LAUNCHER_PROGRAM_HASH),
-                    ]),
-                ]),
+                    )),
+                )),
                 innerPuzzle
             ]
         );

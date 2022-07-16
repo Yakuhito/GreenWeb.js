@@ -271,9 +271,11 @@ export class SpendModule {
                     this.assertCoinAnnouncementCondition(ann.name()),
                 );
             } else {
-                firstCoinConditions.push(
-                    this.createCoinAnnouncementCondition(theHash),
-                );
+                if(standardCoins.length > 1) {
+                    firstCoinConditions.push(
+                        this.createCoinAnnouncementCondition(theHash),
+                    );
+                }
             }
             otherCoinsConditions.push(
                 this.assertCoinAnnouncementCondition(ann.name()),
@@ -416,7 +418,7 @@ export class SpendModule {
 
         return [
             singleton,
-            [ cs, ...otherCoinSpends ]
+            [ ...otherCoinSpends, cs ]
         ];
     }
 
@@ -444,7 +446,7 @@ export class SpendModule {
             cs.coin = coin;
             cs.puzzleReveal = p2Puzzle;
             cs.solution = Util.sexp.payToSingletonSolution(singletonInnerPuzzleHash, coinId);
-            coinSpends.push()
+            coinSpends.push(cs);
         }
 
         return [singletonOutputConditions, coinSpends];

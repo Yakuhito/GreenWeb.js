@@ -18,6 +18,7 @@
  - `greenweb.spend`:
       - add the `singletonLaunchConditionsAndCoinSol()` method
       - add the `launchSingleton()` method
+      - add the `useP2SingletonCoinsConditionsAndCoinSol()` method
       - add tests
  - add more tests to ensure full code coverage (100%)
  - todo: update docs to reflect changes

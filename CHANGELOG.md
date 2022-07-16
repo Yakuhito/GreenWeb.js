@@ -6,8 +6,8 @@
  - `greenweb.sexp`:
      - add new helper method: `bytesToAtom()`
      - add the `singletonPuzzle()` and `singletonSolution()` methods
-     - add the `singletonLauncherSolution()` method
-     - add the `payToSingletonPuzzle()` method
+     - add the `singletonLauncherSolution()` method (the puzzle is the same for all singletons)
+     - add the `payToSingletonPuzzle()` and `payToSingletonSolution()` methods
      - add more puzzle constants:
           - `SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD`
           - `SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD_HASH`

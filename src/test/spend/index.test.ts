@@ -11,7 +11,7 @@ import { CoinSpend } from "../../util/serializer/types/coin_spend";
 import { SpendBundle } from "../../util/serializer/types/spend_bundle";
 import { bytes, Coin } from "../../xch/providers/provider_types";
 
-describe("SpendModule", function () {
+describe.only("SpendModule", function () {
     this.timeout(5000);
 
     const TEST_PRIV_KEY_STR = "42".repeat(32);
@@ -808,5 +808,9 @@ describe("SpendModule", function () {
             }
             expect(r.aggregatedSignature).to.equal(sb.aggregatedSignature); // empty agg sig
         });
+    });
+
+    describe.only("singletonLaunchConditionsAndCoinSol()", () => {
+        // pass
     });
 });

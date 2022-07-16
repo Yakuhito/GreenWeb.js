@@ -527,4 +527,11 @@ export class SExpUtil {
             ]
         );
     }
+
+    public payToSingletonSolution(singletonInnerPuzzleHash: bytes, myId: bytes): SExp {
+        return SExp.to([
+            this.bytesToAtom(singletonInnerPuzzleHash),
+            this.bytesToAtom(myId),
+        ]);
+    }
 }

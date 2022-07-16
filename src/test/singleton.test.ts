@@ -7,7 +7,7 @@ import { Singleton } from "../singleton";
 import { Util } from "../util";
 import { bytes, Coin } from "../xch/providers/provider_types";
 
-describe.only("Singleton", () => {
+describe("Singleton", () => {
     const TEST_PRIV_KEY_STR = "42".repeat(32);
     const TEST_LAUNCHER_ID = "77".repeat(32);
     const TEST_LINEAGE_RPOOF: LineageProof = {

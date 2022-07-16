@@ -1,6 +1,7 @@
 import { BigNumber } from "@ethersproject/bignumber";
 import { Bytes, getBLSModule, SExp } from "clvm";
-import { CAT } from "../cat";
+import { CAT, LineageProof } from "../cat";
+import { Singleton } from "../singleton";
 import { StandardCoin } from "../standard_coin";
 import { Util } from "../util";
 import { uint } from "../util/serializer/basic_types";
@@ -8,7 +9,7 @@ import { CoinSpend } from "../util/serializer/types/coin_spend";
 import { SpendBundle } from "../util/serializer/types/spend_bundle";
 import { ConditionsDict } from "../util/sexp";
 import { ConditionOpcode } from "../util/sexp/condition_opcodes";
-import { bytes } from "../xch/providers/provider_types";
+import { bytes, Coin } from "../xch/providers/provider_types";
 
 export class Announcement {
     public originInfo?: bytes;
@@ -43,65 +44,45 @@ export class SpendModule {
 
     public static createCoinCondition(puzzleHash: bytes, amount: uint, memos: bytes[] = []): SExp {
         return SExp.to([
-            Bytes.from(ConditionOpcode.CREATE_COIN, "hex"),
-            Bytes.from(puzzleHash, "hex"),
-            Bytes.from(Util.coin.amountToBytes(amount), "hex"),
-            ...(memos.length > 0 ? [SExp.to(memos.map(e => Bytes.from(e, "hex")))] : []),
+            Util.sexp.bytesToAtom(ConditionOpcode.CREATE_COIN),
+            Util.sexp.bytesToAtom(puzzleHash),
+            Util.sexp.bytesToAtom(Util.coin.amountToBytes(amount)),
+            ...(memos.length > 0 ? [SExp.to(memos.map(e => Util.sexp.bytesToAtom(e)))] : []),
         ]);
     }
 
     public static reserveFeeCondition(fee: uint): SExp {
         return SExp.to([
-            Bytes.from(
-                Buffer.from(ConditionOpcode.RESERVE_FEE, "hex"),
-            ),
-            Bytes.from(
-                Util.coin.amountToBytes(fee), "hex"
-            ),
+            Util.sexp.bytesToAtom(ConditionOpcode.RESERVE_FEE),
+            Util.sexp.bytesToAtom(Util.coin.amountToBytes(fee)),
         ]);
     }
 
     public static createCoinAnnouncementCondition(message: bytes): SExp {
         return SExp.to([
-            Bytes.from(
-                Buffer.from(ConditionOpcode.CREATE_COIN_ANNOUNCEMENT, "hex"),
-            ),
-            Bytes.from(
-                message, "hex"
-            ),
+            Util.sexp.bytesToAtom(ConditionOpcode.CREATE_COIN_ANNOUNCEMENT),
+            Util.sexp.bytesToAtom(message),
         ]);
     }
 
     public static assertCoinAnnouncementCondition(announcementId: bytes): SExp {
         return SExp.to([
-            Bytes.from(
-                Buffer.from(ConditionOpcode.ASSERT_COIN_ANNOUNCEMENT, "hex"),
-            ),
-            Bytes.from(
-                announcementId, "hex"
-            ),
+            Util.sexp.bytesToAtom(ConditionOpcode.ASSERT_COIN_ANNOUNCEMENT),
+            Util.sexp.bytesToAtom(announcementId),
         ]);
     }
 
     public static createPuzzleAnnouncementCondition(message: bytes): SExp {
         return SExp.to([
-            Bytes.from(
-                Buffer.from(ConditionOpcode.CREATE_PUZZLE_ANNOUNCEMENT, "hex"),
-            ),
-            Bytes.from(
-                message, "hex"
-            ),
+            Util.sexp.bytesToAtom(ConditionOpcode.CREATE_PUZZLE_ANNOUNCEMENT),
+            Util.sexp.bytesToAtom(message),
         ]);
     }
 
     public static assertPuzzleAnnouncementCondition(announcementId: bytes): SExp {
         return SExp.to([
-            Bytes.from(
-                Buffer.from(ConditionOpcode.ASSERT_PUZZLE_ANNOUNCEMENT, "hex"),
-            ),
-            Bytes.from(
-                announcementId, "hex"
-            ),
+            Util.sexp.bytesToAtom(ConditionOpcode.ASSERT_PUZZLE_ANNOUNCEMENT),
+            Util.sexp.bytesToAtom(announcementId),
         ]);
     }
 
@@ -290,9 +271,11 @@ export class SpendModule {
                     this.assertCoinAnnouncementCondition(ann.name()),
                 );
             } else {
-                firstCoinConditions.push(
-                    this.createCoinAnnouncementCondition(theHash),
-                );
+                if(standardCoins.length > 1) {
+                    firstCoinConditions.push(
+                        this.createCoinAnnouncementCondition(theHash),
+                    );
+                }
             }
             otherCoinsConditions.push(
                 this.assertCoinAnnouncementCondition(ann.name()),
@@ -337,5 +320,135 @@ export class SpendModule {
         ).toString("hex");
 
         return sb;
+    }
+
+    // https://github.com/Chia-Network/chia-blockchain/blob/280f462071e5fe1b7883cefac73712789e22b664/chia/wallet/puzzles/singleton_top_layer_v1_1.py#L179
+    public static singletonLaunchConditionsAndCoinSol(
+        coin: Coin,
+        innerPuzzle: SExp,
+        amount: uint,
+        comment: Array<[string, string]> = []
+    ): [SExp[], CoinSpend] {
+        if(BigNumber.from(amount).mod(2).eq(0)) {
+            throw new Error("Coin amount cannot be even. Subtract one mojo.");
+        }
+        
+        const launcherCoin = this.generateLauncherCoin(coin, amount);
+        const launcherCoinId = Util.coin.getId(launcherCoin);
+        
+        const curriedSingleton = Util.sexp.singletonPuzzle(
+            launcherCoinId, innerPuzzle
+        );
+
+        const launcherSolution = Util.sexp.singletonLauncherSolution(
+            Util.sexp.sha256tree(curriedSingleton),
+            amount,
+            comment
+        );
+
+        const createLauncherAnnouncement = this.createCoinCondition(
+            Util.sexp.SINGLETON_LAUNCHER_PROGRAM_HASH, amount
+        );
+        const assertLauncherAnnouncement = this.assertCoinAnnouncementCondition(
+            Util.stdHash(launcherCoinId + Util.sexp.sha256tree(launcherSolution)),
+        );
+
+
+        const launcherCs = new CoinSpend();
+        launcherCs.coin = launcherCoin;
+        launcherCs.puzzleReveal = Util.sexp.SINGLETON_LAUNCHER_PROGRAM;
+        launcherCs.solution = launcherSolution;
+
+        return [
+            [createLauncherAnnouncement, assertLauncherAnnouncement],
+            launcherCs
+        ];
+    }
+
+    // https://github.com/Chia-Network/chia-blockchain/blob/280f462071e5fe1b7883cefac73712789e22b664/chia/wallet/puzzles/singleton_top_layer_v1_1.py#L169
+    private static generateLauncherCoin(coin: Coin, amount: uint): Coin {
+        const c = new Coin();
+        c.parentCoinInfo = Util.coin.getId(coin);
+        c.puzzleHash = Util.sexp.SINGLETON_LAUNCHER_PROGRAM_HASH;
+        c.amount = amount;
+
+        return c;
+    }
+
+    public static launchSingleton(
+        standardCoins: StandardCoin[],
+        innerPuzzle: SExp,
+        amount: uint,
+        fee: uint = 0,
+        additionalInitialCoinConditions: SExp[] = [],
+        comment: Array<[string, string]> = [],
+    ): [Singleton, CoinSpend[]] {
+        const firstCoin = standardCoins[0].toCoin();
+        if(firstCoin === null) {
+            throw new Error("Coin that is supposed to launch the singleton launcher does not have enough info.");
+        }
+
+        const [conditions, cs] = this.singletonLaunchConditionsAndCoinSol(
+            firstCoin, innerPuzzle, amount, comment
+        );
+
+        const otherCoinSpends = this.bundle(
+            standardCoins, {
+                fee,
+                standardCoinOutputConditions: [
+                    ...conditions,
+                    ...additionalInitialCoinConditions
+                ]
+            }
+        );
+
+        const launcherId = Util.coin.getId(cs.coin);
+        const lineageProof: LineageProof = {
+            amount: cs.coin.amount,
+            parentName: launcherId
+        };
+
+        const singleton = new Singleton({
+            amount: cs.coin.amount,
+            parentCoinInfo: launcherId,
+            launcherId,
+            innerPuzzle,
+            lineageProof
+        });
+
+        return [
+            singleton,
+            [ ...otherCoinSpends, cs ]
+        ];
+    }
+
+    public static useP2SingletonCoinsConditionsAndCoinSol(
+        singletonLauncherId: bytes,
+        singletonInnerPuzzleHash: bytes,
+        coins: Coin[]
+    ): [SExp[], CoinSpend[]] {
+        const coinSpends: CoinSpend[] = [];
+        const singletonOutputConditions: SExp[] = [];
+
+        const p2Puzzle = Util.sexp.payToSingletonPuzzle(singletonLauncherId);
+        for(const coin of coins) {
+            const coinId = Util.coin.getId(coin);
+            const coinAnn = new Announcement(coinId, "24"); // 0x24 = $
+            singletonOutputConditions.push(
+                this.assertCoinAnnouncementCondition(coinAnn.name())
+            );
+
+            singletonOutputConditions.push(
+                this.createPuzzleAnnouncementCondition(coinId)
+            );
+
+            const cs = new CoinSpend();
+            cs.coin = coin;
+            cs.puzzleReveal = p2Puzzle;
+            cs.solution = Util.sexp.payToSingletonSolution(singletonInnerPuzzleHash, coinId);
+            coinSpends.push(cs);
+        }
+
+        return [singletonOutputConditions, coinSpends];
     }
 }

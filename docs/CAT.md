@@ -190,7 +190,7 @@ public withSyntheticKey(syntheticKey: bytes): CAT {
 
 ## withInnerSolution
 
-Returns a new `CAT` instance with a new value for `inenrSolution`. Using this function is not recommended - see `addConditionsToInnerSolution()` at the bottom of this page instead.
+Returns a new `CAT` instance with a new value for `innerSolution`. Using this function is not recommended - see `addConditionsToInnerSolution()` at the bottom of this page instead.
 
 ### Definition
 

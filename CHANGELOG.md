@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.1.9
+ - add the `Singleton` class (Singleton v1.1 support)
+ - add tests for the `Singleton` class (full coverage)
+ - make `Singleton` available to apps as `greenweb.Singleton`
+ - `greenweb.sexp`:
+     - add new helper method: `bytesToAtom()`
+     - add the `singletonPuzzle()` and `singletonSolution()` methods
+     - add the `singletonLauncherSolution()` method (the puzzle is the same for all singletons)
+     - add the `payToSingletonPuzzle()` and `payToSingletonSolution()` methods
+     - add more puzzle constants:
+          - `SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD`
+          - `SINGLETON_TOP_LAYER_v1_1_PROGRAM_MOD_HASH`
+          - `SINGLETON_LAUNCHER_PROGRAM`
+          - `SINGLETON_LAUNCHER_PROGRAM_HASH`
+          - `P2_SINGLETON_PROGRAM_MOD`
+      - add tests
+ - `greenweb.spend`:
+      - add the `singletonLaunchConditionsAndCoinSol()` method
+      - add the `launchSingleton()` method
+      - add the `useP2SingletonCoinsConditionsAndCoinSol()` method
+      - add tests
+ - add more tests to ensure full code coverage (100%)
+ - update docs to reflect changes
+
 ## 1.1.8
  - `PrivateKeyProvider`: the `signCoinSpends` now accepts a second, optional argument: `customGenesisChallenge`
 
@@ -12,7 +36,7 @@
     - new method: `bundle()`
     - new method: `mergeSpendBundles()`
     - add tests
- - `greenweb.sexp`
+ - `greenweb.sexp`:
      - add the `uncurry()` method
      - add the `standardCoinSolution()` method
      - add the `CATPuzzle()` and `CATSolution()` methods
@@ -40,7 +64,7 @@
       - remove the `forceUsePuzzle` parameter
       - remove the `send()` and `multisend()` methods (replacement: `greenweb.spend.bundle()`)
       - add the `withSyntheticKey()` method
-      - add the `addConditionsToInnerSolution()` method
+      - add the `addConditionsToSolution()` method
       - update tests
  - Add `greenweb.util.hexlify` and `greenweb.util.unhexlify`
  - Fix `SmartCoin` bug (thanks, `polkom21`)

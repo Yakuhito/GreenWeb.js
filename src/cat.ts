@@ -173,9 +173,9 @@ export class CAT extends SmartCoin {
 
         this.innerSolution = Util.sexp.standardCoinSolution([
             SExp.to([
-                Bytes.from(ConditionOpcode.CREATE_COIN, "hex"),
+                Util.sexp.bytesToAtom(ConditionOpcode.CREATE_COIN),
                 Bytes.from("yakuhitoyakuhitoyakuhitoyakuhito"),
-                Bytes.from("8f", "hex"),
+                Util.sexp.bytesToAtom("8f"),
                 this.TAILProgram,
                 this.TAILSolution
             ]),

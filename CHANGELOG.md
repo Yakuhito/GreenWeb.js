@@ -3,6 +3,7 @@
 ## 1.1.9
  - add the `Singleton` class (Singleton v1.1 support)
  - add tests for the `Singleton` class (full coverage)
+ - make `Singleton` available to apps as `greenweb.Singleton`
  - `greenweb.sexp`:
      - add new helper method: `bytesToAtom()`
      - add the `singletonPuzzle()` and `singletonSolution()` methods

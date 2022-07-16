@@ -42,4 +42,8 @@ describe("GreenWeb.js module", () => {
     it("Exports 'CAT'", () => {
         expect(GreenWeb.CAT).to.not.be.undefined;
     });
+
+    it("Exports 'Singleton'", () => {
+        expect(GreenWeb.Singleton).to.not.be.undefined;
+    });
 });

@@ -27,3 +27,6 @@ export { StandardCoin } from "./standard_coin";
 
 // greenweb.CAT
 export { CAT } from "./cat";
+
+// greenweb.Singleton
+export { Singleton } from "./singleton";

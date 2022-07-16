@@ -14,6 +14,11 @@
           - `SINGLETON_LAUNCHER_PROGRAM`
           - `SINGLETON_LAUNCHER_PROGRAM_HASH`
           - `P2_SINGLETON_PROGRAM_MOD`
+      - add tests
+ - `greenweb.spend`:
+      - add the `singletonLaunchConditionsAndCoinSol()` method
+      - add the `launchSingleton()` method
+      - add tests
  - add more tests to ensure full code coverage (100%)
  - todo: update docs to reflect changes
 

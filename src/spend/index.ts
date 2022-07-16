@@ -419,4 +419,34 @@ export class SpendModule {
             [ cs, ...otherCoinSpends ]
         ];
     }
+
+    public static useP2SingletonCoinsConditionsAndCoinSol(
+        singletonLauncherId: bytes,
+        singletonInnerPuzzleHash: bytes,
+        coins: Coin[]
+    ): [SExp[], CoinSpend[]] {
+        const coinSpends: CoinSpend[] = [];
+        const singletonOutputConditions: SExp[] = [];
+
+        const p2Puzzle = Util.sexp.payToSingletonPuzzle(singletonLauncherId);
+        for(const coin of coins) {
+            const coinId = Util.coin.getId(coin);
+            const coinAnn = new Announcement(coinId, "24"); // 0x24 = $
+            singletonOutputConditions.push(
+                this.assertCoinAnnouncementCondition(coinAnn.name())
+            );
+
+            singletonOutputConditions.push(
+                this.createPuzzleAnnouncementCondition(coinId)
+            );
+
+            const cs = new CoinSpend();
+            cs.coin = coin;
+            cs.puzzleReveal = p2Puzzle;
+            cs.solution = Util.sexp.payToSingletonSolution(singletonInnerPuzzleHash, coinId);
+            coinSpends.push()
+        }
+
+        return [singletonOutputConditions, coinSpends];
+    }
 }

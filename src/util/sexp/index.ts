@@ -505,7 +505,7 @@ export class SExpUtil {
     ): SExp {
         const l: SExp[] = [];
         for(const [k, v] of keyValueList) {
-            l.push(SExp.to([k, v]));
+            l.push(SExp.to(new Tuple<string, string>(k, v)));
         }
 
         return SExp.to([

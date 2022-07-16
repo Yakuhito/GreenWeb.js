@@ -1140,8 +1140,8 @@ describe("SExpUtil", () => {
         
             expect(
                 sexpUtil.toHex(res)
-            // ("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" 1 (("yaku" "hito") (97 98) ("test" "test")))
-            ).to.equal("ffa04242424242424242424242424242424242424242424242424242424242424242ff01ffffff8479616b75ff846869746f80ffff61ff6280ffff8474657374ff8474657374808080");
+            // ("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" 1 (("yaku" . "hito") (97 . 98) ("test" . "test")))
+            ).to.equal("ffa04242424242424242424242424242424242424242424242424242424242424242ff01ffffff8479616b75846869746fffff6162ffff847465737484746573748080");
         });
     });
 

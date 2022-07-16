@@ -985,8 +985,8 @@ describe("SpendModule", function () {
             expect(
                 Util.sexp.toHex(outputConds)
             // explaination below
-            ).to.equal("ffff32ffb097d665fea5042789583ca580a5c5bc8da921387811aca72fa9395489ef0d3cc5b18d9a7c86e8bd277049ca4b7bfe0945ffa02333bc424df9902308348fcf5d911ae8e307274956c027bbf12cdfc109cc7e6c80ffff33ffa0eff07522495060c066f66f32acc2a77e3a3e737aca8baea4d1a64ea4cdc13da9ff0d80ffff3dffa0568fa415caaba94b9fbb95c399a887da16e71741bf30b7fd31bd00cea1c8adb680ffff3cff874242424242424280ffff34ff048080");
-            // ((50 0x97d665fea5042789583ca580a5c5bc8da921387811aca72fa9395489ef0d3cc5b18d9a7c86e8bd277049ca4b7bfe0945 0x2333bc424df9902308348fcf5d911ae8e307274956c027bbf12cdfc109cc7e6c) (51 0xeff07522495060c066f66f32acc2a77e3a3e737aca8baea4d1a64ea4cdc13da9 13) (61 0x568fa415caaba94b9fbb95c399a887da16e71741bf30b7fd31bd00cea1c8adb6) (60 "BBBBBBB") (52 4))
+            ).to.equal("ffff32ffb097d665fea5042789583ca580a5c5bc8da921387811aca72fa9395489ef0d3cc5b18d9a7c86e8bd277049ca4b7bfe0945ffa051eaecc950d92cf58f6c67285439ff38f6561da07a5aa8a40bfb984863e2650d80ffff33ffa0eff07522495060c066f66f32acc2a77e3a3e737aca8baea4d1a64ea4cdc13da9ff0d80ffff3dffa0b119a2603b3a164226171368c4ecceece0251ade84eb875a6bf76a8259ca405680ffff3cff874242424242424280ffff34ff048080");
+            // ((50 0x97d665fea5042789583ca580a5c5bc8da921387811aca72fa9395489ef0d3cc5b18d9a7c86e8bd277049ca4b7bfe0945 0x51eaecc950d92cf58f6c67285439ff38f6561da07a5aa8a40bfb984863e2650d) (51 0xeff07522495060c066f66f32acc2a77e3a3e737aca8baea4d1a64ea4cdc13da9 13) (61 0xb119a2603b3a164226171368c4ecceece0251ade84eb875a6bf76a8259ca4056) (60 "BBBBBBB") (52 4))
             // 50 - AGG_SIG_ME from the standard coin puzzle
             // 51 - the CREATE_COIN condition that creates the launcher
             // 61 - ASSERT_COIN_ANNOUNCEMENT

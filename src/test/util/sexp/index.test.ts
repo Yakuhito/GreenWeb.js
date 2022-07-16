@@ -691,6 +691,12 @@ describe("SExpUtil", () => {
             // https://github.com/Chia-Network/chia-blockchain/blob/280f462071e5fe1b7883cefac73712789e22b664/chia/wallet/puzzles/p2_singleton.clvm.hex.sha256tree
             "40f828d8dd55603f4ff9fbf6b73271e904e69406982f4fbefae2c8dcceaf9834"
         );
+        sha256Correct(
+            "DID_INNERPUZ_PROGRAM_MOD",
+            sexpUtil.DID_INNERPUZ_PROGRAM_MOD,
+            // https://github.com/Chia-Network/chia-blockchain/blob/03b4bacb5c8c769f5086885f4c3a9c4fbb1fe9d3/chia/wallet/puzzles/did_innerpuz.clvm.hex.sha256tree
+            "33143d2bef64f14036742673afd158126b94284b4530a28c354fac202b0c910e"
+        );
     });
 
     describe("DEFAULT_HIDDEN_PUZZLE_HASH", () => {
@@ -722,6 +728,14 @@ describe("SExpUtil", () => {
             const hash = sexpUtil.sha256tree(sexpUtil.SINGLETON_LAUNCHER_PROGRAM);
 
             expect(hash).to.equal(sexpUtil.SINGLETON_LAUNCHER_PROGRAM_HASH);
+        });
+    });
+
+    describe("DID_INNERPUZ_PROGRAM_MOD_HASH", () => {
+        it("Is equal to the sha256tree hash of DID_INNERPUZ_PROGRAM_MOD", () => {
+            const hash = sexpUtil.sha256tree(sexpUtil.DID_INNERPUZ_PROGRAM_MOD);
+
+            expect(hash).to.equal(sexpUtil.DID_INNERPUZ_PROGRAM_MOD_HASH);
         });
     });
 

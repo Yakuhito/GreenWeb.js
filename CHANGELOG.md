@@ -4,6 +4,9 @@
  - add the `Singleton` class (Singleton v1.1 support)
  - add tests for the `Singleton` class (full coverage)
  - make `Singleton` available to apps as `greenweb.Singleton`
+ - todo: add the `DID` class (DID1 support)
+ - todo: add tests for the `DID` class (full coverage)
+ - todo: make `DID` available to apps as `greenweb.DID`
  - `greenweb.sexp`:
      - add new helper method: `bytesToAtom()`
      - add the `singletonPuzzle()` and `singletonSolution()` methods
@@ -15,14 +18,16 @@
           - `SINGLETON_LAUNCHER_PROGRAM`
           - `SINGLETON_LAUNCHER_PROGRAM_HASH`
           - `P2_SINGLETON_PROGRAM_MOD`
+          - `DID_INNERPUZ_PROGRAM_MOD`
+          - `DID_INNERPUZ_PROGRAM_MOD_HASH`
       - add tests
  - `greenweb.spend`:
       - add the `singletonLaunchConditionsAndCoinSol()` method
       - add the `launchSingleton()` method
       - add the `useP2SingletonCoinsConditionsAndCoinSol()` method
       - add tests
- - add more tests to ensure full code coverage (100%)
- - update docs to reflect changes
+ - todo: add more tests to ensure full code coverage (100%)
+ - todo: update docs to reflect changes
 
 ## 1.1.8
  - `PrivateKeyProvider`: the `signCoinSpends` now accepts a second, optional argument: `customGenesisChallenge`

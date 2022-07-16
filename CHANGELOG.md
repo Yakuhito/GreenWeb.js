@@ -22,7 +22,7 @@
       - add the `useP2SingletonCoinsConditionsAndCoinSol()` method
       - add tests
  - add more tests to ensure full code coverage (100%)
- - todo: update docs to reflect changes
+ - update docs to reflect changes
 
 ## 1.1.8
  - `PrivateKeyProvider`: the `signCoinSpends` now accepts a second, optional argument: `customGenesisChallenge`

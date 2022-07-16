@@ -25,6 +25,7 @@ nav:
     - SmartCoin: 'smart-coin.md'
     - StandardCoin: 'standard-coin.md'
     - CAT: 'CAT.md'
+    - Singleton: 'singleton.md'
     - License: 'license.md'
 
 markdown_extensions:

@@ -5,7 +5,7 @@ import { SmartCoin } from "./smart_coin";
 import { Util } from "./util";
 import { bytes, Coin, uint } from "./xch/providers/provider_types";
 
-export type CATConstructorArgs = {
+export type SingletonConstructorArgs = {
     // SmartCoin
     parentCoinInfo?: bytes | null,
     puzzleHash?: bytes | null,
@@ -39,7 +39,7 @@ export class Singleton extends SmartCoin {
 
         lineageProof = null,
         innerSolution = null,
-    }: CATConstructorArgs = {}) {
+    }: SingletonConstructorArgs = {}) {
         super({
             parentCoinInfo, puzzleHash, amount, coin
         });
@@ -115,7 +115,7 @@ export class Singleton extends SmartCoin {
 
         lineageProof = null,
         innerSolution = null,
-    }: CATConstructorArgs): Singleton {
+    }: SingletonConstructorArgs): Singleton {
         return new Singleton({
             parentCoinInfo: parentCoinInfo ?? this.parentCoinInfo,
             puzzleHash: puzzleHash ?? this.puzzleHash,

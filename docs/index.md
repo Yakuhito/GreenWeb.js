@@ -19,6 +19,7 @@ The object also exports the following classes as properties:
  - [`SmartCoin`](smart-coin.md): GreenWeb.js's `SmartCoin` class - click on the link for more info!
  - [`StandardCoin`](standard-coin.md): Helper class used for making standard coins easier to use.
  - [`CAT`](CAT.md): Helper class used for making Chia Asset Tokens (CATs) easier to use.
+ - [`Singleton`](singleton.md): Helper class used for making Singletons easier to use.
  - [`BigNumber`](https://docs.ethers.io/v5/api/utils/bignumber/): Export of the class that GreenWeb.js uses to handle big numbers (thanks to the `ethers` project for publishing their solution as a package).
  - `Coin`: The `Coin` class, as used by the Chia blockchain.
  - `CoinSpend`: The `CoinSpend` class, as used by the Chia blockchain.

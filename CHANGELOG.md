@@ -4,6 +4,8 @@
  - add the `Singleton` class (Singleton v1.1 support)
  - add tests for the `Singleton` class (full coverage)
  - make `Singleton` available to apps as `greenweb.Singleton`
+ - rename old `LeafletProvider` to `LeafletWSProvider`
+ - create `LeafletRPCProvider` and ensure that it's the default `LeafletProvider` for `greenweb.xch.createProvider` (to overwrite, set the `useLeafletWS` parameter to `true`)
  - `greenweb.sexp`:
      - add new helper method: `bytesToAtom()`
      - add the `singletonPuzzle()` and `singletonSolution()` methods
@@ -22,7 +24,7 @@
       - add the `useP2SingletonCoinsConditionsAndCoinSol()` method
       - add tests
  - add more tests to ensure full code coverage (100%)
- - update docs to reflect changes
+ - todo: update docs to reflect changes
 
 ## 1.1.8
  - `PrivateKeyProvider`: the `signCoinSpends` now accepts a second, optional argument: `customGenesisChallenge`

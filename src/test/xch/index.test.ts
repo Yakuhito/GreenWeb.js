@@ -77,10 +77,10 @@ class TestProvider implements Provider {
 }
 
 describe("XCHModule", () => {
-    it("Exposes 4 providers", () => {
+    it("Exposes 5 providers", () => {
         expect(
             Object.keys(XCHModule.providers).length
-        ).to.be.equal(4);
+        ).to.be.equal(5);
     });
 
     it("Exposes its set provider", () => {
@@ -104,13 +104,15 @@ describe("XCHModule", () => {
             XCHModule.clearProvider();
         });
 
-        for(let i = 0; i < 8; ++i) {
+        for(let i = 0; i < 16; ++i) {
             const useGoby = i % 2;
             const useLeaflet = Math.floor(i / 2) % 2;
-            const usePrivateKey = Math.floor(i / 4) % 2;
+            const useLeafletWS = Math.floor(i / 4) % 2;
+            const usePrivateKey = Math.floor(i / 8) % 2;
             const expectedProviderCount = useGoby + useLeaflet + usePrivateKey;
 
-            const testTitle = `Works (useGoby: ${useGoby}, useLeaflet: ${useLeaflet}, usePrivateKey: ${usePrivateKey})`;
+            // eslint-disable-next-line max-len
+            const testTitle = `Works (useGoby: ${useGoby}, useLeaflet: ${useLeaflet}, useLeafletWS: ${useLeafletWS}, usePrivateKey: ${usePrivateKey})`;
             it(testTitle, () => {
                 const params: any = {};
                 if(useGoby === 1) {
@@ -118,6 +120,9 @@ describe("XCHModule", () => {
                 }
                 if(useLeaflet === 1) {
                     params.leafletAPIKey = "TEST-API-KEY";
+                }
+                if(useLeafletWS === 1) {
+                    params.useLeafletWS = true;
                 }
                 if(usePrivateKey === 1) {
                     params.privateKey = "42".repeat(32);

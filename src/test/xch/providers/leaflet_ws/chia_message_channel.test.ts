@@ -8,7 +8,7 @@ import { ProtocolMessageTypes } from "../../../../util/serializer/types/protocol
 import { Capability, Handshake } from "../../../../util/serializer/types/shared_protocol";
 import { RequestPuzzleSolution } from "../../../../util/serializer/types/wallet_protocol";
 import { getSoftwareVersion } from "../../../../util/software_version";
-import { ChiaMessageChannel, IWebSocket, _ensureWebSocket } from "../../../../xch/providers/leaflet/chia_message_channel";
+import { ChiaMessageChannel, IWebSocket, _ensureWebSocket } from "../../../../xch/providers/leaflet_ws/chia_message_channel";
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 

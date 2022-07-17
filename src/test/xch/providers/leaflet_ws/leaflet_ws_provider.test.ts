@@ -22,8 +22,8 @@ import { SpendBundle } from "../../../../util/serializer/types/spend_bundle";
 import { VDFInfo, VDFProof } from "../../../../util/serializer/types/vdf";
 import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RejectAdditionsRequest, RejectHeaderBlocks, RejectHeaderRequest, RejectPuzzleSolution, RejectRemovalsRequest, RespondAdditions, RespondBlockHeader, RespondChildren, RespondHeaderBlocks, RespondRemovals, RespondToCoinUpdates, RespondToPhUpdates, TransactionAck } from "../../../../util/serializer/types/wallet_protocol";
 import { getSoftwareVersion } from "../../../../util/software_version";
-import { LeafletProvider } from "../../../../xch/providers/leaflet";
-import { IWebSocket } from "../../../../xch/providers/leaflet/chia_message_channel";
+import { LeafletWSProvider } from "../../../../xch/providers/leaflet_ws";
+import { IWebSocket } from "../../../../xch/providers/leaflet_ws/chia_message_channel";
 import { Optional, PuzzleSolution } from "../../../../xch/providers/provider_types";
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
@@ -31,11 +31,11 @@ const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 const addressUtil = new AddressUtil();
 const coinUtil = new CoinUtil();
 
-describe("LeafletProvider", function () {
+describe("LeafletWSProvider", function () {
     this.timeout(4000);
 
-    let openProvider: LeafletProvider;
-    const _setup: (onMessageSent: (msg: Message) => void) => Promise<[LeafletProvider, (msg: Message) => void]> =
+    let openProvider: LeafletWSProvider;
+    const _setup: (onMessageSent: (msg: Message) => void) => Promise<[LeafletWSProvider, (msg: Message) => void]> =
         async (onMessageSent) => {
             const obj: IWebSocket = {
                 onmessage: null,
@@ -48,7 +48,7 @@ describe("LeafletProvider", function () {
                 readyState: WebSocket.CONNECTING
             };
             const webSocketOverrideCreateFunc = (_url: string) => obj;
-            const provider: LeafletProvider = new LeafletProvider(
+            const provider: LeafletWSProvider = new LeafletWSProvider(
                 "leaflet.fireacademy.io", "TEST-API-KEY", 12345, Network.testnet10, webSocketOverrideCreateFunc
             );
 
@@ -86,7 +86,7 @@ describe("LeafletProvider", function () {
         it("Works", async () => {
             // as idiotic as this test is, line 29 needs to be used in a test to get full coverage :|
             // webSocketCreateFunc: (url: string) => IWebSocket = (url: string) => new WebSocket(url),
-            const p = new LeafletProvider(
+            const p = new LeafletWSProvider(
                 "nonexistent.fireacademy.io", "TEST-API-KEY", 18444, Network.testnet0
             );
             expect(p.isConnected()).to.be.false;
@@ -146,7 +146,7 @@ describe("LeafletProvider", function () {
 
     describe("getNetworkId()", () => {
         it("Correctly reports network id when none is provided", async () => {
-            const provider: LeafletProvider = new LeafletProvider(
+            const provider: LeafletWSProvider = new LeafletWSProvider(
                 "leaflet.fireacademy.io", "TEST-API-KEY"
             );
 
@@ -154,7 +154,7 @@ describe("LeafletProvider", function () {
         });
 
         it("Correctly reports network id when one is provided", async () => {
-            const provider: LeafletProvider = new LeafletProvider(
+            const provider: LeafletWSProvider = new LeafletWSProvider(
                 "leaflet.fireacademy.io", "TEST-API-KEY", 12345, Network.testnet7
             );
 
@@ -164,7 +164,7 @@ describe("LeafletProvider", function () {
 
     describe("getBlockNumber()", () => {
         it("Returns null if the channel is not connected", async () => {
-            const provider: LeafletProvider = new LeafletProvider(
+            const provider: LeafletWSProvider = new LeafletWSProvider(
                 "leaflet.fireacademy.io", "TEST-API-KEY"
             );
 
@@ -1649,13 +1649,13 @@ describe("LeafletProvider", function () {
 
     describe("getAddress()", () => {
         _throwsNotImplemented(
-            (p: LeafletProvider) => p.getAddress()
+            (p: LeafletWSProvider) => p.getAddress()
         );
     });
 
     describe("transfer()", () => {
         _throwsNotImplemented(
-            (p: LeafletProvider) => p.transfer({
+            (p: LeafletWSProvider) => p.transfer({
                 to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
                 value: 1337
             })
@@ -1664,7 +1664,7 @@ describe("LeafletProvider", function () {
 
     describe("transferCAT()", () => {
         _throwsNotImplemented(
-            (p: LeafletProvider) => p.transferCAT({
+            (p: LeafletWSProvider) => p.transferCAT({
                 to: "xch1k6mv3caj73akwp0ygpqhjpat20mu3akc3f6xdrc5ahcqkynl7ejq2z74n3",
                 assetId: "00".repeat(32),
                 value: 1337
@@ -1674,7 +1674,7 @@ describe("LeafletProvider", function () {
     
     describe("acceptOffer()", () => {
         _throwsNotImplemented(
-            (p: LeafletProvider) => p.acceptOffer({
+            (p: LeafletWSProvider) => p.acceptOffer({
                 offer: "offer12345"
             })
         );
@@ -1682,7 +1682,7 @@ describe("LeafletProvider", function () {
 
     describe("subscribeToAddressChanges()", () => {
         _throwsNotImplemented(
-            (p: LeafletProvider) => p.subscribeToAddressChanges({
+            (p: LeafletWSProvider) => p.subscribeToAddressChanges({
                 callback: () => { }
             })
         );
@@ -1690,7 +1690,7 @@ describe("LeafletProvider", function () {
 
     describe("signCoinSpends()", () => {
         _throwsNotImplemented(
-            (p: LeafletProvider) => p.signCoinSpends({
+            (p: LeafletWSProvider) => p.signCoinSpends({
                 coinSpends: []
             })
         );
@@ -1698,7 +1698,7 @@ describe("LeafletProvider", function () {
 
     describe("changeNetwork()", () => {
         _throwsNotImplemented(
-            (p: LeafletProvider) => p.changeNetwork({
+            (p: LeafletWSProvider) => p.changeNetwork({
                 network: Network.testnet10
             })
         );

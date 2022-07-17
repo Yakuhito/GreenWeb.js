@@ -18,7 +18,7 @@ import { Network } from "../../../util/network";
 
 const addressUtil = new AddressUtil();
 
-export class LeafletProvider implements Provider {
+export class LeafletWSProvider implements Provider {
     public messageManager: MessageManager;
 
     private blockNumber: providerTypes.Optional<number> = null;

@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Provider, BlockHeader, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, PuzzleSolution, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, acceptOfferArgs, transferCATArgs, transferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, pushSpendBundleArgs, changeNetworkArgs } from "./providers/provider";
-import { LeafletProvider } from "./providers/leaflet";
+import { LeafletWSProvider } from "./providers/leaflet_ws";
 import { GobyProvider } from "./providers/goby";
 import { MultiProvider } from "./providers/multi";
 import { BigNumber } from "@ethersproject/bignumber";
 import { PrivateKeyProvider } from "./providers/private_key";
 import { SpendBundle } from "../util/serializer/types/spend_bundle";
 import { Network } from "../util/network";
+import { LeafletRPCProvider } from "./providers/leaflet_rpc";
 
 export type CreateProviderArgs = {
     leafletHost?: string,
@@ -16,11 +17,13 @@ export type CreateProviderArgs = {
     gobyTryNonInteractiveConnect?: boolean,
     network?: Network,
     privateKey?: string,
+    useLeafletWS?: boolean,
 };
 
 export class XCHModule {
     public static providers = {
-        LeafletProvider,
+        LeafletWSProvider,
+        LeafletRPCProvider,
         GobyProvider,
         MultiProvider,
         PrivateKeyProvider
@@ -40,6 +43,7 @@ export class XCHModule {
         gobyTryNonInteractiveConnect = true,
         network = Network.mainnet,
         privateKey,
+        useLeafletWS = false,
     }: CreateProviderArgs): void {
         const providers: Provider[] = [];
 
@@ -49,9 +53,15 @@ export class XCHModule {
             );
         }
         if(leafletAPIKey) {
-            providers.push(
-                new LeafletProvider(leafletHost, leafletAPIKey, leafletPort, network)
-            );
+            if(useLeafletWS) {
+                providers.push(
+                    new LeafletWSProvider(leafletHost, leafletAPIKey, leafletPort, network)
+                );
+            } else {
+                providers.push(
+                    new LeafletRPCProvider(leafletHost, leafletAPIKey, leafletPort, network)
+                );
+            }
         }
         if(privateKey) {
             providers.push(

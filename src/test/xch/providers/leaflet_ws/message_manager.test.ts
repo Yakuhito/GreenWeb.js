@@ -7,8 +7,8 @@ import { bytes } from "../../../../util/serializer/basic_types";
 import { Serializer } from "../../../../util/serializer/serializer";
 import { Message } from "../../../../util/serializer/types/outbound_message";
 import { ProtocolMessageTypes } from "../../../../util/serializer/types/protocol_message_types";
-import { IChiaMessageChannel } from "../../../../xch/providers/leaflet/chia_message_channel";
-import { MessageManager } from "../../../../xch/providers/leaflet/message_manager";
+import { IChiaMessageChannel } from "../../../../xch/providers/leaflet_ws/chia_message_channel";
+import { MessageManager } from "../../../../xch/providers/leaflet_ws/message_manager";
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 

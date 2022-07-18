@@ -10,6 +10,14 @@ export type getBalanceArgs = {
     minHeight?: number
 };
 
+export type getCoinsArgs = {
+    address?: string,
+    puzzleHash?: string,
+    startHeight?: number,
+    endHeight?: number,
+    includeSpentCoins?: boolean
+};
+
 export type subscribeToPuzzleHashUpdatesArgs = {
     puzzleHash: string,
     callback: (coin_states: CoinState[]) => void,

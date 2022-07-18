@@ -1575,7 +1575,7 @@ describe("LeafletWSProvider", function () {
             try {
                 await func(provider);
             } catch(e: any) {
-                errOk = e.message === "LeafletProvider does not implement this method.";
+                errOk = e.message === "LeafletWSProvider does not implement this method.";
             }
             
             expect(errOk).to.be.true;

@@ -7,7 +7,7 @@ import { CoinState, NewPeakWallet, PuzzleSolutionResponse, RegisterForCoinUpdate
 import { HeaderBlock } from "../../../util/serializer/types/header_block";
 import { Coin } from "../../../util/serializer/types/coin";
 import { AddressUtil } from "../../../util/address";
-import { transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, changeNetworkArgs, pushSpendBundleArgs } from "../provider_args";
+import { transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, changeNetworkArgs, pushSpendBundleArgs, getCoinsArgs } from "../provider_args";
 import { BigNumber } from "@ethersproject/bignumber";
 import { MessageManager } from "./message_manager";
 import { ChiaMessageChannel, IWebSocket } from "./chia_message_channel";
@@ -135,6 +135,11 @@ export class LeafletWSProvider implements Provider {
         }
 
         return balance;
+    }
+
+    public async getCoins(args: getCoinsArgs): Promise<providerTypes.Optional<providerTypes.CoinState[]>> {
+        //todo
+        return null;
     }
 
     public subscribeToPuzzleHashUpdates({ puzzleHash, callback, minHeight = 1 }: subscribeToPuzzleHashUpdatesArgs): void {
@@ -648,7 +653,7 @@ export class LeafletWSProvider implements Provider {
     }
 
     private _doesNotImplementError(): any {
-        throw new Error("LeafletProvider does not implement this method.");
+        throw new Error("LeafletWSProvider does not implement this method.");
     }
 
     public getAddress(): Promise<string> {

@@ -1,5 +1,5 @@
 import { Optional, Coin, CoinState, BlockHeader, PuzzleSolution } from "./provider_types";
-import { acceptOfferArgs, changeNetworkArgs, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, pushSpendBundleArgs, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "./provider_args";
+import { acceptOfferArgs, changeNetworkArgs, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getCoinsArgs, getPuzzleSolutionArgs, pushSpendBundleArgs, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "./provider_args";
 import { BigNumber } from "@ethersproject/bignumber";
 import { SpendBundle } from "../../util/serializer/types/spend_bundle";
 import { Network } from "../../util/network";
@@ -17,6 +17,7 @@ export interface Provider {
     /* blockchain-related */
     getBlockNumber(): Promise<Optional<number>>;
     getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>>;
+    getCoins(args: getCoinsArgs): Promise<Optional<CoinState[]>>;
 
     /* callbacks */
     subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void;

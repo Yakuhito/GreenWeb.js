@@ -251,8 +251,28 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
         return () => { provObj._subscriptionActive[i] = false; };
     }
 
-    getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>> {
-        throw new Error("Method not implemented.");
+    public async getPuzzleSolution({ coinId, height }: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>> {
+        const reqParams = {
+            coin_id: Util.unhexlify(coinId),
+            height
+        };
+
+        const resp = await this.getRPCResponse<{
+            success: boolean,
+            puzzle_reveal: bytes,
+            solution: bytes
+        }>("get_puzzle_and_solution", reqParams);
+
+        if(!resp?.success) return null;
+
+        const ps = new PuzzleSolution();
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        ps.coinName = reqParams.coin_id!;
+        ps.height = height;
+        ps.puzzle = Util.sexp.fromHex(resp.puzzle_reveal);
+        ps.solution = Util.sexp.fromHex(resp.solution);
+
+        return ps;
     }
 
     getCoinChildren(args: getCoinChildrenArgs): Promise<CoinState[]> {

@@ -275,8 +275,24 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
         return ps;
     }
 
-    getCoinChildren(args: getCoinChildrenArgs): Promise<CoinState[]> {
-        throw new Error("Method not implemented.");
+    public async getCoinChildren(
+        { coinId }: getCoinChildrenArgs,
+        startHeight: uint | null = null,
+        endHeight: uint | null = null
+    ): Promise<CoinState[]> {
+        const reqParams: any = {
+            coin_id: Util.unhexlify(coinId)
+        };
+        if(startHeight !== null) { reqParams.start_height = startHeight; }
+        if(endHeight !== null) { reqParams.end_height = endHeight; }
+
+        const resp = await this.getRPCResponse<{
+            success: boolean,
+            coin_records: CoinRecord[]
+        }>("get_coin_records_by_parent_ids", reqParams);
+
+        if(!resp?.success) return [];
+        return resp.coin_records.map(e => this.coinRecordToCoinState(e));
     }
 
     getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<BlockHeader>> {

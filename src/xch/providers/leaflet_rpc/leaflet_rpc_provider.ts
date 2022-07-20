@@ -20,7 +20,7 @@ type CoinRecord = {
     spent_block_index: uint | null
 };
 
-export class LeafletRPCProvider implements Provider {
+export class LeafletRPCProvider implements Provider { //todo: provider type return callback cancel
     public baseUrl: string;
 
     private network: Network;
@@ -29,6 +29,7 @@ export class LeafletRPCProvider implements Provider {
 
     private _subscriptionActive: boolean[] = [];
     private _subscriptions: Array<() => Promise<void>> = [];
+    private _lastCallbackData: string[] = []
 
     constructor(
         host: string,
@@ -164,13 +165,27 @@ export class LeafletRPCProvider implements Provider {
         return cs;
     }
 
-    public async subscribeToPuzzleHashUpdates({
+    private checkCallbackData(i: number, cs: CoinState[]): boolean {
+        const s = cs.map(
+            e => `${e.createdHeight}|${e.spentHeight}|${e.coin.amount}|${e.coin.parentCoinInfo}|${e.coin.puzzleHash}`
+        ).join("-");
+
+        if(this._lastCallbackData[i] !== s) {
+            this._lastCallbackData[i] = s;
+            return true;
+        }
+        return false;
+    }
+
+    public subscribeToPuzzleHashUpdates({
         puzzleHash,
         callback,
         minHeight
-    }: subscribeToPuzzleHashUpdatesArgs, timeBetweenRequests: number = 5000): Promise<() => void> {
+    }: subscribeToPuzzleHashUpdatesArgs, timeBetweenRequests: number = 5000): () => void {
         const i = this._subscriptions.length;
         this._subscriptionActive.push(true);
+        this._lastCallbackData.push("");
+
         const provObj = this;
 
         const reqParams: any = { puzzle_hash: Util.unhexlify(puzzleHash) };
@@ -184,7 +199,10 @@ export class LeafletRPCProvider implements Provider {
                     }>("get_coin_records_by_puzzle_hash", reqParams);
 
                     if(resp?.success) {
-                        callback(resp.coin_records.map(e => provObj.coinRecordToCoinState(e)))
+                        const callbackData = resp.coin_records.map(e => provObj.coinRecordToCoinState(e));
+                        if(this.checkCallbackData(i, callbackData)) {
+                            callback(callbackData);
+                        }
                     }
                 } catch(_) {
                     // pass
@@ -193,11 +211,44 @@ export class LeafletRPCProvider implements Provider {
             }
         });
 
-        return () => provObj._subscriptionActive[i] = false;
+        return () => { provObj._subscriptionActive[i] = false; }
     }
 
-    subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void {
-        throw new Error("Method not implemented.");
+    public subscribeToCoinUpdates({
+        coinId,
+        callback,
+        minHeight
+    }: subscribeToCoinUpdatesArgs, timeBetweenRequests: number = 5000): () => void {
+        const i = this._subscriptions.length;
+        this._subscriptionActive.push(true);
+        this._lastCallbackData.push("");
+
+        const provObj = this;
+
+        const reqParams: any = { name: Util.unhexlify(coinId) };
+        if(minHeight !== undefined) { reqParams.start_height = minHeight; }
+        this._subscriptions.push(async () => {
+            while(provObj._subscriptionActive[i]) {
+                try {
+                    const resp = await provObj.getRPCResponse<{
+                        success: boolean,
+                        coin_records: CoinRecord[]
+                    }>("get_coin_record_by_name", reqParams);
+
+                    if(resp?.success) {
+                        const callbackData = resp.coin_records.map(e => provObj.coinRecordToCoinState(e));
+                        if(this.checkCallbackData(i, callbackData)) {
+                            callback(callbackData);
+                        }
+                    }
+                } catch(_) {
+                    // pass
+                }
+                await sleep(timeBetweenRequests);
+            }
+        });
+
+        return () => { provObj._subscriptionActive[i] = false; };
     }
 
     getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>> {

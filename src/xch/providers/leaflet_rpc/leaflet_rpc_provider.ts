@@ -8,12 +8,27 @@ import axios from "axios";
 import { Util } from "../../../util";
 import { uint } from "../../../util/serializer/basic_types";
 
+const sleep = (milliseconds: number) => new Promise(r => setTimeout(r, milliseconds));
+
+type CoinRecord = {
+    coin: {
+        amount: uint,
+        parent_coin_info: bytes,
+        puzzle_hash: bytes
+    },
+    confirmed_block_index: uint | null,
+    spent_block_index: uint | null
+};
+
 export class LeafletRPCProvider implements Provider {
     public baseUrl: string;
 
     private network: Network;
     private connected = false;
     private overwriteGetRPCResponse: (<T>(endpoint: string, params: any) => Promise<T | null>) | null;
+
+    private _subscriptionActive: boolean[] = [];
+    private _subscriptions: Array<() => Promise<void>> = [];
 
     constructor(
         host: string,
@@ -74,6 +89,21 @@ export class LeafletRPCProvider implements Provider {
         return resp?.blockchain_state.peak.height ?? null;
     }
 
+    private coinRecordToCoinState(cr: CoinRecord): CoinState {
+        const c = new Coin();
+        c.amount = BigNumber.from(cr.coin.amount);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        c.parentCoinInfo = Util.dehexlify(cr.coin.parent_coin_info)!;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        c.puzzleHash = Util.dehexlify(cr.coin.puzzle_hash)!;
+
+        const coinState = new CoinState();
+        coinState.coin = c;
+        coinState.createdHeight = cr.confirmed_block_index;
+        coinState.spentHeight = cr.spent_block_index;
+        return coinState;
+    }
+
     public async getBalance({ address, puzzleHash, minHeight = 1 }: getBalanceArgs): Promise<Optional<BigNumber>> {
         const cs: CoinState[] | null = await this.getCoins({
             address,
@@ -114,48 +144,56 @@ export class LeafletRPCProvider implements Provider {
         }
         else return null;
 
-        const reqParams: any = { puzzle_hash: puzHash };
+        const reqParams: any = { puzzle_hash: Util.unhexlify(puzHash) };
         if(startHeight !== undefined) { reqParams.start_height = startHeight }
         if(endHeight !== undefined) { reqParams.end_height = endHeight }
         if(includeSpentCoins !== undefined) { reqParams.include_spent_coins = includeSpentCoins; }
 
         const resp = await this.getRPCResponse<{
             success: boolean,
-            coin_records: Array<{
-                coin: {
-                    amount: uint,
-                    parent_coin_info: bytes,
-                    puzzle_hash: bytes
-                },
-                confirmed_block_index: uint | null,
-                spent_block_index: uint | null
-            }>,
+            coin_records: CoinRecord[],
         }>("get_coin_records_by_puzzle_hash", reqParams);
 
         if(!resp?.success) return null;
         const cs: CoinState[] = [];
 
         for(const cr of resp.coin_records) {
-            const c = new Coin();
-            c.amount = BigNumber.from(cr.coin.amount);
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            c.parentCoinInfo = Util.dehexlify(cr.coin.parent_coin_info)!;
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            c.puzzleHash = Util.dehexlify(cr.coin.puzzle_hash)!;
-
-            const coinState = new CoinState();
-            coinState.coin = c;
-            coinState.createdHeight = cr.confirmed_block_index;
-            coinState.spentHeight = cr.spent_block_index;
-
-            cs.push(coinState);
+            cs.push(this.coinRecordToCoinState(cr));
         }
 
         return cs;
     }
 
-    subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void {
-        throw new Error("Method not implemented.");
+    public async subscribeToPuzzleHashUpdates({
+        puzzleHash,
+        callback,
+        minHeight
+    }: subscribeToPuzzleHashUpdatesArgs, timeBetweenRequests: number = 5000): Promise<() => void> {
+        const i = this._subscriptions.length;
+        this._subscriptionActive.push(true);
+        const provObj = this;
+
+        const reqParams: any = { puzzle_hash: Util.unhexlify(puzzleHash) };
+        if(minHeight !== undefined) { reqParams.start_height = minHeight; }
+        this._subscriptions.push(async () => {
+            while(provObj._subscriptionActive[i]) {
+                try {
+                    const resp = await provObj.getRPCResponse<{
+                        success: boolean,
+                        coin_records: CoinRecord[]
+                    }>("get_coin_records_by_puzzle_hash", reqParams);
+
+                    if(resp?.success) {
+                        callback(resp.coin_records.map(e => provObj.coinRecordToCoinState(e)))
+                    }
+                } catch(_) {
+                    // pass
+                }
+                await sleep(timeBetweenRequests);
+            }
+        });
+
+        return () => provObj._subscriptionActive[i] = false;
     }
 
     subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void {

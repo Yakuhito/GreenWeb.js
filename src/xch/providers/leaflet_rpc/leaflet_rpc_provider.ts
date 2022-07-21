@@ -333,8 +333,19 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
         return this.blockRecordToBlockHeader(resp.block_record);
     }
 
-    getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>> {
-        throw new Error("Method not implemented.");
+    public async getBlocksHeaders({ startHeight, endHeight }: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>> {
+        const reqParams = {
+            start: startHeight,
+            end: endHeight
+        };
+
+        const resp = await this.getRPCResponse<{
+            success: boolean,
+            block_records: ResponseBlockRecord[],
+        }>("get_block_records", reqParams);
+
+        if(!resp?.success) return null;
+        return resp.block_records.map(e => this.blockRecordToBlockHeader(e));
     }
 
     getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>> {

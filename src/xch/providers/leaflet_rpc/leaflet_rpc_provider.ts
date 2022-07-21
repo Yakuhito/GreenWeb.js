@@ -10,14 +10,25 @@ import { uint } from "../../../util/serializer/basic_types";
 
 const sleep = (milliseconds: number) => new Promise(r => setTimeout(r, milliseconds));
 
-type CoinRecord = {
-    coin: {
-        amount: uint,
-        parent_coin_info: bytes,
-        puzzle_hash: bytes
-    },
+type ResponseCoin = {
+    amount: uint,
+    parent_coin_info: bytes,
+    puzzle_hash: bytes
+};
+
+type ResponseCoinRecord = {
+    coin: ResponseCoin,
     confirmed_block_index: uint | null,
     spent_block_index: uint | null
+};
+
+type ResponseBlockRecord = {
+    height: uint,
+    header_hash: bytes,
+    prev_hash: bytes,
+    pool_puzzle_hash: bytes,
+    farmer_puzzle_hash: bytes,
+    fees?: Optional<uint>,
 };
 
 export class LeafletRPCProvider implements Provider { //todo: provider type return callback cancel
@@ -90,7 +101,7 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
         return resp?.blockchain_state.peak.height ?? null;
     }
 
-    private coinRecordToCoinState(cr: CoinRecord): CoinState {
+    private coinRecordToCoinState(cr: ResponseCoinRecord): CoinState {
         const c = new Coin();
         c.amount = BigNumber.from(cr.coin.amount);
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -152,7 +163,7 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
 
         const resp = await this.getRPCResponse<{
             success: boolean,
-            coin_records: CoinRecord[],
+            coin_records: ResponseCoinRecord[],
         }>("get_coin_records_by_puzzle_hash", reqParams);
 
         if(!resp?.success) return null;
@@ -195,7 +206,7 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
                 try {
                     const resp = await provObj.getRPCResponse<{
                         success: boolean,
-                        coin_records: CoinRecord[]
+                        coin_records: ResponseCoinRecord[]
                     }>("get_coin_records_by_puzzle_hash", reqParams);
 
                     if(resp?.success) {
@@ -232,7 +243,7 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
                 try {
                     const resp = await provObj.getRPCResponse<{
                         success: boolean,
-                        coin_records: CoinRecord[]
+                        coin_records: ResponseCoinRecord[]
                     }>("get_coin_record_by_name", reqParams);
 
                     if(resp?.success) {
@@ -288,15 +299,38 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
 
         const resp = await this.getRPCResponse<{
             success: boolean,
-            coin_records: CoinRecord[]
+            coin_records: ResponseCoinRecord[]
         }>("get_coin_records_by_parent_ids", reqParams);
 
         if(!resp?.success) return [];
         return resp.coin_records.map(e => this.coinRecordToCoinState(e));
     }
 
-    getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<BlockHeader>> {
-        throw new Error("Method not implemented.");
+    private blockRecordToBlockHeader(br: ResponseBlockRecord): BlockHeader {
+        const feeSupplied = br.fees !== null && br.fees !== undefined;
+
+        const bh = new BlockHeader();
+        bh.height = br.height;
+        bh.headerHash = br.header_hash;
+        bh.prevBlockHash = br.prev_hash;
+        bh.isTransactionBlock = feeSupplied;
+        bh.fees = feeSupplied ? BigNumber.from(br.fees) : null;
+        bh.farmerPuzzleHash = br.farmer_puzzle_hash;
+        bh.poolPuzzleHash = br.pool_puzzle_hash;
+
+        return bh;
+    }
+
+    public async getBlockHeader({ height }: getBlockHeaderArgs): Promise<Optional<BlockHeader>> {
+        const reqParams = { height };
+
+        const resp = await this.getRPCResponse<{
+            success: boolean,
+            block_record: ResponseBlockRecord,
+        }>("get_block_record_by_height", reqParams);
+
+        if(!resp?.success) return null;
+        return this.blockRecordToBlockHeader(resp.block_record);
     }
 
     getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>> {

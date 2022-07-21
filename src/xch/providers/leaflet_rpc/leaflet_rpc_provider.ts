@@ -7,6 +7,7 @@ import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin, bytes } from ".
 import axios from "axios";
 import { Util } from "../../../util";
 import { uint } from "../../../util/serializer/basic_types";
+import { CoinSpend } from "../../../util/serializer/types/coin_spend";
 
 const sleep = (milliseconds: number) => new Promise(r => setTimeout(r, milliseconds));
 
@@ -29,6 +30,12 @@ type ResponseBlockRecord = {
     pool_puzzle_hash: bytes,
     farmer_puzzle_hash: bytes,
     fees?: Optional<uint>,
+};
+
+type RequestCoinSpend = {
+    coin: ResponseCoin,
+    puzzle_reveal: bytes,
+    solution: bytes,
 };
 
 export class LeafletRPCProvider implements Provider { //todo: provider type return callback cancel
@@ -388,8 +395,38 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
         return additions;
     }
 
+    private coinSpendToRequestCoinSpend(cs: CoinSpend): RequestCoinSpend {
+        return {
+            coin: {
+                amount: BigNumber.from(cs.coin.amount).toNumber(),
+                puzzle_hash: Util.hexlify(cs.coin.puzzleHash),
+                parent_coin_info: Util.hexlify(cs.coin.parentCoinInfo)
+            },
+            puzzle_reveal: Util.hexlify(
+                Util.sexp.toHex(cs.puzzleReveal)
+            ),
+            solution: Util.hexlify(
+                Util.sexp.toHex(cs.solution)
+            )
+        };
+    }
+
     public async pushSpendBundle({ spendBundle }: pushSpendBundleArgs): Promise<boolean> {
-        throw new Error("Method not implemented.");
+        const reqParams = {
+            spend_bundle: {
+                aggregated_signature: Util.hexlify(spendBundle.aggregatedSignature),
+                coin_spends: spendBundle.coinSpends.map(e => this.coinSpendToRequestCoinSpend(e)),
+            }
+        };
+
+        const resp = await this.getRPCResponse<{
+            success: boolean,
+            status: string,
+        }>("push_tx", reqParams);
+
+        if(!resp?.success) return false;
+        
+        return resp.status !== "FAILED";
     }
 
     private _doesNotImplementError(): any {

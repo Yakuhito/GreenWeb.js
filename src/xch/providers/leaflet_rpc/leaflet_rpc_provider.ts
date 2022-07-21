@@ -370,11 +370,25 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
         return removals;
     }
 
-    getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> {
-        throw new Error("Method not implemented.");
+    public async getCoinAdditions({ headerHash, puzzleHashes }: getCoinAdditionsArgs): Promise<Optional<Coin[]>> {
+        const reqParams = { header_hash: headerHash };
+
+        const resp = await this.getRPCResponse<{
+            success: boolean,
+            additions: ResponseCoinRecord[],
+        }>("get_additions_and_removals", reqParams);
+
+        if(!resp?.success) return null;
+        
+        let additions: Coin[] = resp.additions.map(e => this.responseCoinToCoin(e.coin));
+        if(puzzleHashes !== undefined) {
+            additions = additions.filter(e => puzzleHashes.includes(e.puzzleHash))
+        }
+
+        return additions;
     }
 
-    pushSpendBundle(args: pushSpendBundleArgs): Promise<boolean> {
+    public async pushSpendBundle({ spendBundle }: pushSpendBundleArgs): Promise<boolean> {
         throw new Error("Method not implemented.");
     }
 

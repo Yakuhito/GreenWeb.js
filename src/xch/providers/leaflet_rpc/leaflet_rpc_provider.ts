@@ -101,16 +101,20 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
         return resp?.blockchain_state.peak.height ?? null;
     }
 
-    private coinRecordToCoinState(cr: ResponseCoinRecord): CoinState {
+    private responseCoinToCoin(rc: ResponseCoin): Coin {
         const c = new Coin();
-        c.amount = BigNumber.from(cr.coin.amount);
+        c.amount = BigNumber.from(rc.amount);
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        c.parentCoinInfo = Util.dehexlify(cr.coin.parent_coin_info)!;
+        c.parentCoinInfo = Util.dehexlify(rc.parent_coin_info)!;
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        c.puzzleHash = Util.dehexlify(cr.coin.puzzle_hash)!;
+        c.puzzleHash = Util.dehexlify(rc.puzzle_hash)!;
 
+        return c;
+    }
+
+    private responseCoinRecordToCoinState(cr: ResponseCoinRecord): CoinState {
         const coinState = new CoinState();
-        coinState.coin = c;
+        coinState.coin = this.responseCoinToCoin(cr.coin);
         coinState.createdHeight = cr.confirmed_block_index;
         coinState.spentHeight = cr.spent_block_index;
         return coinState;
@@ -170,7 +174,7 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
         const cs: CoinState[] = [];
 
         for(const cr of resp.coin_records) {
-            cs.push(this.coinRecordToCoinState(cr));
+            cs.push(this.responseCoinRecordToCoinState(cr));
         }
 
         return cs;
@@ -210,7 +214,7 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
                     }>("get_coin_records_by_puzzle_hash", reqParams);
 
                     if(resp?.success) {
-                        const callbackData = resp.coin_records.map(e => provObj.coinRecordToCoinState(e));
+                        const callbackData = resp.coin_records.map(e => provObj.responseCoinRecordToCoinState(e));
                         if(this.checkCallbackData(i, callbackData)) {
                             callback(callbackData);
                         }
@@ -247,7 +251,7 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
                     }>("get_coin_record_by_name", reqParams);
 
                     if(resp?.success) {
-                        const callbackData = resp.coin_records.map(e => provObj.coinRecordToCoinState(e));
+                        const callbackData = resp.coin_records.map(e => provObj.responseCoinRecordToCoinState(e));
                         if(this.checkCallbackData(i, callbackData)) {
                             callback(callbackData);
                         }
@@ -303,7 +307,7 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
         }>("get_coin_records_by_parent_ids", reqParams);
 
         if(!resp?.success) return [];
-        return resp.coin_records.map(e => this.coinRecordToCoinState(e));
+        return resp.coin_records.map(e => this.responseCoinRecordToCoinState(e));
     }
 
     private blockRecordToBlockHeader(br: ResponseBlockRecord): BlockHeader {
@@ -348,8 +352,22 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
         return resp.block_records.map(e => this.blockRecordToBlockHeader(e));
     }
 
-    getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>> {
-        throw new Error("Method not implemented.");
+    public async getCoinRemovals({ headerHash, coinIds }: getCoinRemovalsArgs): Promise<Optional<Coin[]>> {
+        const reqParams = { header_hash: headerHash };
+
+        const resp = await this.getRPCResponse<{
+            success: boolean,
+            removals: ResponseCoinRecord[],
+        }>("get_additions_and_removals", reqParams);
+
+        if(!resp?.success) return null;
+        
+        let removals: Coin[] = resp.removals.map(e => this.responseCoinToCoin(e.coin));
+        if(coinIds !== undefined) {
+            removals = removals.filter(e => coinIds.includes(Util.coin.getId(e)))
+        }
+
+        return removals;
     }
 
     getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> {

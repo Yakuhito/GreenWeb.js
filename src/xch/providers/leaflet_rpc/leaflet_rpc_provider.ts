@@ -38,7 +38,7 @@ type RequestCoinSpend = {
     solution: bytes,
 };
 
-export class LeafletRPCProvider implements Provider { //todo: provider type return callback cancel
+export class LeafletRPCProvider implements Provider {
     public baseUrl: string;
 
     private network: Network;
@@ -82,6 +82,10 @@ export class LeafletRPCProvider implements Provider { //todo: provider type retu
         if(!this.connected) return null;
 
         try {
+            if(this.overwriteGetRPCResponse !== null) {
+                return await this.overwriteGetRPCResponse(endpoint, params);
+            }
+
             const { data } = await axios.post<T>(this.baseUrl + endpoint, params, {
                 headers: {
                     "Content-Type": "application/json"

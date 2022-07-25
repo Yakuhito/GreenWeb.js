@@ -7,7 +7,7 @@ import { Util } from "../../../util";
 import { Network } from "../../../util/network";
 import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Provider } from "../provider";
-import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, acceptOfferArgs, transferArgs, transferCATArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, changeNetworkArgs, pushSpendBundleArgs } from "../provider_args";
+import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, acceptOfferArgs, transferArgs, transferCATArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, changeNetworkArgs, pushSpendBundleArgs, getCoinsArgs } from "../provider_args";
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin } from "../provider_types";
 
 // https://stackoverflow.com/questions/56457935/typescript-error-property-x-does-not-exist-on-type-window
@@ -118,6 +118,7 @@ export class GobyProvider implements Provider {
 
     public async getBlockNumber(): Promise<Optional<number>> { return this._doesNotImplementError(); }
     public async getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>> { return this._doesNotImplementError(); }
+    public async getCoins(args: getCoinsArgs): Promise<Optional<CoinState[]>> { return this._doesNotImplementError(); }
     public subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void { return this._doesNotImplementError(); }
     public subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void { return this._doesNotImplementError(); }
     public async getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>> { return this._doesNotImplementError(); }

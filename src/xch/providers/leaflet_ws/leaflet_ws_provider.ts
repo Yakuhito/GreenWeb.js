@@ -18,6 +18,7 @@ import { Network } from "../../../util/network";
 
 const addressUtil = new AddressUtil();
 
+ //todo: provider type return callback cancel
 export class LeafletWSProvider implements Provider {
     public messageManager: MessageManager;
 

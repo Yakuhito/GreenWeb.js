@@ -5,7 +5,7 @@ import { expect } from "chai";
 import { Network } from "../../../../util/network";
 import { SpendBundle } from "../../../../util/serializer/types/spend_bundle";
 import { MultiProvider } from "../../../../xch/providers/multi";
-import { acceptOfferArgs, BlockHeader, changeNetworkArgs, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, pushSpendBundleArgs, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../../../xch/providers/provider";
+import { acceptOfferArgs, BlockHeader, changeNetworkArgs, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getCoinsArgs, getPuzzleSolutionArgs, Optional, Provider, pushSpendBundleArgs, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../../../xch/providers/provider";
 
 let calledMethods: Array<{id: number, methodName: string}> = [];
 let overwriteMethods: Map<string, (id: number) => any> = new Map<string, (id: number) => any>();
@@ -17,6 +17,7 @@ const METHODS: Array<Record<string, any>> = [
     ["isConnected", (obj: Provider) => obj.isConnected()],
     ["getBlockNumber", (obj: Provider) => obj.getBlockNumber()],
     ["getBalance", (obj: Provider) => obj.getBalance({})],
+    ["getCoins", (obj: Provider) => obj.getCoins({})],
     ["subscribeToPuzzleHashUpdates", (obj: Provider) => obj.subscribeToPuzzleHashUpdates({ puzzleHash: "", callback: () => { } })],
     ["subscribeToCoinUpdates", (obj: Provider) => obj.subscribeToCoinUpdates({ coinId: "", callback: () => { } })],
     ["getPuzzleSolution", (obj: Provider) => obj.getPuzzleSolution({ coinId: "", height: 0 })],
@@ -77,53 +78,56 @@ class ObservableProvider implements Provider {
     getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>> {
         return this._processMethod(METHODS[5][0]);
     }
-    subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void {
+    getCoins(args: getCoinsArgs): Promise<Optional<CoinState[]>> {
         return this._processMethod(METHODS[6][0]);
     }
-    subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void {
+    subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void {
         return this._processMethod(METHODS[7][0]);
     }
-    getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>> {
+    subscribeToCoinUpdates(args: subscribeToCoinUpdatesArgs): void {
         return this._processMethod(METHODS[8][0]);
     }
-    getCoinChildren(args: getCoinChildrenArgs): Promise<CoinState[]> {
+    getPuzzleSolution(args: getPuzzleSolutionArgs): Promise<Optional<PuzzleSolution>> {
         return this._processMethod(METHODS[9][0]);
     }
-    getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<BlockHeader>> {
+    getCoinChildren(args: getCoinChildrenArgs): Promise<CoinState[]> {
         return this._processMethod(METHODS[10][0]);
     }
-    getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>> {
+    getBlockHeader(args: getBlockHeaderArgs): Promise<Optional<BlockHeader>> {
         return this._processMethod(METHODS[11][0]);
     }
-    getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>> {
+    getBlocksHeaders(args: getBlocksHeadersArgs): Promise<Optional<BlockHeader[]>> {
         return this._processMethod(METHODS[12][0]);
     }
-    getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> {
+    getCoinRemovals(args: getCoinRemovalsArgs): Promise<Optional<Coin[]>> {
         return this._processMethod(METHODS[13][0]);
     }
-    pushSpendBundle(args: pushSpendBundleArgs): Promise<boolean> {
+    getCoinAdditions(args: getCoinAdditionsArgs): Promise<Optional<Coin[]>> {
         return this._processMethod(METHODS[14][0]);
     }
-    getAddress(): Promise<string> {
+    pushSpendBundle(args: pushSpendBundleArgs): Promise<boolean> {
         return this._processMethod(METHODS[15][0]);
     }
-    transfer(args: transferArgs): Promise<Optional<SpendBundle>> {
+    getAddress(): Promise<string> {
         return this._processMethod(METHODS[16][0]);
     }
-    transferCAT(args: transferCATArgs): Promise<Optional<SpendBundle>> {
+    transfer(args: transferArgs): Promise<Optional<SpendBundle>> {
         return this._processMethod(METHODS[17][0]);
     }
-    acceptOffer(args: acceptOfferArgs): Promise<Optional<SpendBundle>> {
+    transferCAT(args: transferCATArgs): Promise<Optional<SpendBundle>> {
         return this._processMethod(METHODS[18][0]);
     }
-    subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
+    acceptOffer(args: acceptOfferArgs): Promise<Optional<SpendBundle>> {
         return this._processMethod(METHODS[19][0]);
     }
-    signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
+    subscribeToAddressChanges(args: subscribeToAddressChangesArgs): void {
         return this._processMethod(METHODS[20][0]);
     }
-    changeNetwork(args: changeNetworkArgs): Promise<boolean> {
+    signCoinSpends(args: signCoinSpendsArgs): Promise<Optional<SpendBundle>> {
         return this._processMethod(METHODS[21][0]);
+    }
+    changeNetwork(args: changeNetworkArgs): Promise<boolean> {
+        return this._processMethod(METHODS[22][0]);
     }
 }
 

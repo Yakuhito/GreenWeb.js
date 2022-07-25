@@ -2,7 +2,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { Network } from "../../../util/network";
 import { SpendBundle } from "../../../util/serializer/types/spend_bundle";
 import { Provider } from "../provider";
-import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, changeNetworkArgs, pushSpendBundleArgs } from "../provider_args";
+import { getBalanceArgs, subscribeToPuzzleHashUpdatesArgs, subscribeToCoinUpdatesArgs, getPuzzleSolutionArgs, getCoinChildrenArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinRemovalsArgs, getCoinAdditionsArgs, transferArgs, transferCATArgs, acceptOfferArgs, subscribeToAddressChangesArgs, signCoinSpendsArgs, changeNetworkArgs, pushSpendBundleArgs, getCoinsArgs } from "../provider_args";
 import { Optional, PuzzleSolution, CoinState, BlockHeader, Coin } from "../provider_types";
 
 export class MultiProvider implements Provider {
@@ -95,6 +95,22 @@ export class MultiProvider implements Provider {
                 }
 
                 return await this.providers[i].getBalance(args);
+            } catch (_) {
+                continue;
+            }
+        }
+
+        return this._doesNotImplementError();
+    }
+
+    public async getCoins(args: getCoinsArgs): Promise<Optional<CoinState[]>> {
+        for(let i = 0; i < this.providers.length; ++i) {
+            try {
+                if(!this.providers[i].isConnected()) {
+                    continue;
+                }
+
+                return await this.providers[i].getCoins(args);
             } catch (_) {
                 continue;
             }

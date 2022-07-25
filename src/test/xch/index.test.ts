@@ -5,7 +5,7 @@ import { Network } from "../../util/network";
 import { SpendBundle } from "../../util/serializer/types/spend_bundle";
 import { XCHModule } from "../../xch";
 import { MultiProvider } from "../../xch/providers/multi";
-import { acceptOfferArgs, BlockHeader, changeNetworkArgs, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getPuzzleSolutionArgs, Optional, Provider, pushSpendBundleArgs, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../xch/providers/provider";
+import { acceptOfferArgs, BlockHeader, changeNetworkArgs, Coin, CoinState, getBalanceArgs, getBlockHeaderArgs, getBlocksHeadersArgs, getCoinAdditionsArgs, getCoinChildrenArgs, getCoinRemovalsArgs, getCoinsArgs, getPuzzleSolutionArgs, Optional, Provider, pushSpendBundleArgs, PuzzleSolution, signCoinSpendsArgs, subscribeToAddressChangesArgs, subscribeToCoinUpdatesArgs, subscribeToPuzzleHashUpdatesArgs, transferArgs, transferCATArgs } from "../../xch/providers/provider";
 
 class TestProvider implements Provider {
     async connect(): Promise<void> {
@@ -25,6 +25,9 @@ class TestProvider implements Provider {
     }
     async getBalance(args: getBalanceArgs): Promise<Optional<BigNumber>> {
         return BigNumber.from(31337);
+    }
+    async getCoins(args: getCoinsArgs): Promise<Optional<CoinState[]>> {
+        return [];
     }
     subscribeToPuzzleHashUpdates(args: subscribeToPuzzleHashUpdatesArgs): void {
         args.callback([]);

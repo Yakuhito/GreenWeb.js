@@ -124,19 +124,18 @@ export class LeafletRPCProvider implements Provider {
     }
 
     private responseCoinRecordToCoinState(cr: ResponseCoinRecord): CoinState {
-        const coinState = new CoinState();
-        coinState.coin = this.responseCoinToCoin(cr.coin);
-        coinState.createdHeight = cr.confirmed_block_index;
-        coinState.spentHeight = cr.spent_block_index;
-        return coinState;
+        return new CoinState(
+            this.responseCoinToCoin(cr.coin),
+            cr.confirmed_block_index,
+            cr.spent_block_index
+        );
     }
 
     public async getBalance({ address, puzzleHash, minHeight = 1 }: getBalanceArgs): Promise<Optional<BigNumber>> {
         const cs: CoinState[] | null = await this.getCoins({
             address,
             puzzleHash,
-            startHeight:
-            minHeight,
+            startHeight: minHeight,
             includeSpentCoins: false
         });
         if(cs === null) return null;

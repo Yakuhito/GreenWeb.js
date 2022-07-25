@@ -1,8 +1,11 @@
 /* eslint-disable max-len */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { expect } from "chai";
+import { Util } from "../../../../util";
 import { Network } from "../../../../util/network";
 import { LeafletRPCProvider } from "../../../../xch/providers/leaflet_rpc";
+import { Coin, CoinState } from "../../../../xch/providers/provider_types";
 
 describe.only("LeafletRPCProvider", () => {
     const _testEndpoint = (
@@ -117,5 +120,79 @@ describe.only("LeafletRPCProvider", () => {
             914661
         ],
         null,
+    ));
+
+    const bigNumberishEqual = (e1: BigNumberish | null, e2: BigNumberish | null) => {
+        if(e1 === null || e2 === null) return e1 === e2;
+
+        return BigNumber.from(e1).eq(e2);
+    };
+
+    describe("getBalance()", () => _testEndpoint(
+        (p) => p.getBalance({
+            address: Util.address.puzzleHashToAddress("b1736654875b1c49b4077b89580c4447f12f1e86fb85d488d7efddd5c6e06be0"),
+            minHeight: 800000
+        }),
+        "get_coin_records_by_puzzle_hash",
+        [
+            {"coin_records":[{"coin":{"amount":921800500,"parent_coin_info":"0x055c0286a0eb881f2e950ce4ee30870868d1a951a0e0eb4dc52de5472a9c8b91","puzzle_hash":"0xb1736654875b1c49b4077b89580c4447f12f1e86fb85d488d7efddd5c6e06be0"},"coinbase":false,"confirmed_block_index":922637,"spent":true,"spent_block_index":922641,"timestamp":1632832094}],"success":true}
+        ],
+        [
+            {"puzzle_hash":"b1736654875b1c49b4077b89580c4447f12f1e86fb85d488d7efddd5c6e06be0", "start_height":800000, "include_spent_coins": false}
+        ],
+        [
+            921800500
+        ],
+        null,
+        bigNumberishEqual
+    ));
+
+    const coinStateArrEqual = (arr1: CoinState[] | null, arr2: CoinState[] | null) => {
+        if(arr1 === null || arr2 === null) return arr1 === arr2;
+
+        let ok = arr1.length === arr2.length;
+        
+        for(let i = 0; i < arr1.length && ok; ++i) {
+            if(
+                arr1[i].spentHeight !== arr2[i].spentHeight ||
+                arr1[i].createdHeight !== arr2[i].createdHeight ||
+                Util.coin.getId(arr1[i].coin) !== Util.coin.getId(arr2[i].coin)
+            ) {
+                console.log({arr1, arr2})
+                ok = false;
+            }
+        }
+        return ok;
+    };
+
+    describe("getCoins()", () => _testEndpoint(
+        (p) => p.getCoins({
+            puzzleHash: "b1736654875b1c49b4077b89580c4447f12f1e86fb85d488d7efddd5c6e06be0",
+            startHeight: 800000,
+            endHeight: 1000000,
+            includeSpentCoins: true,
+        }),
+        "get_coin_records_by_puzzle_hash",
+        [
+            {"coin_records":[{"coin":{"amount":921800500,"parent_coin_info":"0x055c0286a0eb881f2e950ce4ee30870868d1a951a0e0eb4dc52de5472a9c8b91","puzzle_hash":"0xb1736654875b1c49b4077b89580c4447f12f1e86fb85d488d7efddd5c6e06be0"},"coinbase":false,"confirmed_block_index":922637,"spent":true,"spent_block_index":922641,"timestamp":1632832094}],"success":true}
+        ],
+        [
+            {"puzzle_hash":"b1736654875b1c49b4077b89580c4447f12f1e86fb85d488d7efddd5c6e06be0", "start_height":800000, "end_height":1000000, "include_spent_coins": true}
+        ],
+        [
+            [
+                new CoinState(
+                    new Coin({
+                        amount: 921800500,
+                        parentCoinInfo: "055c0286a0eb881f2e950ce4ee30870868d1a951a0e0eb4dc52de5472a9c8b91",
+                        puzzleHash: "b1736654875b1c49b4077b89580c4447f12f1e86fb85d488d7efddd5c6e06be0"
+                    }),
+                    922637,
+                    922641
+                ),
+            ],
+        ],
+        null,
+        coinStateArrEqual
     ));
 });

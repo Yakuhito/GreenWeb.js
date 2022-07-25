@@ -12,6 +12,16 @@ export class CoinState {
     coin: Coin;
     spentHeight: Optional<uint>;
     createdHeight: Optional<uint>;
+
+    constructor(
+        coin: Coin,
+        spentHeight: Optional<uint> = null,
+        createdHeight: Optional<uint> = null
+    ) {
+        this.coin = coin;
+        this.spentHeight = spentHeight;
+        this.createdHeight = createdHeight;
+    }
 }
 
 export class BlockHeader {

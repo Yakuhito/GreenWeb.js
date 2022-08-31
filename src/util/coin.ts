@@ -9,7 +9,7 @@ export class CoinUtil {
         const initialHexLength = amount.toHexString().length;
 
         if(amount.eq(0)) {
-            return "00";
+            return "";
         }
 
         const isNegative: boolean = amount.lt(0);

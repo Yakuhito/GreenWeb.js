@@ -10,7 +10,7 @@ describe("CoinUtil", () => {
     describe("amountToBytes", () => {
         it("Works as expected", () => {
             const inputs = [0, 1, -1, -11, 0x7f, 0x80, 0xff, -0x7f, -0x80, -0xff, -0x808080, 0x808080, 0xff010203, -0xff010203, -0xffffffffff];
-            const expected_outputs = ["00", "01", "ff", "f5", "7f", "0080", "00ff", "81", "80", "ff01", "ff7f7f80", "00808080", "00ff010203", "ff00fefdfd", "ff0000000001"];
+            const expected_outputs = ["", "01", "ff", "f5", "7f", "0080", "00ff", "81", "80", "ff01", "ff7f7f80", "00808080", "00ff010203", "ff00fefdfd", "ff0000000001"];
 
             for(let i = 0; i < inputs.length; ++i) {
                 expect(
@@ -63,6 +63,18 @@ describe("CoinUtil", () => {
             assert.equal(
                 coinUtil.getId(coin),
                 "10c8c57ef747382753477ce2c3bb77dd078c3c2b987f82e049dfe716dedce0bd"
+            );
+        });
+
+        it("Works with coins with 0 amount", () => {
+            const coin: Coin = new Coin();
+            coin.amount = 0;
+            coin.puzzleHash = "b6b6c8e3b2f47b6705e440417907ab53f7c8f6d88a74668f14edf00b127ff664";
+            coin.parentCoinInfo = "8c06c51728ab459be72267a21efa9f4b24ce76bcc53b9eee4a353a546cc2ce01";
+
+            assert.equal(
+                coinUtil.getId(coin),
+                "34596995a1a649dbec087568f9a482db21b48fa7806dbf44a9961d8515ac0c9d"
             );
         });
     });

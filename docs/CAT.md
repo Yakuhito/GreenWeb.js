@@ -1,5 +1,7 @@
 # CAT
 
+Warning: GreenWeb.js currently uses CATv1. Please do not use this feature.
+
 `CAT` inherits [`SmartCoin`](smart-coin.md) and can be used to work with CATs more easily. The `puzzle` is automatically determined when `TAILProgramHash` and `innerPuzzle`/`syntheticKey` are available. The `solution` is also constructed when the required attributes are set.
 
 Attributes:
